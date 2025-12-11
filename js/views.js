@@ -4,7 +4,7 @@
  */
 
 import { getAllProjects, createProject, deleteProject } from './projects.js';
-import { formatDate, escapeHtml, confirm, showToast } from './ui.js';
+import { formatDate, escapeHtml, confirm, showToast, formatBytes } from './ui.js';
 import { navigateTo } from './router.js';
 
 export async function renderProjectsList() {
@@ -402,13 +402,10 @@ export function validateFiles(files) {
 }
 
 /**
- * Format file size for display
+ * Format file size for display (re-export from ui.js for backwards compatibility)
  */
 export function formatFileSize(bytes) {
-    if (bytes === 0) return '0 Bytes';
-    if (bytes < 1024) return bytes + ' Bytes';
-    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
-    return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+    return formatBytes(bytes);
 }
 
 /**

@@ -92,13 +92,15 @@ describe('Attachment Handling', () => {
         });
 
         it('should format KB correctly', () => {
-            expect(formatFileSize(1024)).toBe('1.0 KB');
-            expect(formatFileSize(5120)).toBe('5.0 KB');
+            // formatFileSize now delegates to formatBytes (no trailing zeros)
+            expect(formatFileSize(1024)).toBe('1 KB');
+            expect(formatFileSize(5120)).toBe('5 KB');
         });
 
         it('should format MB correctly', () => {
-            expect(formatFileSize(1024 * 1024)).toBe('1.00 MB');
-            expect(formatFileSize(5.5 * 1024 * 1024)).toBe('5.50 MB');
+            // formatFileSize now delegates to formatBytes (no trailing zeros)
+            expect(formatFileSize(1024 * 1024)).toBe('1 MB');
+            expect(formatFileSize(5.5 * 1024 * 1024)).toBe('5.5 MB');
         });
     });
 
@@ -462,7 +464,8 @@ describe('Attachment Handling', () => {
         it('should display formatted file size', () => {
             handleFiles([createMockFile('test.txt', 5 * 1024 * 1024, 'text/plain')]);
             const fileList = document.getElementById('file-list');
-            expect(fileList.innerHTML).toContain('5.00 MB');
+            // formatBytes outputs "5 MB" (no trailing zeros)
+            expect(fileList.innerHTML).toContain('5 MB');
         });
 
         it('should safely display file names with HTML characters', () => {
