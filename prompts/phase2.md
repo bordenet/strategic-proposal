@@ -70,6 +70,8 @@ Evaluate this proposal as if your job depends on making the right call. Provide 
 
 ## Output Format
 
+**LENGTH CONSTRAINT: The final critique must not exceed 2 pages (approximately 800-1000 words).**
+
 Structure your critique as a decision-maker's internal memo with:
 
 1. **Executive Summary** - Your overall assessment in 2-3 sentences
@@ -78,5 +80,5 @@ Structure your critique as a decision-maker's internal memo with:
 4. **Questions That Must Be Answered** - Before any decision is made
 5. **Recommendation** - Proceed, reject, or request more information
 
-Be specific. Quote the proposal where relevant. Don't soften your critique - the goal is to stress-test this proposal before it goes to final decision.
+Be specific. Quote the proposal where relevant. Don't soften your critique - the goal is to stress-test this proposal before it goes to final decision. Prioritize the most important concerns over exhaustive coverage.
 
