@@ -137,27 +137,95 @@ describe('showLoading/hideLoading', () => {
 describe('confirm', () => {
     it('should resolve true when confirm button clicked', async () => {
         const confirmPromise = confirm('Test Title', 'Test message', 'OK', 'Cancel');
-        
+
         // Wait for modal to be added to DOM
         await new Promise(resolve => setTimeout(resolve, 10));
-        
+
         const confirmBtn = document.getElementById('confirm-btn');
         confirmBtn.click();
-        
+
         const result = await confirmPromise;
         expect(result).toBe(true);
     });
 
     it('should resolve false when cancel button clicked', async () => {
         const confirmPromise = confirm('Test Title', 'Test message');
-        
+
         await new Promise(resolve => setTimeout(resolve, 10));
-        
+
         const cancelBtn = document.getElementById('cancel-btn');
         cancelBtn.click();
-        
+
         const result = await confirmPromise;
         expect(result).toBe(false);
+    });
+});
+
+describe('copyToClipboard', () => {
+    beforeEach(() => {
+        document.body.innerHTML = '<div id="toast-container"></div>';
+    });
+
+    it('should copy text to clipboard successfully', async () => {
+        // Mock clipboard API
+        const writeTextMock = vi.fn().mockResolvedValue(undefined);
+        Object.defineProperty(navigator, 'clipboard', {
+            value: { writeText: writeTextMock },
+            writable: true
+        });
+
+        const result = await copyToClipboard('test text');
+        expect(result).toBe(true);
+        expect(writeTextMock).toHaveBeenCalledWith('test text');
+    });
+
+    it('should return false on clipboard error', async () => {
+        Object.defineProperty(navigator, 'clipboard', {
+            value: { writeText: vi.fn().mockRejectedValue(new Error('Clipboard error')) },
+            writable: true
+        });
+
+        const result = await copyToClipboard('test text');
+        expect(result).toBe(false);
+    });
+});
+
+import { showPromptModal } from '../js/ui.js';
+
+describe('showPromptModal', () => {
+    beforeEach(() => {
+        document.body.innerHTML = '<div id="toast-container"></div>';
+    });
+
+    it('should create modal with prompt content', () => {
+        showPromptModal('Test prompt content', 'Test Title');
+        const modal = document.querySelector('.fixed.inset-0');
+        expect(modal).not.toBeNull();
+        expect(modal.textContent).toContain('Test prompt content');
+        expect(modal.textContent).toContain('Test Title');
+    });
+
+    it('should close modal when close button clicked', () => {
+        showPromptModal('Test prompt');
+        const closeBtn = document.getElementById('close-prompt-modal');
+        closeBtn.click();
+        const modal = document.querySelector('.fixed.inset-0');
+        expect(modal).toBeNull();
+    });
+
+    it('should close modal when close modal button clicked', () => {
+        showPromptModal('Test prompt');
+        const closeBtn = document.getElementById('close-modal-btn');
+        closeBtn.click();
+        const modal = document.querySelector('.fixed.inset-0');
+        expect(modal).toBeNull();
+    });
+
+    it('should close modal when clicking backdrop', () => {
+        showPromptModal('Test prompt');
+        const modal = document.querySelector('.fixed.inset-0');
+        modal.click();
+        expect(document.querySelector('.fixed.inset-0')).toBeNull();
     });
 });
 
