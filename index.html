@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Strategic Proposal Generator</title>
+    <meta name="description" content="Generate compelling strategic proposals - 100% client-side, privacy-first">
+    
+    <!-- Tailwind CSS with dark mode configuration -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class'
+        }
+    </script>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📋</text></svg>">
+</head>
+<body class="bg-gray-50 dark:bg-gray-900">
+    <!-- Header -->
+    <header class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <span class="text-4xl">📋</span>
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+                            Strategic Proposal Generator
+                        </h1>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">
+                            100% Client-Side • Privacy-First
+                        </p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button type="button" id="theme-toggle" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" title="Toggle Dark Mode">
+                        <svg class="w-6 h-6 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+                        </svg>
+                    </button>
+                    <button type="button" id="export-all-btn" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                        Export All
+                    </button>
+                    <button type="button" id="import-btn" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                        Import
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Proprietary Data Warning -->
+        <div id="proprietary-warning" class="mb-6 bg-amber-50 dark:bg-amber-900/20 border border-amber-300 dark:border-amber-700 rounded-lg p-4">
+            <div class="flex items-start">
+                <svg class="w-6 h-6 text-amber-600 dark:text-amber-400 mt-0.5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                </svg>
+                <div class="flex-1">
+                    <h3 class="text-sm font-bold text-amber-900 dark:text-amber-200">
+                        ⚠️ Important: Proprietary Data Warning
+                    </h3>
+                    <div class="mt-2 text-sm text-amber-800 dark:text-amber-300 space-y-2">
+                        <p>
+                            <strong>This tool generates prompts for use with external AI services (Claude, Gemini).</strong>
+                            When you copy prompts to these services, any data included in the prompt will be sent to third-party servers.
+                        </p>
+                        <p class="font-semibold">
+                            🔒 For sensitive or proprietary documents (customer data, internal pricing, competitive intel, call recordings),
+                            use an <strong>internal AI tool</strong> such as <strong>LibreGPT</strong> or your organization's approved AI platform.
+                        </p>
+                        <p class="text-amber-700 dark:text-amber-400">
+                            ✓ Data stored locally in your browser is safe. ✗ Data pasted into Claude/Gemini is sent externally.
+                        </p>
+                    </div>
+                </div>
+                <button type="button" id="close-proprietary-warning" class="ml-3 text-amber-600 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-200" title="Dismiss warning">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- View Container -->
+        <div id="app-container">
+            <!-- Views will be dynamically loaded here -->
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="mt-12 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
+                <div>
+                    <span id="storage-info">Loading storage info...</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="https://github.com/bordenet/strategic-proposal" target="_blank" rel="noopener" class="text-blue-600 dark:text-blue-400 hover:underline">
+                        GitHub
+                    </a>
+                    <a href="#" id="about-link" class="text-blue-600 dark:text-blue-400 hover:underline">
+                        About
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Hidden file input for import -->
+    <input type="file" id="import-file-input" accept=".json" class="hidden" title="Select JSON file to import">
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-xl">
+            <div class="flex items-center space-x-3">
+                <svg class="animate-spin h-8 w-8 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span class="text-lg font-medium text-gray-900 dark:text-white" id="loading-text">Loading...</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications Container -->
+    <div id="toast-container" class="fixed bottom-4 right-4 z-50 space-y-2"></div>
+
+    <!-- JavaScript Modules -->
+    <script type="module" src="js/storage.js"></script>
+    <script type="module" src="js/ui.js"></script>
+    <script type="module" src="js/workflow.js"></script>
+    <script type="module" src="js/router.js"></script>
+    <script type="module" src="js/projects.js"></script>
+    <script type="module" src="js/views.js"></script>
+    <script type="module" src="js/project-view.js"></script>
+    <script type="module" src="js/app.js"></script>
+</body>
+</html>
+

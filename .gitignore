@@ -1,0 +1,38 @@
+# Strategic Proposal Generator - gitignore
+
+# CRITICAL: Never commit sensitive client documents
+DO_NOT_COMMIT/
+
+# Dependencies
+node_modules/
+
+# Test coverage
+coverage/
+
+# Playwright
+test-results/
+playwright-report/
+
+# Build artifacts
+dist/
+build/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Environment files with secrets
+.env
+.env.local
+.env.*.local
+
