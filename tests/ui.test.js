@@ -23,9 +23,19 @@ describe('escapeHtml', () => {
         expect(escapeHtml('Hello World')).toBe('Hello World');
     });
 
-    it('should return string type', () => {
-        const result = escapeHtml('<test>');
-        expect(typeof result).toBe('string');
+    it('should escape HTML special characters', () => {
+        // Test actual escaping of dangerous characters
+        const escaped = escapeHtml('<script>alert("xss")</script>');
+        expect(escaped).not.toContain('<script>');
+        expect(escaped).not.toContain('</script>');
+        // Should contain the escaped entities
+        expect(escaped.includes('&lt;') || escaped.includes('&amp;')).toBe(true);
+    });
+
+    it('should escape ampersands and quotes', () => {
+        const escaped = escapeHtml('Tom & Jerry "quoted" text');
+        expect(escaped).not.toBe('Tom & Jerry "quoted" text');
+        expect(escaped).toContain('&amp;');
     });
 });
 
