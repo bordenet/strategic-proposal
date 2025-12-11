@@ -70,13 +70,63 @@ Based on the materials above, draft a strategic executive summary proposal. The 
 
 6. **Conclusion** - Summarize why the switch represents a low-risk, high-impact investment
 
+## Style Preference
+
+**Before drafting, ask the user:** "Would you prefer a **bullet-point style** (brief, scannable, executive summary format) or a **narrative style** (detailed paragraphs with fuller context)?"
+
+Both styles should convey the same strategic content and impact—this is purely a presentation preference.
+
+### If Bullet-Point Style is Selected
+
+Use this template structure:
+
+```
+[Vendor/Solution Name] — In Partnership With [Dealership Name]
+[Document Title]
+
+Objective
+• [Key goal 1]
+• [Key goal 2]
+• [Key goal 3]
+
+Solution Summary
+• [Core capability 1]
+• [Core capability 2]
+• [Core capability 3]
+• [Core capability 4]
+
+[Integration/Technical Details] (if applicable)
+• [Integration point 1]
+• [Integration point 2]
+• [Key technical benefit]
+
+Investment
+• [Monthly cost with included features]
+• [One-time costs if applicable]
+
+Billing Plan
+• [When billing begins]
+• [Any promotional terms]
+
+Timeline
+• [Full implementation timeframe]
+• [Key milestones]
+
+Next Steps
+• [Immediate action 1]
+• [Target decision date]
+• [What happens upon approval]
+```
+
+### If Narrative Style is Selected
+
+Use flowing paragraphs with clear section headers, fuller explanations of each point, and connecting context between sections.
+
 ## Output Format
 
 **LENGTH CONSTRAINT: The final document must not exceed 2 pages (approximately 800-1000 words).**
 
 Structure your proposal as a professional executive summary with clear section headers. Use:
-- Bullet points for pain points and solutions
-- Tables or structured lists for financial projections
 - Bold text for key figures and conclusions
 - Professional, factual language (avoid hyperbole)
 - Concise writing - every sentence must earn its place
