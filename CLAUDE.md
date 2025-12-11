@@ -2,11 +2,12 @@
 
 ## Project Overview
 
-This is a **Genesis-bootstrapped project** for creating strategic sales proposals. Unlike standard Genesis projects, this tool:
+A tool for creating strategic sales proposals using AI-assisted adversarial review.
 
-1. **Accepts attachments** - Call logs, CRM data, conversation transcripts
-2. **Supports working drafts** - Users can paste/edit an existing proposal draft
-3. **Generates strategic proposals** - Not just structured documents, but persuasive sales materials
+**Key Features:**
+- **Accepts attachments** - Call logs, CRM data, conversation transcripts
+- **Supports working drafts** - Users can paste/edit an existing proposal draft
+- **Generates strategic proposals** - Persuasive sales materials, not just structured documents
 
 ## Mandatory Workflow
 
@@ -30,16 +31,18 @@ strategic-proposal/
 │   ├── storage.js          # IndexedDB persistence
 │   ├── workflow.js         # 3-phase workflow logic
 │   ├── ui.js               # UI utilities
-│   └── ...
+│   ├── views.js            # View rendering
+│   ├── projects.js         # Project CRUD operations
+│   ├── project-view.js     # Project detail view
+│   └── router.js           # Client-side routing
 ├── css/                    # Stylesheets
 ├── prompts/                # LLM prompt templates
 │   ├── phase1.md           # Initial draft generation
 │   ├── phase2.md           # Adversarial review
 │   └── phase3.md           # Final synthesis
-├── templates/              # Document templates
-├── tests/                  # Jest test files
-├── DO_NOT_COMMIT/          # Sensitive sample docs (gitignored)
-└── genesis/                # Template system (delete after setup)
+├── tests/                  # Vitest test files
+├── scripts/                # Deployment and utility scripts
+└── DO_NOT_COMMIT/          # Sensitive sample docs (gitignored)
 ```
 
 ## Key Differentiators
