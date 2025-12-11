@@ -10,6 +10,7 @@ export const WORKFLOW_CONFIG = {
             number: 1,
             name: 'Initial Draft',
             aiModel: 'Claude Sonnet 4',
+            aiUrl: 'https://claude.ai/new',
             promptFile: 'prompts/phase1.md',
             description: 'Generate initial proposal from dealership data and conversations'
         },
@@ -17,6 +18,7 @@ export const WORKFLOW_CONFIG = {
             number: 2,
             name: 'Adversarial Review',
             aiModel: 'Gemini 2.5 Pro',
+            aiUrl: 'https://gemini.google.com/app',
             promptFile: 'prompts/phase2.md',
             description: 'Critique as a shrewd decision-maker evaluating the proposal'
         },
@@ -24,6 +26,7 @@ export const WORKFLOW_CONFIG = {
             number: 3,
             name: 'Final Synthesis',
             aiModel: 'Claude Sonnet 4',
+            aiUrl: 'https://claude.ai/new',
             promptFile: 'prompts/phase3.md',
             description: 'Synthesize critique into compelling final proposal'
         }

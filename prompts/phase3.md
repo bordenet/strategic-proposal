@@ -95,10 +95,13 @@ Structure the final proposal as a polished executive summary:
 
 ## Quality Standards
 
+**LENGTH CONSTRAINT: The final document must not exceed 1.25 pages (approximately 500-600 words). This is meant to be a concise executive summary, not a comprehensive report.**
+
 - Every claim must be supportable
 - Financial projections must be genuinely conservative
 - Tone should be confident but not overselling
 - Acknowledge uncertainty where it exists
 - Write for a sophisticated, skeptical reader
 - Use professional formatting with clear headers and bullet points
+- Ruthlessly prioritize - include only the most impactful information
 

@@ -72,11 +72,14 @@ Based on the materials above, draft a strategic executive summary proposal. The 
 
 ## Output Format
 
+**LENGTH CONSTRAINT: The final document must not exceed 2 pages (approximately 800-1000 words).**
+
 Structure your proposal as a professional executive summary with clear section headers. Use:
 - Bullet points for pain points and solutions
 - Tables or structured lists for financial projections
 - Bold text for key figures and conclusions
 - Professional, factual language (avoid hyperbole)
+- Concise writing - every sentence must earn its place
 
 ## Important Guidelines
 

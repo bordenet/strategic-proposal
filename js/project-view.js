@@ -131,9 +131,14 @@ function renderPhaseContent(project, phaseNumber) {
                 <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">
                     Step 1: Copy Prompt to AI
                 </h4>
-                <button id="copy-prompt-btn" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
-                    📋 Copy Prompt to Clipboard
-                </button>
+                <div class="flex gap-3 flex-wrap">
+                    <button id="copy-prompt-btn" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
+                        📋 Copy Prompt to Clipboard
+                    </button>
+                    <a href="${meta.aiUrl}" target="_blank" rel="noopener noreferrer" class="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium inline-flex items-center gap-2">
+                        🔗 Open ${meta.aiModel.includes('Claude') ? 'Claude' : 'Gemini'}
+                    </a>
+                </div>
                 ${phaseData.prompt ? `
                     <div class="mt-3 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700">
                         <div class="flex items-center justify-between mb-2">
