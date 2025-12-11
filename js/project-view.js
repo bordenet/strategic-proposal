@@ -158,7 +158,9 @@ function renderPhaseContent(project, phaseNumber) {
     `;
 }
 
-// Event listeners will be added via str-replace-editor
+/**
+ * Attach event listeners for phase interactions
+ */
 function attachPhaseEventListeners(project, phase) {
     const copyPromptBtn = document.getElementById('copy-prompt-btn');
     const saveResponseBtn = document.getElementById('save-response-btn');
