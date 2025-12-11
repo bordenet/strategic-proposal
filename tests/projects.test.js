@@ -97,11 +97,105 @@ describe('Projects Module', () => {
                 id: '123',
                 phases: { 1: {}, 2: {}, 3: {} }
             });
-            
+
             const { updatePhase } = await import('../js/projects.js');
             await updatePhase('123', 1, 'prompt text', 'response text');
-            
+
             expect(storage.saveProject).toHaveBeenCalled();
+        });
+    });
+
+    describe('importProjects', () => {
+        it('should import projects from valid JSON file', async () => {
+            const storage = (await import('../js/storage.js')).default;
+            const { importProjects } = await import('../js/projects.js');
+
+            const fileContent = JSON.stringify({
+                version: '1.0',
+                projects: [
+                    { id: '1', dealershipName: 'Test 1' },
+                    { id: '2', dealershipName: 'Test 2' }
+                ]
+            });
+
+            const file = new File([fileContent], 'test.json', { type: 'application/json' });
+            const count = await importProjects(file);
+
+            expect(count).toBe(2);
+            expect(storage.saveProject).toHaveBeenCalledTimes(2);
+        });
+
+        it('should import single project from valid JSON', async () => {
+            const storage = (await import('../js/storage.js')).default;
+            vi.clearAllMocks();
+            const { importProjects } = await import('../js/projects.js');
+
+            const fileContent = JSON.stringify({
+                id: '123',
+                dealershipName: 'Single Project'
+            });
+
+            const file = new File([fileContent], 'single.json', { type: 'application/json' });
+            const count = await importProjects(file);
+
+            expect(count).toBe(1);
+            expect(storage.saveProject).toHaveBeenCalledTimes(1);
+        });
+
+        it('should reject invalid file format', async () => {
+            const { importProjects } = await import('../js/projects.js');
+
+            const fileContent = JSON.stringify({ invalid: 'data' });
+            const file = new File([fileContent], 'invalid.json', { type: 'application/json' });
+
+            await expect(importProjects(file)).rejects.toThrow('Invalid file format');
+        });
+    });
+
+    describe('exportProject', () => {
+        it('should export a single project', async () => {
+            const storage = (await import('../js/storage.js')).default;
+            storage.getProject.mockResolvedValue({
+                id: '123',
+                dealershipName: 'Export Test'
+            });
+
+            // Mock URL.createObjectURL and document.createElement
+            const mockUrl = 'blob:test';
+            global.URL.createObjectURL = vi.fn().mockReturnValue(mockUrl);
+            global.URL.revokeObjectURL = vi.fn();
+
+            const mockLink = { href: '', download: '', click: vi.fn() };
+            vi.spyOn(document, 'createElement').mockReturnValue(mockLink);
+
+            const { exportProject } = await import('../js/projects.js');
+            await exportProject('123');
+
+            expect(mockLink.click).toHaveBeenCalled();
+            expect(mockLink.download).toContain('export-test');
+        });
+    });
+
+    describe('exportAllProjects', () => {
+        it('should export all projects', async () => {
+            const storage = (await import('../js/storage.js')).default;
+            storage.getAllProjects.mockResolvedValue([
+                { id: '1', dealershipName: 'Test 1' },
+                { id: '2', dealershipName: 'Test 2' }
+            ]);
+
+            const mockUrl = 'blob:test';
+            global.URL.createObjectURL = vi.fn().mockReturnValue(mockUrl);
+            global.URL.revokeObjectURL = vi.fn();
+
+            const mockLink = { href: '', download: '', click: vi.fn() };
+            vi.spyOn(document, 'createElement').mockReturnValue(mockLink);
+
+            const { exportAllProjects } = await import('../js/projects.js');
+            await exportAllProjects();
+
+            expect(mockLink.click).toHaveBeenCalled();
+            expect(mockLink.download).toContain('strategic-proposals-backup');
         });
     });
 });
