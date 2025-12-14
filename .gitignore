@@ -8,10 +8,22 @@ node_modules/
 
 # Test coverage
 coverage/
+.coverage
+*.lcov
 
 # Playwright
 test-results/
 playwright-report/
+
+# Python cache (if any scripts are added)
+__pycache__/
+.mypy_cache/
+.pytest_cache/
+
+# Cruft prevention
+archive/
+docs-temp/
+*_results*/
 
 # Build artifacts
 dist/

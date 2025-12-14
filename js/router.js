@@ -5,6 +5,7 @@
 
 import { renderProjectsList, renderNewProjectForm } from './views.js';
 import { renderProjectView } from './project-view.js';
+import storage from './storage.js';
 
 const routes = {
     'home': renderProjectsList,
@@ -15,10 +16,34 @@ const routes = {
 let currentRoute = null;
 let currentParams = null;
 
-export function navigateTo(route, ...params) {
+/**
+ * Update storage info in footer
+ * Ensures footer always reflects current project count
+ */
+export async function updateStorageInfo() {
+    try {
+        const estimate = await storage.getStorageEstimate();
+        const projects = await storage.getAllProjects();
+
+        const storageInfo = document.getElementById('storage-info');
+        if (storageInfo) {
+            if (estimate) {
+                const usedMB = (estimate.usage / (1024 * 1024)).toFixed(1);
+                const quotaMB = (estimate.quota / (1024 * 1024)).toFixed(0);
+                storageInfo.textContent = `${projects.length} proposals • ${usedMB}MB used of ${quotaMB}MB`;
+            } else {
+                storageInfo.textContent = `${projects.length} proposals stored locally`;
+            }
+        }
+    } catch (error) {
+        console.error('Failed to update storage info:', error);
+    }
+}
+
+export async function navigateTo(route, ...params) {
     currentRoute = route;
     currentParams = params;
-    
+
     if (route === 'home') {
         window.location.hash = '';
     } else if (route === 'new-project') {
@@ -26,13 +51,16 @@ export function navigateTo(route, ...params) {
     } else if (route === 'project' && params[0]) {
         window.location.hash = `#project/${params[0]}`;
     }
-    
+
     const handler = routes[route];
     if (handler) {
-        handler(...params);
+        await handler(...params);
     } else {
-        navigateTo('home');
+        await navigateTo('home');
     }
+
+    // Always update footer after route render
+    await updateStorageInfo();
 }
 
 export function initRouter() {
@@ -40,18 +68,18 @@ export function initRouter() {
     handleHashChange();
 }
 
-function handleHashChange() {
+async function handleHashChange() {
     const hash = window.location.hash.slice(1);
-    
+
     if (!hash) {
-        navigateTo('home');
+        await navigateTo('home');
     } else if (hash === 'new') {
-        navigateTo('new-project');
+        await navigateTo('new-project');
     } else if (hash.startsWith('project/')) {
         const projectId = hash.split('/')[1];
-        navigateTo('project', projectId);
+        await navigateTo('project', projectId);
     } else {
-        navigateTo('home');
+        await navigateTo('home');
     }
 }
 
