@@ -3,10 +3,42 @@
  * Handles rendering the proposal workflow view
  */
 
-import { getProject, updatePhase } from './projects.js';
+import { getProject, updatePhase, updateProject } from './projects.js';
 import { getPhaseMetadata, generatePromptForPhase, exportFinalDocument, WORKFLOW_CONFIG } from './workflow.js';
 import { escapeHtml, showToast, copyToClipboard, showPromptModal, confirm } from './ui.js';
 import { navigateTo } from './router.js';
+
+/**
+ * Extract title from markdown content (looks for # Title at the beginning)
+ * @param {string} markdown - The markdown content
+ * @returns {string|null} - The extracted title or null if not found
+ */
+export function extractTitleFromMarkdown(markdown) {
+    if (!markdown) return null;
+
+    // Look for first H1 heading (# Title)
+    const match = markdown.match(/^#\s+(.+?)$/m);
+    if (match && match[1]) {
+        return match[1].trim();
+    }
+    return null;
+}
+
+/**
+ * Update phase tab styles to reflect the active phase
+ */
+function updatePhaseTabStyles(activePhase) {
+    document.querySelectorAll('.phase-tab').forEach(tab => {
+        const tabPhase = parseInt(tab.dataset.phase);
+        if (tabPhase === activePhase) {
+            tab.classList.remove('text-gray-600', 'dark:text-gray-400', 'hover:text-gray-900', 'dark:hover:text-gray-200');
+            tab.classList.add('border-b-2', 'border-blue-600', 'text-blue-600', 'dark:text-blue-400');
+        } else {
+            tab.classList.remove('border-b-2', 'border-blue-600', 'text-blue-600', 'dark:text-blue-400');
+            tab.classList.add('text-gray-600', 'dark:text-gray-400', 'hover:text-gray-900', 'dark:hover:text-gray-200');
+        }
+    });
+}
 
 export async function renderProjectView(projectId) {
     const project = await getProject(projectId);
@@ -91,16 +123,9 @@ export async function renderProjectView(projectId) {
         tab.addEventListener('click', () => {
             const phase = parseInt(tab.dataset.phase);
             project.phase = phase;
+            updatePhaseTabStyles(phase);
             document.getElementById('phase-content').innerHTML = renderPhaseContent(project, phase);
             attachPhaseEventListeners(project, phase);
-            
-            // Update active tab styling
-            document.querySelectorAll('.phase-tab').forEach(t => {
-                t.classList.remove('border-b-2', 'border-blue-600', 'text-blue-600', 'dark:text-blue-400');
-                t.classList.add('text-gray-600', 'dark:text-gray-400');
-            });
-            tab.classList.add('border-b-2', 'border-blue-600', 'text-blue-600', 'dark:text-blue-400');
-            tab.classList.remove('text-gray-600', 'dark:text-gray-400');
         });
     });
 
@@ -110,7 +135,11 @@ export async function renderProjectView(projectId) {
 function renderPhaseContent(project, phaseNumber) {
     const meta = getPhaseMetadata(phaseNumber);
     const phaseData = project.phases[phaseNumber] || { prompt: '', response: '', completed: false };
-    
+    const aiName = meta.aiModel.includes('Claude') ? 'Claude' : 'Gemini';
+
+    // Determine if textarea should be enabled: either has existing response, or prompt has been copied (has prompt saved)
+    const textareaEnabled = phaseData.response || phaseData.prompt;
+
     return `
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
             <div class="mb-6">
@@ -126,17 +155,24 @@ function renderPhaseContent(project, phaseNumber) {
                 </div>
             </div>
 
-            <!-- Step 1: Generate Prompt -->
+            <!-- Step A: Generate Prompt -->
             <div class="mb-6">
                 <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">
-                    Step 1: Copy Prompt to AI
+                    Step A: Copy Prompt to AI
                 </h4>
                 <div class="flex gap-3 flex-wrap">
                     <button id="copy-prompt-btn" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
                         📋 Copy Prompt to Clipboard
                     </button>
-                    <a href="${meta.aiUrl}" target="_blank" rel="noopener noreferrer" class="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium inline-flex items-center gap-2">
-                        🔗 Open ${meta.aiModel.includes('Claude') ? 'Claude' : 'Gemini'}
+                    <a
+                        id="open-ai-btn"
+                        href="${meta.aiUrl}"
+                        target="ai-assistant-tab"
+                        rel="noopener noreferrer"
+                        class="px-6 py-3 bg-purple-600 text-white rounded-lg transition-colors font-medium inline-flex items-center gap-2 ${phaseData.prompt ? 'hover:bg-purple-700' : 'opacity-50 cursor-not-allowed pointer-events-none'}"
+                        ${phaseData.prompt ? '' : 'aria-disabled="true"'}
+                    >
+                        🔗 Open ${aiName}
                     </a>
                 </div>
                 ${phaseData.prompt ? `
@@ -150,14 +186,40 @@ function renderPhaseContent(project, phaseNumber) {
                 ` : ''}
             </div>
 
-            <!-- Step 2: Paste Response -->
+            <!-- Step B: Paste Response -->
             <div class="mb-6">
-                <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">Step 2: Paste AI Response</h4>
-                <textarea id="response-textarea" rows="12" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white font-mono text-sm" placeholder="Paste the AI's response here...">${escapeHtml(phaseData.response || '')}</textarea>
+                <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">
+                    Step B: Paste ${aiName}'s Response
+                </h4>
+                <textarea
+                    id="response-textarea"
+                    rows="12"
+                    class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white font-mono text-sm disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-100 dark:disabled:bg-gray-800"
+                    placeholder="Paste ${aiName}'s response here..."
+                    ${textareaEnabled ? '' : 'disabled'}
+                >${escapeHtml(phaseData.response || '')}</textarea>
                 <div class="mt-3 flex justify-between items-center">
                     <span class="text-sm text-gray-600 dark:text-gray-400">${phaseData.completed ? '✓ Phase completed' : 'Paste response to complete this phase'}</span>
-                    <button id="save-response-btn" class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">Save Response</button>
+                    <button
+                        id="save-response-btn"
+                        class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-green-600"
+                        ${!phaseData.response || phaseData.response.trim().length < 3 ? 'disabled' : ''}
+                    >
+                        Save Response
+                    </button>
                 </div>
+            </div>
+
+            <!-- Navigation -->
+            <div class="flex justify-between pt-6 border-t border-gray-200 dark:border-gray-700">
+                <button id="prev-phase-btn" class="px-6 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors ${phaseNumber === 1 ? 'invisible' : ''}">
+                    ← Previous Phase
+                </button>
+                ${phaseData.completed && phaseNumber < 3 ? `
+                <button id="next-phase-btn" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                    Next Phase →
+                </button>
+                ` : '<div></div>'}
             </div>
         </div>
     `;
@@ -170,6 +232,8 @@ function attachPhaseEventListeners(project, phase) {
     const copyPromptBtn = document.getElementById('copy-prompt-btn');
     const saveResponseBtn = document.getElementById('save-response-btn');
     const responseTextarea = document.getElementById('response-textarea');
+    const prevPhaseBtn = document.getElementById('prev-phase-btn');
+    const nextPhaseBtn = document.getElementById('next-phase-btn');
 
     copyPromptBtn?.addEventListener('click', async () => {
         // Check if warning was previously acknowledged
@@ -198,21 +262,89 @@ function attachPhaseEventListeners(project, phase) {
 
         const prompt = await generatePromptForPhase(project, phase);
         await copyToClipboard(prompt);
-        await updatePhase(project.id, phase, prompt, project.phases[phase]?.response || '');
-        renderProjectView(project.id);
+        showToast('Prompt copied to clipboard!', 'success');
+
+        // Save prompt but DON'T re-render - user is still working on this phase
+        await updatePhase(project.id, phase, prompt, project.phases[phase]?.response || '', { skipAutoAdvance: true });
+
+        // Enable the "Open AI" button now that prompt is copied
+        const openAiBtn = document.getElementById('open-ai-btn');
+        if (openAiBtn) {
+            openAiBtn.classList.remove('opacity-50', 'cursor-not-allowed', 'pointer-events-none');
+            openAiBtn.classList.add('hover:bg-purple-700');
+            openAiBtn.removeAttribute('aria-disabled');
+        }
+
+        // Enable the response textarea now that prompt is copied
+        if (responseTextarea) {
+            responseTextarea.disabled = false;
+            responseTextarea.classList.remove('opacity-50', 'cursor-not-allowed');
+            responseTextarea.focus();
+        }
+    });
+
+    // Update save button state as user types
+    responseTextarea?.addEventListener('input', () => {
+        const hasEnoughContent = responseTextarea.value.trim().length >= 3;
+        if (saveResponseBtn) {
+            saveResponseBtn.disabled = !hasEnoughContent;
+        }
     });
 
     saveResponseBtn?.addEventListener('click', async () => {
         const response = responseTextarea.value.trim();
-        if (response) {
+        if (response && response.length >= 3) {
             await updatePhase(project.id, phase, project.phases[phase]?.prompt || '', response);
-            showToast('Response saved successfully!', 'success');
-            renderProjectView(project.id);
+
+            // Auto-advance to next phase if not on final phase
+            if (phase < 3) {
+                showToast('Response saved! Moving to next phase...', 'success');
+                // Re-fetch the updated project and advance
+                const updatedProject = await getProject(project.id);
+                updatedProject.phase = phase + 1;
+                updatePhaseTabStyles(phase + 1);
+                document.getElementById('phase-content').innerHTML = renderPhaseContent(updatedProject, phase + 1);
+                attachPhaseEventListeners(updatedProject, phase + 1);
+            } else {
+                // Phase 3 complete - extract and update project title if changed
+                const extractedTitle = extractTitleFromMarkdown(response);
+                if (extractedTitle && extractedTitle !== project.dealershipName) {
+                    await updateProject(project.id, {
+                        dealershipName: extractedTitle,
+                        title: `Proposal - ${extractedTitle}`
+                    });
+                    showToast(`Phase 3 complete! Title updated to "${extractedTitle}"`, 'success');
+                } else {
+                    showToast('Phase 3 complete! Your proposal is ready.', 'success');
+                }
+                renderProjectView(project.id);
+            }
         } else {
-            showToast('Please enter a response', 'warning');
+            showToast('Please enter at least 3 characters', 'warning');
         }
     });
 
+    // Previous phase button
+    if (prevPhaseBtn) {
+        prevPhaseBtn.addEventListener('click', () => {
+            project.phase = phase - 1;
+            updatePhaseTabStyles(phase - 1);
+            document.getElementById('phase-content').innerHTML = renderPhaseContent(project, phase - 1);
+            attachPhaseEventListeners(project, phase - 1);
+        });
+    }
+
+    // Next phase button (only shown if phase is completed)
+    if (nextPhaseBtn && project.phases[phase]?.completed) {
+        nextPhaseBtn.addEventListener('click', () => {
+            project.phase = phase + 1;
+            updatePhaseTabStyles(phase + 1);
+            document.getElementById('phase-content').innerHTML = renderPhaseContent(project, phase + 1);
+            attachPhaseEventListeners(project, phase + 1);
+        });
+    }
+
+    // View Full Prompt button
     const viewPromptBtn = document.querySelector('.view-prompt-btn');
     if (viewPromptBtn && project.phases[phase]?.prompt) {
         viewPromptBtn.addEventListener('click', () => {
