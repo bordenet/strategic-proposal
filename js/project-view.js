@@ -69,9 +69,11 @@ export async function renderProjectView(projectId) {
                         ${project.currentVendor ? `• Currently with ${escapeHtml(project.currentVendor)}` : ''}
                     </p>
                 </div>
+                ${project.phases && project.phases[3] && project.phases[3].completed ? `
                 <button id="export-document-btn" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
-                    Export Proposal
+                    ✓ Export Proposal
                 </button>
+                ` : ''}
             </div>
         </div>
 
@@ -81,17 +83,18 @@ export async function renderProjectView(projectId) {
                 ${WORKFLOW_CONFIG.phases.map(phase => {
                     const isActive = project.phase === phase.number;
                     const isCompleted = project.phases[phase.number]?.completed;
-                    
+
                     return `
-                        <button 
+                        <button
                             class="phase-tab px-6 py-3 font-medium transition-colors ${
-                                isActive 
-                                    ? 'border-b-2 border-blue-600 text-blue-600 dark:text-blue-400' 
+                                isActive
+                                    ? 'border-b-2 border-blue-600 text-blue-600 dark:text-blue-400'
                                     : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
                             }"
                             data-phase="${phase.number}"
                         >
-                            Phase ${phase.number}: ${phase.name}
+                            <span class="mr-2">${phase.icon}</span>
+                            Phase ${phase.number}
                             ${isCompleted ? '<span class="ml-2 text-green-500">✓</span>' : ''}
                         </button>
                     `;
@@ -107,17 +110,22 @@ export async function renderProjectView(projectId) {
 
     // Event listeners
     document.getElementById('back-btn').addEventListener('click', () => navigateTo('home'));
-    document.getElementById('export-document-btn').addEventListener('click', () => {
-        const markdown = exportFinalDocument(project);
-        const blob = new Blob([markdown], { type: 'text/markdown' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `proposal-${(project.dealershipName || 'draft').replace(/\s+/g, '-')}.md`;
-        a.click();
-        URL.revokeObjectURL(url);
-        showToast('Proposal exported successfully', 'success');
-    });
+
+    // Export button only exists when phase 3 is complete
+    const exportBtn = document.getElementById('export-document-btn');
+    if (exportBtn) {
+        exportBtn.addEventListener('click', () => {
+            const markdown = exportFinalDocument(project);
+            const blob = new Blob([markdown], { type: 'text/markdown' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `proposal-${(project.dealershipName || 'draft').replace(/\s+/g, '-')}.md`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('Proposal exported successfully', 'success');
+        });
+    }
     
     document.querySelectorAll('.phase-tab').forEach(tab => {
         tab.addEventListener('click', () => {
@@ -137,19 +145,16 @@ function renderPhaseContent(project, phaseNumber) {
     const phaseData = project.phases[phaseNumber] || { prompt: '', response: '', completed: false };
     const aiName = meta.aiModel.includes('Claude') ? 'Claude' : 'Gemini';
 
-    // Determine if textarea should be enabled: either has existing response, or prompt has been copied (has prompt saved)
-    const textareaEnabled = phaseData.response || phaseData.prompt;
-
     return `
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
             <div class="mb-6">
                 <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                    Phase ${phaseNumber}: ${meta.name}
+                    ${meta.icon} ${meta.name}
                 </h3>
                 <p class="text-gray-600 dark:text-gray-400 mb-2">
                     ${meta.description}
                 </p>
-                <div class="inline-flex items-center px-3 py-1 bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-300 rounded-full text-sm">
+                <div class="inline-flex items-center px-3 py-1 bg-${meta.color}-100 dark:bg-${meta.color}-900/20 text-${meta.color}-800 dark:text-${meta.color}-300 rounded-full text-sm">
                     <span class="mr-2">🤖</span>
                     Use with ${meta.aiModel}
                 </div>
@@ -169,8 +174,8 @@ function renderPhaseContent(project, phaseNumber) {
                         href="${meta.aiUrl}"
                         target="ai-assistant-tab"
                         rel="noopener noreferrer"
-                        class="px-6 py-3 bg-purple-600 text-white rounded-lg transition-colors font-medium inline-flex items-center gap-2 ${phaseData.prompt ? 'hover:bg-purple-700' : 'opacity-50 cursor-not-allowed pointer-events-none'}"
-                        ${phaseData.prompt ? '' : 'aria-disabled="true"'}
+                        class="px-6 py-3 bg-green-600 text-white rounded-lg transition-colors font-medium opacity-50 cursor-not-allowed pointer-events-none"
+                        aria-disabled="true"
                     >
                         🔗 Open ${aiName}
                     </a>
@@ -196,7 +201,7 @@ function renderPhaseContent(project, phaseNumber) {
                     rows="12"
                     class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white font-mono text-sm disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-100 dark:disabled:bg-gray-800"
                     placeholder="Paste ${aiName}'s response here..."
-                    ${textareaEnabled ? '' : 'disabled'}
+                    ${!phaseData.response ? 'disabled' : ''}
                 >${escapeHtml(phaseData.response || '')}</textarea>
                 <div class="mt-3 flex justify-between items-center">
                     <span class="text-sm text-gray-600 dark:text-gray-400">${phaseData.completed ? '✓ Phase completed' : 'Paste response to complete this phase'}</span>
