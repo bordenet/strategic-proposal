@@ -16,17 +16,17 @@ vi.mock('../js/router.js', () => ({
 
 vi.mock('../js/workflow.js', () => ({
     getPhaseMetadata: vi.fn((phase) => ({
-        1: { name: 'Initial Draft', description: 'Generate initial proposal', aiModel: 'Claude Sonnet 4' },
-        2: { name: 'Adversarial Review', description: 'Critical review', aiModel: 'Gemini 2.5 Pro' },
-        3: { name: 'Final Synthesis', description: 'Final version', aiModel: 'Claude Sonnet 4' }
+        1: { name: 'Initial Draft', description: 'Generate initial proposal', aiModel: 'Claude Sonnet 4', aiUrl: 'https://claude.ai/new', icon: '📝', color: 'blue' },
+        2: { name: 'Adversarial Review', description: 'Critical review', aiModel: 'Gemini 2.5 Pro', aiUrl: 'https://gemini.google.com/app', icon: '🔄', color: 'green' },
+        3: { name: 'Final Synthesis', description: 'Final version', aiModel: 'Claude Sonnet 4', aiUrl: 'https://claude.ai/new', icon: '✨', color: 'purple' }
     }[phase])),
     generatePromptForPhase: vi.fn().mockResolvedValue('Test prompt content'),
     exportFinalDocument: vi.fn().mockReturnValue('# Final Document'),
     WORKFLOW_CONFIG: {
         phases: [
-            { number: 1, name: 'Initial Draft' },
-            { number: 2, name: 'Adversarial Review' },
-            { number: 3, name: 'Final Synthesis' }
+            { number: 1, name: 'Initial Draft', icon: '📝', color: 'blue' },
+            { number: 2, name: 'Adversarial Review', icon: '🔄', color: 'green' },
+            { number: 3, name: 'Final Synthesis', icon: '✨', color: 'purple' }
         ]
     }
 }));
@@ -81,15 +81,34 @@ describe('Project View - Phase Workflow UX', () => {
             expect(navigateTo).toHaveBeenCalledWith('home');
         });
 
-        it('should have export button with click handler', async () => {
+        it('should have export button with click handler when phase 3 is complete', async () => {
             const { getProject } = await import('../js/projects.js');
-            getProject.mockResolvedValue(mockProject);
-            
+            const completedProject = {
+                ...mockProject,
+                phases: {
+                    1: { prompt: 'p1', response: 'r1', completed: true },
+                    2: { prompt: 'p2', response: 'r2', completed: true },
+                    3: { prompt: 'p3', response: 'r3', completed: true }
+                }
+            };
+            getProject.mockResolvedValue(completedProject);
+
             const { renderProjectView } = await import('../js/project-view.js');
             await renderProjectView('test-123');
-            
+
             const exportBtn = document.getElementById('export-document-btn');
             expect(exportBtn).not.toBeNull();
+        });
+
+        it('should not have export button when phase 3 is not complete', async () => {
+            const { getProject } = await import('../js/projects.js');
+            getProject.mockResolvedValue(mockProject);
+
+            const { renderProjectView } = await import('../js/project-view.js');
+            await renderProjectView('test-123');
+
+            const exportBtn = document.getElementById('export-document-btn');
+            expect(exportBtn).toBeNull();
         });
 
         it('should have copy prompt button', async () => {
@@ -130,27 +149,28 @@ describe('Project View - Phase Workflow UX', () => {
         it('should show phase 1 content initially', async () => {
             const { getProject } = await import('../js/projects.js');
             getProject.mockResolvedValue(mockProject);
-            
+
             const { renderProjectView } = await import('../js/project-view.js');
             await renderProjectView('test-123');
-            
+
             const content = document.getElementById('phase-content');
-            expect(content.textContent).toContain('Phase 1');
+            expect(content.textContent).toContain('📝');
             expect(content.textContent).toContain('Initial Draft');
         });
 
         it('should switch to phase 2 when tab clicked', async () => {
             const { getProject } = await import('../js/projects.js');
             getProject.mockResolvedValue(mockProject);
-            
+
             const { renderProjectView } = await import('../js/project-view.js');
             await renderProjectView('test-123');
-            
+
             const phaseTabs = document.querySelectorAll('.phase-tab');
             phaseTabs[1].click();
-            
+
             const content = document.getElementById('phase-content');
-            expect(content.textContent).toContain('Phase 2');
+            expect(content.textContent).toContain('🔄');
+            expect(content.textContent).toContain('Adversarial Review');
         });
     });
 });

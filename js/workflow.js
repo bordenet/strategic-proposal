@@ -12,7 +12,9 @@ export const WORKFLOW_CONFIG = {
             aiModel: 'Claude Sonnet 4',
             aiUrl: 'https://claude.ai/new',
             promptFile: 'prompts/phase1.md',
-            description: 'Generate initial proposal from dealership data and conversations'
+            description: 'Generate initial proposal from dealership data and conversations',
+            icon: '📝',
+            color: 'blue'
         },
         {
             number: 2,
@@ -20,7 +22,9 @@ export const WORKFLOW_CONFIG = {
             aiModel: 'Gemini 2.5 Pro',
             aiUrl: 'https://gemini.google.com/app',
             promptFile: 'prompts/phase2.md',
-            description: 'Critique as a shrewd decision-maker evaluating the proposal'
+            description: 'Critique as a shrewd decision-maker evaluating the proposal',
+            icon: '🔄',
+            color: 'green'
         },
         {
             number: 3,
@@ -28,7 +32,9 @@ export const WORKFLOW_CONFIG = {
             aiModel: 'Claude Sonnet 4',
             aiUrl: 'https://claude.ai/new',
             promptFile: 'prompts/phase3.md',
-            description: 'Synthesize critique into compelling final proposal'
+            description: 'Synthesize critique into compelling final proposal',
+            icon: '✨',
+            color: 'purple'
         }
     ]
 };
