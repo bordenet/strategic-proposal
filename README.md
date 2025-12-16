@@ -1,5 +1,9 @@
 # Strategic Proposal Generator
 
+[![GitHub Pages](https://img.shields.io/badge/demo-live-brightgreen)](https://bordenet.github.io/strategic-proposal/)
+[![Dependabot](https://img.shields.io/badge/dependabot-enabled-025E8C?logo=dependabot)](https://github.com/bordenet/strategic-proposal/security/dependabot)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 Generate compelling strategic proposals using AI-assisted adversarial review.
 
 ## Features
@@ -12,7 +16,7 @@ Generate compelling strategic proposals using AI-assisted adversarial review.
 
 ## Quick Start
 
-1. Open https://bordenet.github.io/strategic-proposal/
+1. Open <https://bordenet.github.io/strategic-proposal/>
 2. Click "New Proposal" and enter dealership information
 3. Copy the generated prompt to Claude (Phase 1)
 4. Paste the response and proceed through all 3 phases
