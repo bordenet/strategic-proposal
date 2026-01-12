@@ -1,4 +1,3 @@
-import { describe, test, expect, vi, beforeEach } from 'vitest';
 import { isLocalhost, initMockMode, isMockEnabled, getMockResponse } from "../js/ai-mock.js";
 
 describe("AI Mock Module", () => {

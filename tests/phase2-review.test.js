@@ -2,7 +2,6 @@
  * Phase 2 Review Tests
  */
 
-import { describe, it, expect, vi } from 'vitest';
 import { generatePhase2Review } from '../js/phase2-review.js';
 
 describe('Phase 2 Review', () => {

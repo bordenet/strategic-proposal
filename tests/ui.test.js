@@ -2,16 +2,15 @@
  * UI Module Tests
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { 
-    showToast, 
-    showLoading, 
-    hideLoading, 
-    confirm, 
-    formatDate, 
-    formatBytes, 
-    escapeHtml, 
-    copyToClipboard 
+import {
+    showToast,
+    showLoading,
+    hideLoading,
+    confirm,
+    formatDate,
+    formatBytes,
+    escapeHtml,
+    copyToClipboard
 } from '../js/ui.js';
 
 describe('escapeHtml', () => {
@@ -168,7 +167,7 @@ describe('copyToClipboard', () => {
 
     it('should copy text to clipboard successfully', async () => {
         // Mock clipboard API
-        const writeTextMock = vi.fn().mockResolvedValue(undefined);
+        const writeTextMock = jest.fn().mockResolvedValue(undefined);
         Object.defineProperty(navigator, 'clipboard', {
             value: { writeText: writeTextMock },
             writable: true
@@ -181,7 +180,7 @@ describe('copyToClipboard', () => {
 
     it('should return false on clipboard error', async () => {
         Object.defineProperty(navigator, 'clipboard', {
-            value: { writeText: vi.fn().mockRejectedValue(new Error('Clipboard error')) },
+            value: { writeText: jest.fn().mockRejectedValue(new Error('Clipboard error')) },
             writable: true
         });
 

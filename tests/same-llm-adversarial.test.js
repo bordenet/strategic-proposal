@@ -3,8 +3,6 @@
  * Tests the critical logic for detecting same LLM configurations and applying Gemini simulation
  */
 
-import { describe, test, expect, beforeEach, vi } from 'vitest';
-
 // Import the classes from same-llm-adversarial.js
 import {
     ConfigurationManager,
