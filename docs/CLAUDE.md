@@ -36,17 +36,34 @@
    - Dark mode toggle patterns
    - Setup scripts (fast, resumable, smart caching)
 
-### 1. **MANDATORY: Script-Only Deployments and Setup**
+### 1. **MANDATORY: Manual Deployment After CI Passes**
 
-**ALL deployments MUST be performed using project scripts. NEVER use manual git commands.**
+**ALL deployments MUST follow this 3-step process:**
 
 ```bash
-# ✅ CORRECT - Use deployment script
-./scripts/deploy-web.sh
+# Step 1: Push changes to GitHub
+git add .
+git commit -m "feat: description of changes"
+git push origin main
 
-# ❌ WRONG - Manual deployment
-git add . && git commit -m "Deploy" && git push
+# Step 2: WAIT for CI to pass
+# Check: https://github.com/bordenet/strategic-proposal/actions
+# ⚠️ DO NOT PROCEED until all checks are GREEN
+
+# Step 3: Deploy ONLY after CI passes
+./scripts/deploy-web.sh
 ```
+
+**Why**:
+- CI runs comprehensive quality gates (lint, test, coverage)
+- Deploying before CI passes can ship broken code
+- CI is the single source of truth for code quality
+
+#### If CI Fails:
+1. Fix the issues locally
+2. Push fixes
+3. Wait for CI to pass
+4. THEN deploy
 
 ### 2. **ALWAYS Complete the Full Workflow**
 When asked to do a task, you MUST:
