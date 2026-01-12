@@ -1,8 +1,10 @@
 /**
  * Workflow Module
  * Manages the 3-phase adversarial workflow for Strategic Proposal Generator
+ * @module workflow
  */
 
+/** @type {import('./types.js').WorkflowConfig} */
 export const WORKFLOW_CONFIG = {
     phaseCount: 3,
     phases: [
@@ -39,11 +41,12 @@ export const WORKFLOW_CONFIG = {
     ]
 };
 
-// Prompt templates cache
+/** @type {Object.<number, string>} Prompt templates cache */
 let promptTemplates = {};
 
 /**
  * Load default prompts from files
+ * @returns {Promise<void>}
  */
 export async function loadDefaultPrompts() {
     for (const phase of WORKFLOW_CONFIG.phases) {
@@ -59,24 +62,49 @@ export async function loadDefaultPrompts() {
 }
 
 export class Workflow {
+    /** @type {import('./types.js').Project} */
+    project;
+
+    /** @type {number} */
+    currentPhase;
+
+    /**
+     * @param {import('./types.js').Project} project
+     */
     constructor(project) {
         this.project = project;
         this.currentPhase = project.phase || 1;
     }
 
+    /**
+     * Get the current phase configuration
+     * @returns {import('./types.js').PhaseConfig | undefined}
+     */
     getCurrentPhase() {
         return WORKFLOW_CONFIG.phases.find(p => p.number === this.currentPhase);
     }
 
+    /**
+     * Get the next phase configuration
+     * @returns {import('./types.js').PhaseConfig | null}
+     */
     getNextPhase() {
         if (this.currentPhase >= WORKFLOW_CONFIG.phaseCount) return null;
-        return WORKFLOW_CONFIG.phases.find(p => p.number === this.currentPhase + 1);
+        return WORKFLOW_CONFIG.phases.find(p => p.number === this.currentPhase + 1) || null;
     }
 
+    /**
+     * Check if workflow is complete
+     * @returns {boolean}
+     */
     isComplete() {
         return this.currentPhase > WORKFLOW_CONFIG.phaseCount;
     }
 
+    /**
+     * Advance to the next phase
+     * @returns {boolean} True if advanced, false if already at final phase
+     */
     advancePhase() {
         if (this.currentPhase < WORKFLOW_CONFIG.phaseCount) {
             this.currentPhase++;
@@ -86,15 +114,24 @@ export class Workflow {
         return false;
     }
 
+    /**
+     * Generate the prompt for the current phase
+     * @returns {Promise<string>}
+     */
     async generatePrompt() {
         const phase = this.getCurrentPhase();
-        let template = promptTemplates[phase.number] || '';
+        let template = promptTemplates[phase?.number ?? 0] || '';
 
         // Replace all placeholders with project data
         template = this.replaceVariables(template);
         return template;
     }
 
+    /**
+     * Replace template variables with project data
+     * @param {string} template
+     * @returns {string}
+     */
     replaceVariables(template) {
         let result = template;
         const p = this.project;
@@ -128,45 +165,80 @@ export class Workflow {
         return result;
     }
 
+    /**
+     * Save the output for the current phase
+     * @param {string} output
+     * @returns {void}
+     */
     savePhaseOutput(output) {
-        const phaseKey = `phase${this.currentPhase}_output`;
+        const phaseKey = /** @type {'phase1_output' | 'phase2_output' | 'phase3_output'} */ (`phase${this.currentPhase}_output`);
         this.project[phaseKey] = output;
         this.project.updatedAt = new Date().toISOString();
     }
 
+    /**
+     * Get the output for a specific phase
+     * @param {number} phaseNumber
+     * @returns {string}
+     */
     getPhaseOutput(phaseNumber) {
-        return this.project[`phase${phaseNumber}_output`] || '';
+        const key = /** @type {'phase1_output' | 'phase2_output' | 'phase3_output'} */ (`phase${phaseNumber}_output`);
+        return this.project[key] || '';
     }
 
+    /**
+     * Export the project as a Markdown document
+     * @returns {string}
+     */
     exportAsMarkdown() {
         let md = `# Strategic Proposal: ${this.project.dealershipName}\n\n`;
         md += `**Created**: ${new Date(this.project.createdAt).toLocaleDateString()}\n`;
         md += `**Last Updated**: ${new Date(this.project.updatedAt).toLocaleDateString()}\n\n`;
-        
+
         // Include final output (Phase 3) as the main content
         const finalOutput = this.getPhaseOutput(3);
         if (finalOutput) {
             md += finalOutput;
         }
-        
+
         return md;
     }
 
+    /**
+     * Get workflow progress as a percentage
+     * @returns {number}
+     */
     getProgress() {
         return Math.round((this.currentPhase / WORKFLOW_CONFIG.phaseCount) * 100);
     }
 }
 
+/**
+ * Get metadata for a specific phase
+ * @param {number} phaseNumber
+ * @returns {import('./types.js').PhaseConfig | undefined}
+ */
 export function getPhaseMetadata(phaseNumber) {
     return WORKFLOW_CONFIG.phases.find(p => p.number === phaseNumber);
 }
 
+/**
+ * Generate the prompt for a specific phase
+ * @param {import('./types.js').Project} project
+ * @param {number} phaseNumber
+ * @returns {Promise<string>}
+ */
 export async function generatePromptForPhase(project, phaseNumber) {
     const workflow = new Workflow(project);
     workflow.currentPhase = phaseNumber;
     return await workflow.generatePrompt();
 }
 
+/**
+ * Export the final document as Markdown
+ * @param {import('./types.js').Project} project
+ * @returns {string}
+ */
 export function exportFinalDocument(project) {
     const workflow = new Workflow(project);
     return workflow.exportAsMarkdown();

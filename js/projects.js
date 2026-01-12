@@ -1,18 +1,27 @@
 /**
  * Project Management Module
  * Handles proposal CRUD operations for Strategic Proposal Generator
+ * @module projects
  */
 
 import storage from './storage.js';
 
 /**
+ * @typedef {Object} UpdatePhaseOptions
+ * @property {boolean} [skipAutoAdvance] - If true, don't auto-advance to next phase
+ */
+
+/**
  * Create a new proposal project with dealership-specific fields
+ * @param {import('./types.js').ProjectFormData} formData
+ * @returns {Promise<import('./types.js').Project>}
  */
 export async function createProject(formData) {
+    /** @type {import('./types.js').Project} */
     const project = {
         id: crypto.randomUUID(),
         title: formData.title || `Proposal - ${formData.dealershipName}`,
-        
+
         // Dealership Information
         dealershipName: formData.dealershipName || '',
         dealershipLocation: formData.dealershipLocation || '',
@@ -20,22 +29,22 @@ export async function createProject(formData) {
         currentVendor: formData.currentVendor || '',
         decisionMakerName: formData.decisionMakerName || '',
         decisionMakerRole: formData.decisionMakerRole || '',
-        
+
         // Input Materials
         conversationTranscripts: formData.conversationTranscripts || '',
         meetingNotes: formData.meetingNotes || '',
         attachmentText: formData.attachmentText || '',
         painPoints: formData.painPoints || '',
         additionalContext: formData.additionalContext || '',
-        
+
         // Working Draft (for refinement workflow)
         workingDraft: formData.workingDraft || '',
-        
+
         // Phase outputs
         phase1_output: '',
         phase2_output: '',
         phase3_output: '',
-        
+
         // Workflow state
         phase: 1,
         createdAt: new Date().toISOString(),
@@ -51,14 +60,32 @@ export async function createProject(formData) {
     return project;
 }
 
+/**
+ * Get all projects
+ * @returns {Promise<import('./types.js').Project[]>}
+ */
 export async function getAllProjects() {
     return await storage.getAllProjects();
 }
 
+/**
+ * Get a project by ID
+ * @param {string} id
+ * @returns {Promise<import('./types.js').Project | undefined>}
+ */
 export async function getProject(id) {
     return await storage.getProject(id);
 }
 
+/**
+ * Update a phase with prompt and response
+ * @param {string} projectId
+ * @param {number} phase
+ * @param {string} prompt
+ * @param {string} response
+ * @param {UpdatePhaseOptions} [options]
+ * @returns {Promise<import('./types.js').Project>}
+ */
 export async function updatePhase(projectId, phase, prompt, response, options = {}) {
     const project = await storage.getProject(projectId);
     if (!project) throw new Error('Project not found');
@@ -70,7 +97,8 @@ export async function updatePhase(projectId, phase, prompt, response, options = 
     };
 
     // Store phase output
-    project[`phase${phase}_output`] = response || '';
+    const phaseKey = /** @type {'phase1_output' | 'phase2_output' | 'phase3_output'} */ (`phase${phase}_output`);
+    project[phaseKey] = response || '';
 
     // Auto-advance to next phase if current phase is completed (unless skipAutoAdvance is set)
     if (response && phase < 3 && !options.skipAutoAdvance) {
@@ -82,6 +110,12 @@ export async function updatePhase(projectId, phase, prompt, response, options = 
     return project;
 }
 
+/**
+ * Update project with partial data
+ * @param {string} projectId
+ * @param {Partial<import('./types.js').Project>} updates
+ * @returns {Promise<import('./types.js').Project>}
+ */
 export async function updateProject(projectId, updates) {
     const project = await storage.getProject(projectId);
     if (!project) throw new Error('Project not found');
@@ -92,10 +126,20 @@ export async function updateProject(projectId, updates) {
     return project;
 }
 
+/**
+ * Delete a project by ID
+ * @param {string} id
+ * @returns {Promise<void>}
+ */
 export async function deleteProject(id) {
     await storage.deleteProject(id);
 }
 
+/**
+ * Export a single project as JSON file
+ * @param {string} projectId
+ * @returns {Promise<void>}
+ */
 export async function exportProject(projectId) {
     const project = await storage.getProject(projectId);
     if (!project) throw new Error('Project not found');
@@ -109,9 +153,14 @@ export async function exportProject(projectId) {
     URL.revokeObjectURL(url);
 }
 
+/**
+ * Export all projects as a backup JSON file
+ * @returns {Promise<void>}
+ */
 export async function exportAllProjects() {
     const projects = await storage.getAllProjects();
-    
+
+    /** @type {import('./types.js').ProjectBackup} */
     const backup = {
         version: '1.0',
         exportedAt: new Date().toISOString(),
@@ -128,13 +177,22 @@ export async function exportAllProjects() {
     URL.revokeObjectURL(url);
 }
 
+/**
+ * Import projects from a JSON file
+ * @param {File} file
+ * @returns {Promise<number>} Number of projects imported
+ */
 export async function importProjects(file) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
 
         reader.onload = async (e) => {
             try {
-                const content = JSON.parse(e.target.result);
+                const result = e.target?.result;
+                if (typeof result !== 'string') {
+                    throw new Error('Failed to read file');
+                }
+                const content = JSON.parse(result);
                 let imported = 0;
 
                 if (content.version && content.projects) {
@@ -160,6 +218,11 @@ export async function importProjects(file) {
     });
 }
 
+/**
+ * Sanitize a filename for safe download
+ * @param {string | undefined} filename
+ * @returns {string}
+ */
 function sanitizeFilename(filename) {
     return (filename || 'proposal')
         .replace(/[^a-z0-9]/gi, '-')

@@ -1,24 +1,40 @@
 /**
  * Router Module
  * Handles client-side routing for multi-project navigation
+ * @module router
  */
 
 import { renderProjectsList, renderNewProjectForm } from './views.js';
 import { renderProjectView } from './project-view.js';
 import storage from './storage.js';
 
+/**
+ * @typedef {'home' | 'new-project' | 'project'} RouteName
+ */
+
+/**
+ * @typedef {Object} RouteState
+ * @property {RouteName | null} route - Current route name
+ * @property {string[]} params - Route parameters
+ */
+
+/** @type {Object.<RouteName, (...args: string[]) => Promise<void>>} */
 const routes = {
     'home': renderProjectsList,
     'new-project': renderNewProjectForm,
     'project': renderProjectView
 };
 
+/** @type {RouteName | null} */
 let currentRoute = null;
-let currentParams = null;
+
+/** @type {string[]} */
+let currentParams = [];
 
 /**
  * Update storage info in footer
  * Ensures footer always reflects current project count
+ * @returns {Promise<void>}
  */
 export async function updateStorageInfo() {
     try {
@@ -40,6 +56,12 @@ export async function updateStorageInfo() {
     }
 }
 
+/**
+ * Navigate to a route
+ * @param {RouteName} route - Route name
+ * @param {...string} params - Route parameters
+ * @returns {Promise<void>}
+ */
 export async function navigateTo(route, ...params) {
     currentRoute = route;
     currentParams = params;
@@ -63,11 +85,19 @@ export async function navigateTo(route, ...params) {
     await updateStorageInfo();
 }
 
+/**
+ * Initialize the router and attach event listeners
+ * @returns {void}
+ */
 export function initRouter() {
     window.addEventListener('hashchange', handleHashChange);
     handleHashChange();
 }
 
+/**
+ * Handle hash change events
+ * @returns {Promise<void>}
+ */
 async function handleHashChange() {
     const hash = window.location.hash.slice(1);
 
@@ -83,6 +113,10 @@ async function handleHashChange() {
     }
 }
 
+/**
+ * Get the current route state
+ * @returns {RouteState}
+ */
 export function getCurrentRoute() {
     return { route: currentRoute, params: currentParams };
 }
