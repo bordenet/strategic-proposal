@@ -109,18 +109,18 @@ function setupGlobalEventListeners() {
         });
     }
 
-    // Close proprietary data warning
-    const closeProprietaryWarning = document.getElementById('close-proprietary-warning');
-    if (closeProprietaryWarning) {
-        closeProprietaryWarning.addEventListener('click', () => {
-            document.getElementById('proprietary-warning')?.remove();
-            storage.saveSetting('proprietary-warning-dismissed', true);
+    // Close privacy notice
+    const closePrivacyNotice = document.getElementById('close-privacy-notice');
+    if (closePrivacyNotice) {
+        closePrivacyNotice.addEventListener('click', () => {
+            document.getElementById('privacy-notice')?.remove();
+            storage.saveSetting('privacy-notice-dismissed', true);
         });
     }
 
-    storage.getSetting('proprietary-warning-dismissed').then(dismissed => {
+    storage.getSetting('privacy-notice-dismissed').then(dismissed => {
         if (dismissed) {
-            document.getElementById('proprietary-warning')?.remove();
+            document.getElementById('privacy-notice')?.remove();
         }
     });
 
