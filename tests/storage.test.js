@@ -3,10 +3,6 @@
  * Tests IndexedDB operations using fake-indexeddb
  */
 
-import { describe, it, expect, beforeEach, beforeAll, afterAll } from 'vitest';
-import 'fake-indexeddb/auto';
-
-// Import storage after fake-indexeddb is set up
 import storage from '../js/storage.js';
 
 describe('Storage Module', () => {

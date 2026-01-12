@@ -1,4 +1,3 @@
-import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest';
 import { setupKeyboardShortcuts, showToast } from "../js/keyboard-shortcuts.js";
 
 describe("Keyboard Shortcuts Module", () => {
@@ -45,7 +44,7 @@ describe("Keyboard Shortcuts Module", () => {
   });
 
   test("should have keyboard event listener after setup", () => {
-    const spy = vi.spyOn(document, "addEventListener");
+    const spy = jest.spyOn(document, "addEventListener");
     setupKeyboardShortcuts();
 
     expect(spy).toHaveBeenCalledWith("keydown", expect.any(Function));
@@ -55,7 +54,7 @@ describe("Keyboard Shortcuts Module", () => {
   test("should trigger save button on Cmd+S", () => {
     const saveBtn = document.createElement("button");
     saveBtn.id = "save-project";
-    saveBtn.onclick = vi.fn();
+    saveBtn.onclick = jest.fn();
     document.body.appendChild(saveBtn);
 
     setupKeyboardShortcuts();
@@ -75,7 +74,7 @@ describe("Keyboard Shortcuts Module", () => {
   test("should trigger export button on Cmd+E", () => {
     const exportBtn = document.createElement("button");
     exportBtn.id = "export-all-btn";
-    exportBtn.onclick = vi.fn();
+    exportBtn.onclick = jest.fn();
     document.body.appendChild(exportBtn);
 
     setupKeyboardShortcuts();

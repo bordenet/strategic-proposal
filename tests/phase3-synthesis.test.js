@@ -2,7 +2,6 @@
  * Phase 3 Synthesis Tests
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { synthesizeProposal, exportAsMarkdown, exportAsJSON } from '../js/phase3-synthesis.js';
 
 describe('Phase 3 Synthesis', () => {

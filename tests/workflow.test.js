@@ -2,7 +2,6 @@
  * Workflow Module Tests
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
 import { WORKFLOW_CONFIG, Workflow, getPhaseMetadata } from '../js/workflow.js';
 
 describe('WORKFLOW_CONFIG', () => {
