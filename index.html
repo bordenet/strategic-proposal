@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Strategic Proposal Generator</title>
     <meta name="description" content="Generate compelling strategic proposals - 100% client-side, privacy-first">
-    
+
     <!-- Tailwind CSS with dark mode configuration -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -16,7 +16,7 @@
 
     <!-- Custom CSS -->
     <link rel="stylesheet" href="css/styles.css">
-    
+
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📋</text></svg>">
 </head>
@@ -32,11 +32,44 @@
                             Strategic Proposal Generator
                         </h1>
                         <p class="text-sm text-gray-500 dark:text-gray-400">
-                            100% Client-Side • Privacy-First
+                            100% Client-Side • Privacy-First • No Server Required
                         </p>
                     </div>
                 </div>
                 <div class="flex items-center space-x-4">
+                    <!-- Related Projects Dropdown -->
+                    <div class="relative">
+                        <button type="button" id="related-projects-btn" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" title="Related Projects">
+                            <svg class="w-6 h-6 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                            </svg>
+                        </button>
+                        <div id="related-projects-menu" class="hidden absolute right-0 mt-2 w-64 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50">
+                            <div class="p-2">
+                                <div class="px-3 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Related Tools</div>
+                                <a href="https://bordenet.github.io/product-requirements-assistant/" rel="noopener" class="block px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                                    <div class="font-medium text-gray-900 dark:text-white">PRD Assistant</div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400">Create product requirements documents</div>
+                                </a>
+                                <a href="https://bordenet.github.io/architecture-decision-record/" rel="noopener" class="block px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                                    <div class="font-medium text-gray-900 dark:text-white">ADR Tool</div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400">Manage architecture decision records</div>
+                                </a>
+                                <a href="https://bordenet.github.io/one-pager/" rel="noopener" class="block px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                                    <div class="font-medium text-gray-900 dark:text-white">One-Pager Assistant</div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400">Create concise one-page documents</div>
+                                </a>
+                                <a href="https://bordenet.github.io/pr-faq-assistant/" rel="noopener" class="block px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                                    <div class="font-medium text-gray-900 dark:text-white">PR-FAQ Assistant</div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400">Amazon-style press release documents</div>
+                                </a>
+                                <a href="https://bordenet.github.io/power-statement-assistant/" rel="noopener" class="block px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                                    <div class="font-medium text-gray-900 dark:text-white">Power Statement Assistant</div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400">Craft compelling power statements</div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
                     <button type="button" id="theme-toggle" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" title="Toggle Dark Mode">
                         <svg class="w-6 h-6 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
@@ -96,15 +129,30 @@
     <!-- Footer -->
     <footer class="mt-12 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <div class="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
-                <div>
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                <p class="text-sm text-gray-600 dark:text-gray-400">
                     <span id="storage-info">Loading storage info...</span>
-                </div>
-                <div class="flex items-center space-x-4">
-                    <a href="https://github.com/bordenet/strategic-proposal" target="_blank" rel="noopener" class="text-blue-600 dark:text-blue-400 hover:underline">
+                </p>
+                <div class="flex gap-4">
+                    <a href="https://github.com/bordenet/strategic-proposal" target="_blank" rel="noopener" class="text-sm text-blue-600 dark:text-blue-400 hover:underline">
                         GitHub
                     </a>
-                    <a href="#" id="about-link" class="text-blue-600 dark:text-blue-400 hover:underline">
+                    <a href="https://bordenet.github.io/product-requirements-assistant/" class="text-sm text-blue-600 dark:text-blue-400 hover:underline">
+                        PRD Assistant
+                    </a>
+                    <a href="https://bordenet.github.io/pr-faq-assistant/" class="text-sm text-blue-600 dark:text-blue-400 hover:underline">
+                        PR-FAQ
+                    </a>
+                    <a href="https://bordenet.github.io/one-pager/" class="text-sm text-blue-600 dark:text-blue-400 hover:underline">
+                        One-Pager
+                    </a>
+                    <a href="https://bordenet.github.io/power-statement-assistant/" class="text-sm text-blue-600 dark:text-blue-400 hover:underline">
+                        Power Statement
+                    </a>
+                    <a href="https://bordenet.github.io/architecture-decision-record/" class="text-sm text-blue-600 dark:text-blue-400 hover:underline">
+                        ADR Tool
+                    </a>
+                    <a href="#" id="about-link" class="text-sm text-blue-600 dark:text-blue-400 hover:underline">
                         About
                     </a>
                 </div>
@@ -131,14 +179,15 @@
     <!-- Toast Notifications Container -->
     <div id="toast-container" class="fixed bottom-4 right-4 z-50 space-y-2"></div>
 
-    <!-- JavaScript Modules -->
-    <script type="module" src="js/storage.js"></script>
-    <script type="module" src="js/ui.js"></script>
-    <script type="module" src="js/workflow.js"></script>
-    <script type="module" src="js/router.js"></script>
-    <script type="module" src="js/projects.js"></script>
-    <script type="module" src="js/views.js"></script>
-    <script type="module" src="js/project-view.js"></script>
+    <!-- AI Mock Mode Toggle (localhost only) -->
+    <div id="aiMockToggle" class="hidden fixed bottom-4 left-4 bg-yellow-100 dark:bg-yellow-900 border-2 border-yellow-400 rounded-lg p-3 shadow-lg">
+        <label class="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" id="mockModeCheckbox" class="w-4 h-4">
+            <span class="text-sm font-medium text-yellow-900 dark:text-yellow-100">AI Mock Mode</span>
+        </label>
+    </div>
+
+    <!-- JavaScript Application (ES6 Modules) -->
     <script type="module" src="js/app.js"></script>
 </body>
 </html>

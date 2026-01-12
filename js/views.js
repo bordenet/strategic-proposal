@@ -1,6 +1,7 @@
 /**
  * Views Module
  * Handles rendering different views for Strategic Proposal Generator
+ * @module views
  */
 
 import { getAllProjects, createProject, deleteProject } from './projects.js';
@@ -27,6 +28,10 @@ export {
     getAttachmentStats
 };
 
+/**
+ * Render the projects list view
+ * @returns {Promise<void>}
+ */
 export async function renderProjectsList() {
     const projects = await getAllProjects();
     
@@ -127,12 +132,21 @@ export async function renderProjectsList() {
     });
 }
 
+/**
+ * Render the new project form view
+ * @returns {void}
+ */
 export function renderNewProjectForm() {
     const container = document.getElementById('app-container');
+    if (!container) return;
     container.innerHTML = getNewProjectFormHTML();
     setupNewProjectFormListeners();
 }
 
+/**
+ * Generate HTML for the new project form
+ * @returns {string} HTML string
+ */
 function getNewProjectFormHTML() {
     return `
         <div class="max-w-4xl mx-auto">
@@ -270,35 +284,50 @@ function getNewProjectFormHTML() {
     `;
 }
 
+/**
+ * Set up event listeners for the new project form
+ * @returns {void}
+ */
 function setupNewProjectFormListeners() {
     // Reset attachment tracking for new form
     resetAttachmentTracking();
 
-    document.getElementById('back-btn').addEventListener('click', () => navigateTo('home'));
-    document.getElementById('cancel-btn').addEventListener('click', () => navigateTo('home'));
+    document.getElementById('back-btn')?.addEventListener('click', () => navigateTo('home'));
+    document.getElementById('cancel-btn')?.addEventListener('click', () => navigateTo('home'));
 
     // File upload handling
     const dropZone = document.getElementById('drop-zone');
-    const fileInput = document.getElementById('file-input');
+    const fileInput = /** @type {HTMLInputElement | null} */ (document.getElementById('file-input'));
 
-    dropZone.addEventListener('click', () => fileInput.click());
-    dropZone.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        dropZone.classList.add('drag-over');
-    });
-    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
-    dropZone.addEventListener('drop', (e) => {
-        e.preventDefault();
-        dropZone.classList.remove('drag-over');
-        handleFiles(e.dataTransfer.files);
-    });
-    fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
+    if (dropZone && fileInput) {
+        dropZone.addEventListener('click', () => fileInput.click());
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('drag-over');
+        });
+        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('drag-over');
+            if (e.dataTransfer?.files) {
+                handleFiles(e.dataTransfer.files);
+            }
+        });
+        fileInput.addEventListener('change', (e) => {
+            const target = /** @type {HTMLInputElement} */ (e.target);
+            if (target.files) {
+                handleFiles(target.files);
+            }
+        });
+    }
 
     // Form submission
-    document.getElementById('new-project-form').addEventListener('submit', async (e) => {
+    const form = document.getElementById('new-project-form');
+    form?.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const formData = Object.fromEntries(new FormData(e.target));
-        const project = await createProject(formData);
+        const target = /** @type {HTMLFormElement} */ (e.target);
+        const formData = Object.fromEntries(new FormData(target));
+        const project = await createProject(/** @type {import('./types.js').ProjectFormData} */ (formData));
         showToast('Proposal created successfully!', 'success');
         navigateTo('project', project.id);
     });

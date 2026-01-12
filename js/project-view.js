@@ -1,17 +1,18 @@
 /**
  * Project Detail View Module
  * Handles rendering the proposal workflow view
+ * @module project-view
  */
 
-import { getProject, updatePhase, updateProject } from './projects.js';
+import { getProject, updatePhase, updateProject, deleteProject } from './projects.js';
 import { getPhaseMetadata, generatePromptForPhase, exportFinalDocument, WORKFLOW_CONFIG } from './workflow.js';
 import { escapeHtml, showToast, copyToClipboard, showPromptModal, confirm } from './ui.js';
 import { navigateTo } from './router.js';
 
 /**
  * Extract title from markdown content (looks for # Title at the beginning)
- * @param {string} markdown - The markdown content
- * @returns {string|null} - The extracted title or null if not found
+ * @param {string | null | undefined} markdown - The markdown content
+ * @returns {string | null} - The extracted title or null if not found
  */
 export function extractTitleFromMarkdown(markdown) {
     if (!markdown) return null;
@@ -26,6 +27,8 @@ export function extractTitleFromMarkdown(markdown) {
 
 /**
  * Update phase tab styles to reflect the active phase
+ * @param {import('./types.js').PhaseNumber} activePhase - Active phase number
+ * @returns {void}
  */
 function updatePhaseTabStyles(activePhase) {
     document.querySelectorAll('.phase-tab').forEach(tab => {
@@ -40,6 +43,11 @@ function updatePhaseTabStyles(activePhase) {
     });
 }
 
+/**
+ * Render the project detail view
+ * @param {string} projectId - Project ID to render
+ * @returns {Promise<void>}
+ */
 export async function renderProjectView(projectId) {
     const project = await getProject(projectId);
     
@@ -140,6 +148,12 @@ export async function renderProjectView(projectId) {
     attachPhaseEventListeners(project, project.phase);
 }
 
+/**
+ * Render the content for a specific phase
+ * @param {import('./types.js').Project} project - Project data
+ * @param {import('./types.js').PhaseNumber} phaseNumber - Phase to render
+ * @returns {string} HTML string
+ */
 function renderPhaseContent(project, phaseNumber) {
     const meta = getPhaseMetadata(phaseNumber);
     const phaseData = project.phases[phaseNumber] || { prompt: '', response: '', completed: false };
@@ -165,26 +179,33 @@ function renderPhaseContent(project, phaseNumber) {
                 <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">
                     Step A: Copy Prompt to AI
                 </h4>
-                <div class="flex gap-3 flex-wrap">
-                    <button id="copy-prompt-btn" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
-                        📋 Copy Prompt to Clipboard
+                <div class="flex justify-between items-center flex-wrap gap-3">
+                    <div class="flex gap-3 flex-wrap">
+                        <button id="copy-prompt-btn" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
+                            📋 ${phaseData.prompt ? 'Copy Prompt Again' : 'Generate & Copy Prompt'}
+                        </button>
+                        <a
+                            id="open-ai-btn"
+                            href="${meta.aiUrl}"
+                            target="ai-assistant-tab"
+                            rel="noopener noreferrer"
+                            class="px-6 py-3 bg-green-600 text-white rounded-lg transition-colors font-medium ${phaseData.prompt ? 'hover:bg-green-700' : 'opacity-50 cursor-not-allowed pointer-events-none'}"
+                            ${phaseData.prompt ? '' : 'aria-disabled="true"'}
+                        >
+                            🔗 Open ${aiName}
+                        </a>
+                    </div>
+                    ${phaseData.prompt ? `
+                    <button id="view-prompt-btn" class="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors font-medium">
+                        👁️ View Prompt
                     </button>
-                    <a
-                        id="open-ai-btn"
-                        href="${meta.aiUrl}"
-                        target="ai-assistant-tab"
-                        rel="noopener noreferrer"
-                        class="px-6 py-3 bg-green-600 text-white rounded-lg transition-colors font-medium opacity-50 cursor-not-allowed pointer-events-none"
-                        aria-disabled="true"
-                    >
-                        🔗 Open ${aiName}
-                    </a>
+                    ` : ''}
                 </div>
                 ${phaseData.prompt ? `
                     <div class="mt-3 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700">
                         <div class="flex items-center justify-between mb-2">
                             <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Generated Prompt:</span>
-                            <button class="view-prompt-btn text-blue-600 dark:text-blue-400 hover:underline text-sm">View Full Prompt</button>
+                            <button class="view-full-prompt-btn text-blue-600 dark:text-blue-400 hover:underline text-sm">View Full Prompt</button>
                         </div>
                         <p class="text-sm text-gray-600 dark:text-gray-400 line-clamp-3">${escapeHtml(phaseData.prompt.substring(0, 200))}...</p>
                     </div>
@@ -215,16 +236,46 @@ function renderPhaseContent(project, phaseNumber) {
                 </div>
             </div>
 
+            ${phaseNumber === 3 && phaseData.completed ? `
+            <!-- Phase 3 Complete: Export Call-to-Action -->
+            <div class="mt-6 p-6 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+                <div class="flex items-center justify-between flex-wrap gap-4">
+                    <div>
+                        <h4 class="text-lg font-semibold text-green-800 dark:text-green-300 flex items-center">
+                            <span class="mr-2">🎉</span> Your Proposal is Complete!
+                        </h4>
+                        <p class="text-green-700 dark:text-green-400 mt-1">
+                            Download your finished strategic proposal as a Markdown (.md) file.
+                        </p>
+                    </div>
+                    <button id="export-phase-btn" class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium text-lg">
+                        📄 Export as Markdown
+                    </button>
+                </div>
+            </div>
+            ` : ''}
+
             <!-- Navigation -->
-            <div class="flex justify-between pt-6 border-t border-gray-200 dark:border-gray-700">
-                <button id="prev-phase-btn" class="px-6 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors ${phaseNumber === 1 ? 'invisible' : ''}">
-                    ← Previous Phase
+            <div class="flex justify-between items-center pt-6 border-t border-gray-200 dark:border-gray-700">
+                <div class="flex gap-3">
+                    ${phaseNumber === 1 ? `
+                    <button id="edit-details-btn" class="px-6 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
+                        ← Edit Details
+                    </button>
+                    ` : `
+                    <button id="prev-phase-btn" class="px-6 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
+                        ← Previous Phase
+                    </button>
+                    `}
+                    ${phaseData.completed && phaseNumber < 3 ? `
+                    <button id="next-phase-btn" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                        Next Phase →
+                    </button>
+                    ` : ''}
+                </div>
+                <button id="delete-project-btn" class="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium">
+                    Delete
                 </button>
-                ${phaseData.completed && phaseNumber < 3 ? `
-                <button id="next-phase-btn" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                    Next Phase →
-                </button>
-                ` : '<div></div>'}
             </div>
         </div>
     `;
@@ -232,6 +283,9 @@ function renderPhaseContent(project, phaseNumber) {
 
 /**
  * Attach event listeners for phase interactions
+ * @param {import('./types.js').Project} project - Project data
+ * @param {import('./types.js').PhaseNumber} phase - Current phase number
+ * @returns {void}
  */
 function attachPhaseEventListeners(project, phase) {
     const copyPromptBtn = document.getElementById('copy-prompt-btn');
@@ -339,6 +393,14 @@ function attachPhaseEventListeners(project, phase) {
         });
     }
 
+    // Edit Details button (phase 1 only)
+    const editDetailsBtn = document.getElementById('edit-details-btn');
+    if (editDetailsBtn) {
+        editDetailsBtn.addEventListener('click', () => {
+            navigateTo(`project/${project.id}/edit`);
+        });
+    }
+
     // Next phase button (only shown if phase is completed)
     if (nextPhaseBtn && project.phases[phase]?.completed) {
         nextPhaseBtn.addEventListener('click', () => {
@@ -349,12 +411,48 @@ function attachPhaseEventListeners(project, phase) {
         });
     }
 
-    // View Full Prompt button
-    const viewPromptBtn = document.querySelector('.view-prompt-btn');
-    if (viewPromptBtn && project.phases[phase]?.prompt) {
-        viewPromptBtn.addEventListener('click', () => {
+    // View Prompt button (main button)
+    const viewPromptMainBtn = document.getElementById('view-prompt-btn');
+    if (viewPromptMainBtn && project.phases[phase]?.prompt) {
+        viewPromptMainBtn.addEventListener('click', () => {
             const meta = getPhaseMetadata(phase);
             showPromptModal(project.phases[phase].prompt, `Phase ${phase}: ${meta.name}`);
+        });
+    }
+
+    // View Full Prompt inline link
+    const viewFullPromptBtn = document.querySelector('.view-full-prompt-btn');
+    if (viewFullPromptBtn && project.phases[phase]?.prompt) {
+        viewFullPromptBtn.addEventListener('click', () => {
+            const meta = getPhaseMetadata(phase);
+            showPromptModal(project.phases[phase].prompt, `Phase ${phase}: ${meta.name}`);
+        });
+    }
+
+    // Delete project button
+    const deleteProjectBtn = document.getElementById('delete-project-btn');
+    if (deleteProjectBtn) {
+        deleteProjectBtn.addEventListener('click', async () => {
+            const confirmed = await confirm(
+                '🗑️ Delete Proposal?',
+                'Are you sure you want to delete this proposal? This cannot be undone.',
+                'Delete',
+                'Cancel'
+            );
+            if (confirmed) {
+                await deleteProject(project.id);
+                showToast('Proposal deleted', 'success');
+                navigateTo('');
+            }
+        });
+    }
+
+    // Export phase button (Phase 3 complete)
+    const exportPhaseBtn = document.getElementById('export-phase-btn');
+    if (exportPhaseBtn) {
+        exportPhaseBtn.addEventListener('click', async () => {
+            await exportFinalDocument(project);
+            showToast('Proposal exported!', 'success');
         });
     }
 }

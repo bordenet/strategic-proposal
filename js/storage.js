@@ -1,17 +1,29 @@
 /**
  * IndexedDB Storage Module
  * Handles all client-side data persistence for Strategic Proposal Generator
+ * @module storage
  */
 
+/** @type {string} */
 const DB_NAME = 'strategic-proposal-db';
+
+/** @type {number} */
 const DB_VERSION = 1;
+
+/** @type {string} */
 const STORE_NAME = 'proposals';
 
+/**
+ * Storage class for IndexedDB operations
+ */
 class Storage {
-    constructor() {
-        this.db = null;
-    }
+    /** @type {IDBDatabase | null} */
+    db = null;
 
+    /**
+     * Initialize the database
+     * @returns {Promise<void>}
+     */
     async init() {
         return new Promise((resolve, reject) => {
             const request = indexedDB.open(DB_NAME, DB_VERSION);
@@ -23,7 +35,8 @@ class Storage {
             };
 
             request.onupgradeneeded = (event) => {
-                const db = event.target.result;
+                const target = /** @type {IDBOpenDBRequest} */ (event.target);
+                const db = target.result;
 
                 // Proposals store
                 if (!db.objectStoreNames.contains(STORE_NAME)) {
@@ -53,19 +66,29 @@ class Storage {
         });
     }
 
+    /**
+     * Get all projects sorted by updatedAt descending
+     * @returns {Promise<import('./types.js').Project[]>}
+     */
     async getAllProjects() {
-        const tx = this.db.transaction(STORE_NAME, 'readonly');
-        const store = tx.objectStore(STORE_NAME);
-        const index = store.index('updatedAt');
-        
+        const tx = this.db?.transaction(STORE_NAME, 'readonly');
+        const store = tx?.objectStore(STORE_NAME);
+        const index = store?.index('updatedAt');
+
         return new Promise((resolve, reject) => {
+            if (!index) {
+                reject(new Error('Database not initialized'));
+                return;
+            }
             const request = index.openCursor(null, 'prev');
+            /** @type {import('./types.js').Project[]} */
             const projects = [];
 
             request.onsuccess = (event) => {
-                const cursor = event.target.result;
+                const target = /** @type {IDBRequest<IDBCursorWithValue | null>} */ (event.target);
+                const cursor = target.result;
                 if (cursor) {
-                    projects.push(cursor.value);
+                    projects.push(/** @type {import('./types.js').Project} */ (cursor.value));
                     cursor.continue();
                 } else {
                     resolve(projects);
@@ -76,41 +99,72 @@ class Storage {
         });
     }
 
+    /**
+     * Get a project by ID
+     * @param {string} id
+     * @returns {Promise<import('./types.js').Project | undefined>}
+     */
     async getProject(id) {
-        const tx = this.db.transaction(STORE_NAME, 'readonly');
-        const store = tx.objectStore(STORE_NAME);
-        
+        const tx = this.db?.transaction(STORE_NAME, 'readonly');
+        const store = tx?.objectStore(STORE_NAME);
+
         return new Promise((resolve, reject) => {
+            if (!store) {
+                reject(new Error('Database not initialized'));
+                return;
+            }
             const request = store.get(id);
             request.onsuccess = () => resolve(request.result);
             request.onerror = () => reject(request.error);
         });
     }
 
+    /**
+     * Save or update a project
+     * @param {import('./types.js').Project} project
+     * @returns {Promise<import('./types.js').Project>}
+     */
     async saveProject(project) {
         project.updatedAt = new Date().toISOString();
-        
-        const tx = this.db.transaction(STORE_NAME, 'readwrite');
-        const store = tx.objectStore(STORE_NAME);
-        
+
+        const tx = this.db?.transaction(STORE_NAME, 'readwrite');
+        const store = tx?.objectStore(STORE_NAME);
+
         return new Promise((resolve, reject) => {
+            if (!store) {
+                reject(new Error('Database not initialized'));
+                return;
+            }
             const request = store.put(project);
             request.onsuccess = () => resolve(project);
             request.onerror = () => reject(request.error);
         });
     }
 
+    /**
+     * Delete a project by ID
+     * @param {string} id
+     * @returns {Promise<void>}
+     */
     async deleteProject(id) {
-        const tx = this.db.transaction(STORE_NAME, 'readwrite');
-        const store = tx.objectStore(STORE_NAME);
-        
+        const tx = this.db?.transaction(STORE_NAME, 'readwrite');
+        const store = tx?.objectStore(STORE_NAME);
+
         return new Promise((resolve, reject) => {
+            if (!store) {
+                reject(new Error('Database not initialized'));
+                return;
+            }
             const request = store.delete(id);
             request.onsuccess = () => resolve();
             request.onerror = () => reject(request.error);
         });
     }
 
+    /**
+     * Get storage estimate
+     * @returns {Promise<import('./types.js').StorageEstimate | null>}
+     */
     async getStorageEstimate() {
         if (navigator.storage && navigator.storage.estimate) {
             return await navigator.storage.estimate();
@@ -118,22 +172,41 @@ class Storage {
         return null;
     }
 
+    /**
+     * Get a setting by key
+     * @param {string} key
+     * @returns {Promise<*>}
+     */
     async getSetting(key) {
-        const tx = this.db.transaction('settings', 'readonly');
-        const store = tx.objectStore('settings');
+        const tx = this.db?.transaction('settings', 'readonly');
+        const store = tx?.objectStore('settings');
 
         return new Promise((resolve, reject) => {
+            if (!store) {
+                reject(new Error('Database not initialized'));
+                return;
+            }
             const request = store.get(key);
             request.onsuccess = () => resolve(request.result?.value);
             request.onerror = () => reject(request.error);
         });
     }
 
+    /**
+     * Save a setting
+     * @param {string} key
+     * @param {*} value
+     * @returns {Promise<void>}
+     */
     async saveSetting(key, value) {
-        const tx = this.db.transaction('settings', 'readwrite');
-        const store = tx.objectStore('settings');
+        const tx = this.db?.transaction('settings', 'readwrite');
+        const store = tx?.objectStore('settings');
 
         return new Promise((resolve, reject) => {
+            if (!store) {
+                reject(new Error('Database not initialized'));
+                return;
+            }
             const request = store.put({ key, value });
             request.onsuccess = () => resolve();
             request.onerror = () => reject(request.error);

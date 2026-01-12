@@ -1,6 +1,7 @@
 /**
  * Main Application Entry Point
  * Strategic Proposal Generator
+ * @module app
  */
 
 import storage from './storage.js';
@@ -8,7 +9,12 @@ import { initRouter } from './router.js';
 import { loadDefaultPrompts } from './workflow.js';
 import { exportAllProjects, importProjects } from './projects.js';
 import { showToast, showLoading, hideLoading, formatBytes } from './ui.js';
+import { initMockMode } from './ai-mock.js';
 
+/**
+ * Initialize the application
+ * @returns {Promise<void>}
+ */
 async function init() {
     try {
         showLoading('Initializing...');
@@ -25,6 +31,9 @@ async function init() {
         setupGlobalEventListeners();
         console.log('✓ Event listeners attached');
 
+        initMockMode();
+        console.log('✓ Mock mode initialized');
+
         await updateStorageInfo();
 
         hideLoading();
@@ -36,12 +45,27 @@ async function init() {
     }
 }
 
+/**
+ * Set up global event listeners for the app
+ * @returns {void}
+ */
 function setupGlobalEventListeners() {
     // Theme toggle
     const themeToggle = document.getElementById('theme-toggle');
     if (themeToggle) {
         themeToggle.addEventListener('click', toggleTheme);
     }
+
+    // Related projects dropdown
+    const relatedBtn = document.getElementById('related-projects-btn');
+    const relatedMenu = document.getElementById('related-projects-menu');
+    relatedBtn?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        relatedMenu?.classList.toggle('hidden');
+    });
+    document.addEventListener('click', () => {
+        relatedMenu?.classList.add('hidden');
+    });
 
     // Export all button
     const exportAllBtn = document.getElementById('export-all-btn');
@@ -65,7 +89,8 @@ function setupGlobalEventListeners() {
             input.type = 'file';
             input.accept = '.json';
             input.onchange = async (e) => {
-                const file = e.target.files[0];
+                const target = /** @type {HTMLInputElement} */ (e.target);
+                const file = target.files?.[0];
                 if (file) {
                     try {
                         showLoading('Importing...');
@@ -109,6 +134,10 @@ function setupGlobalEventListeners() {
     }
 }
 
+/**
+ * Load theme from localStorage or system preference
+ * @returns {void}
+ */
 function loadTheme() {
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
@@ -116,6 +145,10 @@ function loadTheme() {
     }
 }
 
+/**
+ * Toggle between light and dark themes
+ * @returns {void}
+ */
 function toggleTheme() {
     const html = document.documentElement;
     const isDark = html.classList.contains('dark');
@@ -131,6 +164,10 @@ function toggleTheme() {
     }
 }
 
+/**
+ * Update storage info display in footer
+ * @returns {Promise<void>}
+ */
 async function updateStorageInfo() {
     const estimate = await storage.getStorageEstimate();
     const storageInfo = document.getElementById('storage-info');
@@ -145,6 +182,10 @@ async function updateStorageInfo() {
     }
 }
 
+/**
+ * Show the About modal
+ * @returns {void}
+ */
 function showAboutModal() {
     const modal = document.createElement('div');
     modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
@@ -164,7 +205,7 @@ function showAboutModal() {
     `;
 
     document.body.appendChild(modal);
-    modal.querySelector('#close-about-btn').addEventListener('click', () => modal.remove());
+    modal.querySelector('#close-about-btn')?.addEventListener('click', () => modal.remove());
     modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
 }
 

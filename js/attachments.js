@@ -1,11 +1,48 @@
 /**
  * Attachments Module
  * Handles file upload validation and processing for Strategic Proposal Generator
+ * @module attachments
  */
 
 import { showToast, formatBytes, escapeHtml } from './ui.js';
 
-// File attachment configuration
+/**
+ * @typedef {Object} AttachmentConfig
+ * @property {number} maxFileSize - Maximum file size in bytes
+ * @property {number} maxTotalSize - Maximum total size in bytes
+ * @property {number} maxFileCount - Maximum number of files
+ * @property {string[]} allowedTypes - Allowed MIME types
+ * @property {string[]} allowedExtensions - Allowed file extensions
+ */
+
+/**
+ * @typedef {Object} AttachmentStats
+ * @property {number} totalSize - Current total size
+ * @property {number} fileCount - Current file count
+ * @property {number} remainingSize - Remaining size allowed
+ * @property {number} remainingCount - Remaining files allowed
+ */
+
+/**
+ * @typedef {Object} FileValidationResult
+ * @property {boolean} valid - Whether the file is valid
+ * @property {string} [error] - Error message if invalid
+ */
+
+/**
+ * @typedef {Object} FilesValidationResult
+ * @property {File[]} valid - Valid files
+ * @property {Array<{file: File, error: string}>} invalid - Invalid files with errors
+ */
+
+/**
+ * @typedef {Object} HandleFilesResult
+ * @property {number} processed - Number of files processed
+ * @property {string[]} errors - Error messages
+ * @property {AttachmentStats} [stats] - Current stats after processing
+ */
+
+/** @type {AttachmentConfig} */
 export const ATTACHMENT_CONFIG = {
     maxFileSize: 10 * 1024 * 1024, // 10MB max per file
     maxTotalSize: 50 * 1024 * 1024, // 50MB total
@@ -14,12 +51,15 @@ export const ATTACHMENT_CONFIG = {
     allowedExtensions: ['.pdf', '.txt']
 };
 
-// Track total file size for the current form
+/** @type {number} */
 let totalAttachmentSize = 0;
+
+/** @type {number} */
 let attachedFileCount = 0;
 
 /**
  * Reset attachment tracking (called when form is reset or page changes)
+ * @returns {void}
  */
 export function resetAttachmentTracking() {
     totalAttachmentSize = 0;
@@ -28,6 +68,7 @@ export function resetAttachmentTracking() {
 
 /**
  * Get current attachment stats
+ * @returns {AttachmentStats}
  */
 export function getAttachmentStats() {
     return {
@@ -40,6 +81,8 @@ export function getAttachmentStats() {
 
 /**
  * Format file size for display (wrapper around formatBytes for backwards compatibility)
+ * @param {number} bytes - Size in bytes
+ * @returns {string} Formatted size string
  */
 export function formatFileSize(bytes) {
     return formatBytes(bytes);
@@ -47,7 +90,8 @@ export function formatFileSize(bytes) {
 
 /**
  * Validate a single file
- * @returns {Object} { valid: boolean, error?: string }
+ * @param {File} file - File to validate
+ * @returns {FileValidationResult}
  */
 export function validateFile(file) {
     if (!file) {
@@ -103,7 +147,8 @@ export function validateFile(file) {
 
 /**
  * Validate an array of files
- * @returns {Object} { valid: File[], invalid: Array<{file: File, error: string}> }
+ * @param {FileList | File[]} files - Files to validate
+ * @returns {FilesValidationResult}
  */
 export function validateFiles(files) {
     const valid = [];
@@ -123,6 +168,8 @@ export function validateFiles(files) {
 
 /**
  * Handle file uploads with validation
+ * @param {FileList | File[]} files - Files to process
+ * @returns {HandleFilesResult}
  */
 export function handleFiles(files) {
     const fileList = document.getElementById('file-list');
