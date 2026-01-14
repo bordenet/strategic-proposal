@@ -4,61 +4,34 @@
  * @module workflow
  */
 
-/** @type {import('./types.js').WorkflowConfig} */
-export const WORKFLOW_CONFIG = {
-    phaseCount: 3,
-    phases: [
-        {
-            number: 1,
-            name: 'Initial Draft',
-            aiModel: 'Claude Sonnet 4',
-            aiUrl: 'https://claude.ai/new',
-            promptFile: 'prompts/phase1.md',
-            description: 'Generate initial proposal from dealership data and conversations',
-            icon: '📝',
-            color: 'blue'
-        },
-        {
-            number: 2,
-            name: 'Adversarial Review',
-            aiModel: 'Gemini 2.5 Pro',
-            aiUrl: 'https://gemini.google.com/app',
-            promptFile: 'prompts/phase2.md',
-            description: 'Critique as a shrewd decision-maker evaluating the proposal',
-            icon: '🔄',
-            color: 'green'
-        },
-        {
-            number: 3,
-            name: 'Final Synthesis',
-            aiModel: 'Claude Sonnet 4',
-            aiUrl: 'https://claude.ai/new',
-            promptFile: 'prompts/phase3.md',
-            description: 'Synthesize critique into compelling final proposal',
-            icon: '✨',
-            color: 'purple'
-        }
-    ]
-};
+import {
+  WORKFLOW_CONFIG,
+  generatePhase1Prompt as genPhase1,
+  generatePhase2Prompt as genPhase2,
+  generatePhase3Prompt as genPhase3
+} from './prompts.js';
 
-/** @type {Object.<number, string>} Prompt templates cache */
+// Re-export WORKFLOW_CONFIG for backward compatibility
+export { WORKFLOW_CONFIG };
+
+/** @type {Object.<number, string>} Prompt templates cache - legacy, kept for backward compatibility */
 let promptTemplates = {};
 
 /**
- * Load default prompts from files
+ * Load default prompts from files - legacy function kept for backward compatibility
  * @returns {Promise<void>}
  */
 export async function loadDefaultPrompts() {
-    for (const phase of WORKFLOW_CONFIG.phases) {
-        try {
-            const response = await fetch(phase.promptFile);
-            if (response.ok) {
-                promptTemplates[phase.number] = await response.text();
-            }
-        } catch (error) {
-            console.warn(`Failed to load prompt for phase ${phase.number}:`, error);
-        }
+  for (const phase of WORKFLOW_CONFIG.phases) {
+    try {
+      const response = await fetch(`prompts/phase${phase.number}.md`);
+      if (response.ok) {
+        promptTemplates[phase.number] = await response.text();
+      }
+    } catch (error) {
+      console.warn(`Failed to load prompt for phase ${phase.number}:`, error);
     }
+  }
 }
 
 export class Workflow {
@@ -116,53 +89,78 @@ export class Workflow {
 
     /**
      * Generate the prompt for the current phase
+     * Uses prompts.js module for template loading and variable replacement
      * @returns {Promise<string>}
      */
     async generatePrompt() {
-        const phase = this.getCurrentPhase();
-        let template = promptTemplates[phase?.number ?? 0] || '';
+      const p = this.project;
+      const formData = {
+        dealershipName: p.dealershipName,
+        dealershipLocation: p.dealershipLocation,
+        storeCount: p.storeCount,
+        currentVendor: p.currentVendor,
+        decisionMakerName: p.decisionMakerName,
+        decisionMakerRole: p.decisionMakerRole,
+        conversationTranscripts: p.conversationTranscripts,
+        meetingNotes: p.meetingNotes,
+        painPoints: p.painPoints,
+        attachmentText: p.attachmentText,
+        workingDraft: p.workingDraft,
+        additionalContext: p.additionalContext
+      };
 
-        // Replace all placeholders with project data
-        template = this.replaceVariables(template);
-        return template;
+      switch (this.currentPhase) {
+      case 1:
+        return await genPhase1(formData);
+      case 2:
+        return await genPhase2(formData, p.phase1_output || '[Phase 1 output not yet generated]');
+      case 3:
+        return await genPhase3(
+          formData,
+          p.phase1_output || '[Phase 1 output not yet generated]',
+          p.phase2_output || '[Phase 2 output not yet generated]'
+        );
+      default:
+        throw new Error(`Invalid phase: ${this.currentPhase}`);
+      }
     }
 
     /**
-     * Replace template variables with project data
+     * Replace template variables with project data - legacy method kept for backward compatibility
      * @param {string} template
      * @returns {string}
      */
     replaceVariables(template) {
-        let result = template;
-        const p = this.project;
+      let result = template;
+      const p = this.project;
 
-        // Helper to provide meaningful placeholder for empty values
-        const val = (v, label) => v?.trim() || `[${label} not provided]`;
-        const optVal = (v) => v?.trim() || '[Not provided]';
+      // Helper to provide meaningful placeholder for empty values
+      const val = (v, label) => v?.trim() || `[${label} not provided]`;
+      const optVal = (v) => v?.trim() || '[Not provided]';
 
-        // Dealership information - required fields get specific labels
-        result = result.replace(/\{dealershipName\}/g, val(p.dealershipName, 'Dealership name'));
-        result = result.replace(/\{dealershipLocation\}/g, optVal(p.dealershipLocation));
-        result = result.replace(/\{storeCount\}/g, optVal(p.storeCount));
-        result = result.replace(/\{currentVendor\}/g, optVal(p.currentVendor));
-        result = result.replace(/\{decisionMakerName\}/g, optVal(p.decisionMakerName));
-        result = result.replace(/\{decisionMakerRole\}/g, optVal(p.decisionMakerRole));
+      // Dealership information - required fields get specific labels
+      result = result.replace(/\{dealershipName\}/g, val(p.dealershipName, 'Dealership name'));
+      result = result.replace(/\{dealershipLocation\}/g, optVal(p.dealershipLocation));
+      result = result.replace(/\{storeCount\}/g, optVal(p.storeCount));
+      result = result.replace(/\{currentVendor\}/g, optVal(p.currentVendor));
+      result = result.replace(/\{decisionMakerName\}/g, optVal(p.decisionMakerName));
+      result = result.replace(/\{decisionMakerRole\}/g, optVal(p.decisionMakerRole));
 
-        // Conversation and context data
-        result = result.replace(/\{conversationTranscripts\}/g, optVal(p.conversationTranscripts));
-        result = result.replace(/\{meetingNotes\}/g, optVal(p.meetingNotes));
-        result = result.replace(/\{attachmentText\}/g, optVal(p.attachmentText));
-        result = result.replace(/\{painPoints\}/g, optVal(p.painPoints));
-        result = result.replace(/\{additionalContext\}/g, optVal(p.additionalContext));
+      // Conversation and context data
+      result = result.replace(/\{conversationTranscripts\}/g, optVal(p.conversationTranscripts));
+      result = result.replace(/\{meetingNotes\}/g, optVal(p.meetingNotes));
+      result = result.replace(/\{attachmentText\}/g, optVal(p.attachmentText));
+      result = result.replace(/\{painPoints\}/g, optVal(p.painPoints));
+      result = result.replace(/\{additionalContext\}/g, optVal(p.additionalContext));
 
-        // Working draft (for refinement)
-        result = result.replace(/\{workingDraft\}/g, optVal(p.workingDraft));
+      // Working draft (for refinement)
+      result = result.replace(/\{workingDraft\}/g, optVal(p.workingDraft));
 
-        // Phase outputs for synthesis
-        result = result.replace(/\{phase1_output\}/g, p.phase1_output || '[Phase 1 output not yet generated]');
-        result = result.replace(/\{phase2_output\}/g, p.phase2_output || '[Phase 2 output not yet generated]');
+      // Phase outputs for synthesis
+      result = result.replace(/\{phase1_output\}/g, p.phase1_output || '[Phase 1 output not yet generated]');
+      result = result.replace(/\{phase2_output\}/g, p.phase2_output || '[Phase 2 output not yet generated]');
 
-        return result;
+      return result;
     }
 
     /**

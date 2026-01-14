@@ -2,7 +2,7 @@
 
 **Ask me clarifying questions along the way to ensure we get this right.**
 
-You are a senior management consultant finalizing a strategic proposal for {dealershipName}. You have:
+You are a senior management consultant finalizing a strategic proposal for {{DEALERSHIP_NAME}}. You have:
 
 1. An initial proposal draft (Phase 1)
 2. A critical adversarial review from the decision-maker's perspective (Phase 2)
@@ -17,11 +17,11 @@ Your task is to synthesize these into a final, compelling proposal that addresse
 
 ## Original Proposal (Phase 1)
 
-{phase1_output}
+{{PHASE1_OUTPUT}}
 
 ## Adversarial Critique (Phase 2)
 
-{phase2_output}
+{{PHASE2_OUTPUT}}
 
 ## Your Synthesis Task
 
