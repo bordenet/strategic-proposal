@@ -28,7 +28,7 @@ export default [
         }
     },
     {
-        ignores: ['node_modules/', 'genesis/', 'tests/']
+        ignores: ['node_modules/', 'genesis/', 'tests/', 'js/lib/**', '**/*.min.js']
     }
 ];
 
