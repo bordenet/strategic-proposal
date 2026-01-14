@@ -5,8 +5,8 @@
  */
 
 import { getProject, updatePhase, updateProject, deleteProject } from './projects.js';
-import { getPhaseMetadata, generatePromptForPhase, exportFinalDocument, WORKFLOW_CONFIG } from './workflow.js';
-import { escapeHtml, showToast, copyToClipboard, showPromptModal, confirm } from './ui.js';
+import { getPhaseMetadata, generatePromptForPhase, getFinalMarkdown, getExportFilename, WORKFLOW_CONFIG } from './workflow.js';
+import { escapeHtml, showToast, copyToClipboard, showPromptModal, confirm, showDocumentPreviewModal } from './ui.js';
 import { navigateTo } from './router.js';
 
 /**
@@ -79,7 +79,7 @@ export async function renderProjectView(projectId) {
                 </div>
                 ${project.phases && project.phases[3] && project.phases[3].completed ? `
                 <button id="export-document-btn" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
-                    ✓ Export Proposal
+                    📄 Preview & Copy
                 </button>
                 ` : ''}
             </div>
@@ -119,19 +119,16 @@ export async function renderProjectView(projectId) {
     // Event listeners
     document.getElementById('back-btn').addEventListener('click', () => navigateTo('home'));
 
-    // Export button only exists when phase 3 is complete
+    // Export button only exists when phase 3 is complete (Preview & Copy)
     const exportBtn = document.getElementById('export-document-btn');
     if (exportBtn) {
         exportBtn.addEventListener('click', () => {
-            const markdown = exportFinalDocument(project);
-            const blob = new Blob([markdown], { type: 'text/markdown' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `proposal-${(project.dealershipName || 'draft').replace(/\s+/g, '-')}.md`;
-            a.click();
-            URL.revokeObjectURL(url);
-            showToast('Proposal exported successfully', 'success');
+            const markdown = getFinalMarkdown(project);
+            if (markdown) {
+                showDocumentPreviewModal(markdown, 'Your Proposal is Ready', getExportFilename(project));
+            } else {
+                showToast('No proposal content to export', 'warning');
+            }
         });
     }
     
@@ -243,13 +240,30 @@ function renderPhaseContent(project, phaseNumber) {
                             <span class="mr-2">🎉</span> Your Proposal is Complete!
                         </h4>
                         <p class="text-green-700 dark:text-green-400 mt-1">
-                            Download your finished strategic proposal as a Markdown (.md) file.
+                            <strong>Next step:</strong> Copy this into Word or Google Docs so you can edit and share it.
                         </p>
                     </div>
                     <button id="export-phase-btn" class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium text-lg">
-                        📄 Export as Markdown
+                        📄 Preview & Copy
                     </button>
                 </div>
+                <!-- Expandable Help Section -->
+                <details class="mt-4">
+                    <summary class="text-sm text-green-700 dark:text-green-400 cursor-pointer hover:text-green-800 dark:hover:text-green-300">
+                        Need help using your document?
+                    </summary>
+                    <div class="mt-3 p-4 bg-white dark:bg-gray-800 rounded-lg text-sm text-gray-700 dark:text-gray-300">
+                        <ol class="list-decimal list-inside space-y-2">
+                            <li>Click <strong>"Preview & Copy"</strong> above to see your formatted document</li>
+                            <li>Click <strong>"Copy Formatted Text"</strong> in the preview</li>
+                            <li>Open <strong>Microsoft Word</strong> or <strong>Google Docs</strong></li>
+                            <li>Paste (Ctrl+V / ⌘V) — your headings and bullets will appear automatically</li>
+                        </ol>
+                        <p class="mt-3 text-gray-500 dark:text-gray-400 text-xs">
+                            💡 You can also download the raw file (.md format) if needed.
+                        </p>
+                    </div>
+                </details>
             </div>
             ` : ''}
 
@@ -452,12 +466,16 @@ function attachPhaseEventListeners(project, phase) {
         });
     }
 
-    // Export phase button (Phase 3 complete)
+    // Export phase button (Phase 3 complete - Preview & Copy)
     const exportPhaseBtn = document.getElementById('export-phase-btn');
     if (exportPhaseBtn) {
-        exportPhaseBtn.addEventListener('click', async () => {
-            await exportFinalDocument(project);
-            showToast('Proposal exported!', 'success');
+        exportPhaseBtn.addEventListener('click', () => {
+            const markdown = getFinalMarkdown(project);
+            if (markdown) {
+                showDocumentPreviewModal(markdown, 'Your Proposal is Ready', getExportFilename(project));
+            } else {
+                showToast('No proposal content to export', 'warning');
+            }
         });
     }
 }

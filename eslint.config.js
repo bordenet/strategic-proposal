@@ -16,7 +16,8 @@ export default [
                 FileReader: 'readonly',
                 FormData: 'readonly',
                 fetch: 'readonly',
-                setTimeout: 'readonly'
+                setTimeout: 'readonly',
+                marked: 'readonly' // Loaded via CDN for markdown rendering
             }
         },
         rules: {
