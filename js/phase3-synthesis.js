@@ -97,7 +97,9 @@ function synthesizeProposal(project) {
  * @returns {void}
  */
 function exportAsMarkdown(proposal, filename = 'proposal.md') {
-  const blob = new Blob([proposal], { type: 'text/markdown' });
+  const attribution = '\n\n---\n\n*Generated with [Strategic Proposal Assistant](https://bordenet.github.io/strategic-proposal/)*';
+  const content = proposal + attribution;
+  const blob = new Blob([content], { type: 'text/markdown' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
