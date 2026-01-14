@@ -15,6 +15,7 @@ export default {
     '!js/projects.js',
     '!js/ai-mock-ui.js',
     '!js/attachments.js',
+    '!js/lib/**',
     '!**/node_modules/**'
   ],
   coverageThreshold: {
