@@ -244,3 +244,26 @@ export function exportFinalDocument(project) {
     return workflow.exportAsMarkdown();
 }
 
+/**
+ * Get the final markdown content from a project
+ * @param {import('./types.js').Project} project - Project object
+ * @returns {string|null} The markdown content or null if none exists
+ */
+export function getFinalMarkdown(project) {
+    const workflow = new Workflow(project);
+    const lastPhase = workflow.getLastCompletedPhase();
+    if (lastPhase && lastPhase.response) {
+        return workflow.exportAsMarkdown();
+    }
+    return null;
+}
+
+/**
+ * Generate export filename for a project
+ * @param {import('./types.js').Project} project - Project object
+ * @returns {string} Filename with .md extension
+ */
+export function getExportFilename(project) {
+    return `${(project.title || 'strategic-proposal').replace(/[^a-z0-9]/gi, '-').toLowerCase()}-proposal.md`;
+}
+
