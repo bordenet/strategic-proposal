@@ -15,8 +15,8 @@ describe('WORKFLOW_CONFIG', () => {
             expect(phase.number).toBe(index + 1);
             expect(phase.name).toBeDefined();
             expect(phase.aiModel).toBeDefined();
-            expect(phase.promptFile).toBeDefined();
             expect(phase.description).toBeDefined();
+            expect(phase.icon).toBeDefined();
         });
     });
 

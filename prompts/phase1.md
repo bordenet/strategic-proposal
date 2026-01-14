@@ -13,34 +13,34 @@ You are a management consultant hired to evaluate a potential vendor or solution
 ## Context
 
 **Dealership Information:**
-- Dealership Name: {dealershipName}
-- Location: {dealershipLocation}
-- Number of Stores/Rooftops: {storeCount}
-- Current Vendor (if any): {currentVendor}
+- Dealership Name: {{DEALERSHIP_NAME}}
+- Location: {{DEALERSHIP_LOCATION}}
+- Number of Stores/Rooftops: {{STORE_COUNT}}
+- Current Vendor (if any): {{CURRENT_VENDOR}}
 
 **Decision Maker:**
-- Name: {decisionMakerName}
-- Role: {decisionMakerRole}
+- Name: {{DECISION_MAKER_NAME}}
+- Role: {{DECISION_MAKER_ROLE}}
 
 ## Source Materials
 
 ### Conversation Transcripts and Call Logs
-{conversationTranscripts}
+{{CONVERSATION_TRANSCRIPTS}}
 
 ### Meeting Notes
-{meetingNotes}
+{{MEETING_NOTES}}
 
 ### Known Pain Points
-{painPoints}
+{{PAIN_POINTS}}
 
 ### Additional Context from Attachments
-{attachmentText}
+{{ATTACHMENT_TEXT}}
 
 ### Existing Working Draft (if any)
-{workingDraft}
+{{WORKING_DRAFT}}
 
 ### Additional Context
-{additionalContext}
+{{ADDITIONAL_CONTEXT}}
 
 ## Your Task
 
