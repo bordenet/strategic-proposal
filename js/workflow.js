@@ -189,6 +189,8 @@ export class Workflow {
      * @returns {string}
      */
     exportAsMarkdown() {
+        const attribution = '\n\n---\n\n*Generated with [Strategic Proposal Assistant](https://bordenet.github.io/strategic-proposal/)*';
+
         let md = `# Strategic Proposal: ${this.project.dealershipName}\n\n`;
         md += `**Created**: ${new Date(this.project.createdAt).toLocaleDateString()}\n`;
         md += `**Last Updated**: ${new Date(this.project.updatedAt).toLocaleDateString()}\n\n`;
@@ -199,6 +201,7 @@ export class Workflow {
             md += finalOutput;
         }
 
+        md += attribution;
         return md;
     }
 
