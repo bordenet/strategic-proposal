@@ -6,7 +6,7 @@
 
 import { getProject, updatePhase, updateProject, deleteProject } from './projects.js';
 import { getPhaseMetadata, generatePromptForPhase, getFinalMarkdown, getExportFilename, WORKFLOW_CONFIG } from './workflow.js';
-import { escapeHtml, showToast, copyToClipboard, showPromptModal, confirm, showDocumentPreviewModal } from './ui.js';
+import { escapeHtml, showToast, copyToClipboardAsync, showPromptModal, confirm, showDocumentPreviewModal } from './ui.js';
 import { navigateTo } from './router.js';
 import { preloadPromptTemplates } from './prompts.js';
 
@@ -323,8 +323,9 @@ function attachPhaseEventListeners(project, phase) {
     const prevPhaseBtn = document.getElementById('prev-phase-btn');
     const nextPhaseBtn = document.getElementById('next-phase-btn');
 
+    // CRITICAL: Safari transient activation fix - call copyToClipboardAsync synchronously
     copyPromptBtn?.addEventListener('click', async () => {
-        // Check if warning was previously acknowledged
+        // Check if warning was previously acknowledged - MUST happen before clipboard call
         const warningAcknowledged = localStorage.getItem('external-ai-warning-acknowledged');
 
         if (!warningAcknowledged) {
@@ -348,34 +349,47 @@ function attachPhaseEventListeners(project, phase) {
             localStorage.setItem('external-ai-warning-acknowledged', 'true');
         }
 
-        const prompt = await generatePromptForPhase(project, phase);
-        await copyToClipboard(prompt);
-        showToast('Prompt copied to clipboard!', 'success');
+        // Now call clipboard synchronously with Promise - preserves transient activation
+        let generatedPrompt = null;
+        const promptPromise = (async () => {
+            const prompt = await generatePromptForPhase(project, phase);
+            generatedPrompt = prompt;
+            return prompt;
+        })();
 
-        // Save prompt but DON'T re-render - user is still working on this phase
-        await updatePhase(project.id, phase, prompt, project.phases[phase]?.response || '', { skipAutoAdvance: true });
+        copyToClipboardAsync(promptPromise)
+            .then(async () => {
+                showToast('Prompt copied to clipboard!', 'success');
 
-        // Enable the "Open AI" button now that prompt is copied
-        const openAiBtn = document.getElementById('open-ai-btn');
-        if (openAiBtn) {
-            openAiBtn.classList.remove('opacity-50', 'cursor-not-allowed', 'pointer-events-none');
-            openAiBtn.classList.add('hover:bg-purple-700');
-            openAiBtn.removeAttribute('aria-disabled');
-        }
+                // Save prompt but DON'T re-render - user is still working on this phase
+                await updatePhase(project.id, phase, generatedPrompt, project.phases[phase]?.response || '', { skipAutoAdvance: true });
 
-        // Show and enable the View Prompt button now that prompt is generated
-        const viewPromptBtn = document.getElementById('view-prompt-btn');
-        if (viewPromptBtn) {
-            viewPromptBtn.classList.remove('hidden', 'opacity-50', 'cursor-not-allowed');
-            viewPromptBtn.disabled = false;
-        }
+                // Enable the "Open AI" button now that prompt is copied
+                const openAiBtn = document.getElementById('open-ai-btn');
+                if (openAiBtn) {
+                    openAiBtn.classList.remove('opacity-50', 'cursor-not-allowed', 'pointer-events-none');
+                    openAiBtn.classList.add('hover:bg-purple-700');
+                    openAiBtn.removeAttribute('aria-disabled');
+                }
 
-        // Enable the response textarea now that prompt is copied
-        if (responseTextarea) {
-            responseTextarea.disabled = false;
-            responseTextarea.classList.remove('opacity-50', 'cursor-not-allowed');
-            responseTextarea.focus();
-        }
+                // Show and enable the View Prompt button now that prompt is generated
+                const viewPromptBtn = document.getElementById('view-prompt-btn');
+                if (viewPromptBtn) {
+                    viewPromptBtn.classList.remove('hidden', 'opacity-50', 'cursor-not-allowed');
+                    viewPromptBtn.disabled = false;
+                }
+
+                // Enable the response textarea now that prompt is copied
+                if (responseTextarea) {
+                    responseTextarea.disabled = false;
+                    responseTextarea.classList.remove('opacity-50', 'cursor-not-allowed');
+                    responseTextarea.focus();
+                }
+            })
+            .catch((error) => {
+                console.error('Failed to copy prompt:', error);
+                showToast('Failed to copy to clipboard. Please check browser permissions.', 'error');
+            });
     });
 
     // Update save button state as user types
