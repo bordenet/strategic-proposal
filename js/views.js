@@ -208,19 +208,19 @@ function getNewProjectFormHTML() {
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label for="dealershipName" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Dealership Name *</label>
-                                <input type="text" id="dealershipName" name="dealershipName" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white" placeholder="e.g., Team Auto Group">
+                                <input type="text" id="dealershipName" name="dealershipName" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="e.g., Team Auto Group">
                             </div>
                             <div>
                                 <label for="dealershipLocation" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Location</label>
-                                <input type="text" id="dealershipLocation" name="dealershipLocation" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white" placeholder="e.g., Dallas, TX">
+                                <input type="text" id="dealershipLocation" name="dealershipLocation" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="e.g., Dallas, TX">
                             </div>
                             <div>
                                 <label for="storeCount" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Number of Stores</label>
-                                <input type="number" id="storeCount" name="storeCount" min="1" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white" placeholder="e.g., 5">
+                                <input type="number" id="storeCount" name="storeCount" min="1" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="e.g., 5">
                             </div>
                             <div>
                                 <label for="currentVendor" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Current Vendor (if any)</label>
-                                <input type="text" id="currentVendor" name="currentVendor" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white" placeholder="e.g., Purple Cloud">
+                                <input type="text" id="currentVendor" name="currentVendor" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="e.g., Purple Cloud">
                             </div>
                         </div>
                     </section>
@@ -232,11 +232,11 @@ function getNewProjectFormHTML() {
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label for="decisionMakerName" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Name</label>
-                                <input type="text" id="decisionMakerName" name="decisionMakerName" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white" placeholder="e.g., John Smith">
+                                <input type="text" id="decisionMakerName" name="decisionMakerName" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="e.g., John Smith">
                             </div>
                             <div>
                                 <label for="decisionMakerRole" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Role/Title</label>
-                                <input type="text" id="decisionMakerRole" name="decisionMakerRole" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white" placeholder="e.g., General Manager, Owner">
+                                <input type="text" id="decisionMakerRole" name="decisionMakerRole" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="e.g., General Manager, Owner">
                             </div>
                         </div>
                     </section>
@@ -249,15 +249,15 @@ function getNewProjectFormHTML() {
                         <div class="space-y-4">
                             <div>
                                 <label for="conversationTranscripts" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Call Transcripts / Conversation Logs</label>
-                                <textarea id="conversationTranscripts" name="conversationTranscripts" rows="6" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white" placeholder="Paste call transcripts, email threads, or conversation logs here..."></textarea>
+                                <textarea id="conversationTranscripts" name="conversationTranscripts" rows="6" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="Paste call transcripts, email threads, or conversation logs here..."></textarea>
                             </div>
                             <div>
                                 <label for="meetingNotes" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Meeting Notes</label>
-                                <textarea id="meetingNotes" name="meetingNotes" rows="4" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white" placeholder="Any meeting notes or discovery call summaries..."></textarea>
+                                <textarea id="meetingNotes" name="meetingNotes" rows="4" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="Any meeting notes or discovery call summaries..."></textarea>
                             </div>
                             <div>
                                 <label for="painPoints" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Known Pain Points</label>
-                                <textarea id="painPoints" name="painPoints" rows="4" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white" placeholder="List specific pain points identified with current vendor or situation..."></textarea>
+                                <textarea id="painPoints" name="painPoints" rows="4" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="List specific pain points identified with current vendor or situation..."></textarea>
                             </div>
                         </div>
                     </section>
@@ -278,7 +278,7 @@ function getNewProjectFormHTML() {
                         <div id="file-list" class="mt-4 space-y-2"></div>
                         <div>
                             <label for="attachmentText" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 mt-4">Extracted/Pasted Attachment Text</label>
-                            <textarea id="attachmentText" name="attachmentText" rows="4" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white" placeholder="Paste text from PDFs or other documents here..."></textarea>
+                            <textarea id="attachmentText" name="attachmentText" rows="4" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="Paste text from PDFs or other documents here..."></textarea>
                         </div>
                     </section>
 
@@ -289,7 +289,7 @@ function getNewProjectFormHTML() {
                         </h3>
                         <div>
                             <label for="workingDraft" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Existing Proposal Draft</label>
-                            <textarea id="workingDraft" name="workingDraft" rows="8" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white font-mono text-sm" placeholder="If you have an existing draft to refine, paste it here..."></textarea>
+                            <textarea id="workingDraft" name="workingDraft" rows="8" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white font-mono text-sm" placeholder="If you have an existing draft to refine, paste it here..."></textarea>
                             <p class="text-sm text-gray-500 dark:text-gray-500 mt-2">If provided, the AI will use this as a starting point for refinement.</p>
                         </div>
                     </section>
@@ -300,7 +300,7 @@ function getNewProjectFormHTML() {
                             ℹ️ Additional Context
                         </h3>
                         <div>
-                            <textarea id="additionalContext" name="additionalContext" rows="4" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white" placeholder="Any other context, special considerations, or instructions..."></textarea>
+                            <textarea id="additionalContext" name="additionalContext" rows="4" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="Any other context, special considerations, or instructions..."></textarea>
                         </div>
                     </section>
 
