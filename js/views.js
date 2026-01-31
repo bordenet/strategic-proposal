@@ -103,6 +103,11 @@ export async function renderProjectsList() {
                                         <div class="bg-blue-600 h-2 rounded-full transition-all" style="width: ${(project.phase / 3) * 100}%"></div>
                                     </div>
                                 </div>
+                                <div class="flex space-x-1">
+                                    ${[1, 2, 3].map(phase => `
+                                        <div class="flex-1 h-1 rounded ${project.phases && project.phases[phase] && project.phases[phase].completed ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-600'}"></div>
+                                    `).join('')}
+                                </div>
                             </div>
 
                             <div class="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
