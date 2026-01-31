@@ -163,29 +163,47 @@ describe('confirm', () => {
 describe('copyToClipboard', () => {
     beforeEach(() => {
         document.body.innerHTML = '<div id="toast-container"></div>';
+        // Reset mocks for each test
+        Object.defineProperty(window, 'isSecureContext', {
+            value: true,
+            writable: true,
+        });
     });
 
-    it('should copy text to clipboard successfully', async () => {
-        // Mock clipboard API
-        const writeTextMock = jest.fn().mockResolvedValue(undefined);
+    it('should copy text to clipboard successfully using ClipboardItem pattern', async () => {
+        // Mock clipboard API with write method (Safari-compatible ClipboardItem pattern)
+        const writeMock = jest.fn().mockResolvedValue(undefined);
         Object.defineProperty(navigator, 'clipboard', {
-            value: { writeText: writeTextMock },
-            writable: true
+            value: { write: writeMock },
+            writable: true,
         });
 
-        const result = await copyToClipboard('test text');
-        expect(result).toBe(true);
-        expect(writeTextMock).toHaveBeenCalledWith('test text');
+        await copyToClipboard('test text');
+        expect(writeMock).toHaveBeenCalledTimes(1);
     });
 
-    it('should return false on clipboard error', async () => {
+    it('should throw error when clipboard fails and fallback fails', async () => {
+        // Mock clipboard API to fail
         Object.defineProperty(navigator, 'clipboard', {
-            value: { writeText: jest.fn().mockRejectedValue(new Error('Clipboard error')) },
-            writable: true
+            value: { write: jest.fn().mockRejectedValue(new Error('Clipboard error')) },
+            writable: true,
         });
+        // Mock execCommand fallback to fail
+        document.execCommand = jest.fn().mockReturnValue(false);
 
-        const result = await copyToClipboard('test text');
-        expect(result).toBe(false);
+        await expect(copyToClipboard('test text')).rejects.toThrow(/copy/i);
+    });
+
+    it('should fallback to execCommand when Clipboard API unavailable', async () => {
+        // Remove clipboard API
+        Object.defineProperty(navigator, 'clipboard', {
+            value: undefined,
+            writable: true,
+        });
+        document.execCommand = jest.fn().mockReturnValue(true);
+
+        await copyToClipboard('test text');
+        expect(document.execCommand).toHaveBeenCalledWith('copy');
     });
 });
 
