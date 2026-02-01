@@ -13,11 +13,16 @@
   "scripts": {
     "test": "NODE_OPTIONS='--experimental-vm-modules' jest",
     "test:unit": "NODE_OPTIONS='--experimental-vm-modules' jest --testPathPattern=\\.test\\.js$",
+    "test:e2e": "playwright test",
     "test:coverage": "NODE_OPTIONS='--experimental-vm-modules' jest --coverage",
     "test:watch": "NODE_OPTIONS='--experimental-vm-modules' jest --watch",
     "lint": "eslint js/**/*.js",
     "lint:fix": "eslint js/**/*.js --fix",
-    "serve": "python3 -m http.server 8080"
+    "format": "eslint js/**/*.js --fix",
+    "quality": "npm run lint && npm run test:coverage",
+    "serve": "python3 -m http.server 8080",
+    "deploy": "./scripts/deploy-web.sh",
+    "prepare": "command -v pre-commit >/dev/null 2>&1 && pre-commit install || echo 'pre-commit not installed, skipping hook setup'"
   },
   "keywords": [
     "strategic-proposal",
