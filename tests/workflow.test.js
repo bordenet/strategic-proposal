@@ -2,7 +2,31 @@
  * Workflow Module Tests
  */
 
-import { WORKFLOW_CONFIG, Workflow, getPhaseMetadata } from '../js/workflow.js';
+import { jest } from '@jest/globals';
+import {
+  WORKFLOW_CONFIG,
+  Workflow,
+  getPhaseMetadata,
+  loadDefaultPrompts,
+  generatePromptForPhase,
+  exportFinalDocument,
+  getFinalMarkdown,
+  getExportFilename
+} from '../js/workflow.js';
+
+// Mock fetch for loading prompt templates
+global.fetch = jest.fn(async (url) => {
+  const templates = {
+    'prompts/phase1.md': 'Phase 1: {{DEALERSHIP_NAME}}',
+    'prompts/phase2.md': 'Phase 2: {{PHASE1_OUTPUT}}',
+    'prompts/phase3.md': 'Phase 3: {{PHASE1_OUTPUT}} {{PHASE2_OUTPUT}}'
+  };
+
+  return {
+    ok: true,
+    text: async () => templates[url] || 'Default template'
+  };
+});
 
 describe('WORKFLOW_CONFIG', () => {
     it('should have 3 phases', () => {
@@ -146,10 +170,146 @@ describe('Workflow', () => {
         mockProject.phase3_output = '# Final Proposal\n\nContent here...';
         const workflow = new Workflow(mockProject);
         const markdown = workflow.exportAsMarkdown();
-        
+
         expect(markdown).toContain('# Strategic Proposal: Test Auto Group');
         expect(markdown).toContain('# Final Proposal');
         expect(markdown).toContain('Content here...');
     });
+
+    it('should check if workflow is complete', () => {
+        const workflow = new Workflow(mockProject);
+        expect(workflow.isComplete()).toBe(false);
+
+        mockProject.phase = 4;
+        const workflow2 = new Workflow(mockProject);
+        expect(workflow2.isComplete()).toBe(true);
+    });
+
+    it('should generate prompt for phase 1', async () => {
+        const workflow = new Workflow(mockProject);
+        const prompt = await workflow.generatePrompt();
+        expect(prompt).toContain('Test Auto Group');
+    });
+
+    it('should generate prompt for phase 2', async () => {
+        mockProject.phase = 2;
+        mockProject.phase1_output = 'Phase 1 content here';
+        const workflow = new Workflow(mockProject);
+        const prompt = await workflow.generatePrompt();
+        expect(prompt).toContain('Phase 1 content here');
+    });
+
+    it('should generate prompt for phase 3', async () => {
+        mockProject.phase = 3;
+        mockProject.phase1_output = 'Phase 1 output';
+        mockProject.phase2_output = 'Phase 2 output';
+        const workflow = new Workflow(mockProject);
+        const prompt = await workflow.generatePrompt();
+        expect(prompt).toContain('Phase 1 output');
+        expect(prompt).toContain('Phase 2 output');
+    });
+
+    it('should throw error for invalid phase in generatePrompt', async () => {
+        mockProject.phase = 99;
+        const workflow = new Workflow(mockProject);
+        await expect(workflow.generatePrompt()).rejects.toThrow('Invalid phase: 99');
+    });
 });
 
+describe('loadDefaultPrompts', () => {
+    beforeEach(() => {
+        jest.clearAllMocks();
+    });
+
+    it('should load prompts for all phases', async () => {
+        await loadDefaultPrompts();
+        expect(global.fetch).toHaveBeenCalledWith('prompts/phase1.md');
+        expect(global.fetch).toHaveBeenCalledWith('prompts/phase2.md');
+        expect(global.fetch).toHaveBeenCalledWith('prompts/phase3.md');
+    });
+
+    it('should handle fetch errors gracefully', async () => {
+        global.fetch.mockRejectedValueOnce(new Error('Network error'));
+        // Should not throw
+        await expect(loadDefaultPrompts()).resolves.not.toThrow();
+    });
+});
+
+describe('generatePromptForPhase', () => {
+    let mockProject;
+
+    beforeEach(() => {
+        mockProject = {
+            id: 'test-123',
+            dealershipName: 'Test Auto',
+            phase: 1,
+            phase1_output: 'Phase 1 content',
+            phase2_output: 'Phase 2 content'
+        };
+        jest.clearAllMocks();
+    });
+
+    it('should generate prompt for specified phase', async () => {
+        const prompt = await generatePromptForPhase(mockProject, 1);
+        expect(prompt).toContain('Test Auto');
+    });
+
+    it('should generate prompt for phase 2', async () => {
+        const prompt = await generatePromptForPhase(mockProject, 2);
+        expect(prompt).toContain('Phase 1 content');
+    });
+
+    it('should generate prompt for phase 3', async () => {
+        const prompt = await generatePromptForPhase(mockProject, 3);
+        expect(prompt).toContain('Phase 1 content');
+        expect(prompt).toContain('Phase 2 content');
+    });
+});
+
+describe('exportFinalDocument', () => {
+    it('should export project as markdown', () => {
+        const project = {
+            dealershipName: 'Export Test Dealer',
+            phase: 3,
+            phase3_output: 'Final content'
+        };
+        const markdown = exportFinalDocument(project);
+        expect(markdown).toContain('Export Test Dealer');
+        expect(markdown).toContain('Final content');
+    });
+});
+
+describe('getFinalMarkdown', () => {
+    it('should return markdown when phase has response', () => {
+        const project = {
+            dealershipName: 'Test Dealer',
+            phase: 3,
+            phase3_output: 'Final output'
+        };
+        const markdown = getFinalMarkdown(project);
+        expect(markdown).toContain('Test Dealer');
+    });
+
+    it('should return null when no completed phases', () => {
+        const project = {
+            dealershipName: 'Test Dealer',
+            phase: 1
+        };
+        const markdown = getFinalMarkdown(project);
+        expect(markdown).toBeNull();
+    });
+});
+
+describe('getExportFilename', () => {
+    it('should generate sanitized filename', () => {
+        const project = { title: 'My Strategic Proposal!' };
+        const filename = getExportFilename(project);
+        expect(filename).toBe('my-strategic-proposal--proposal.md');
+    });
+
+    it('should use default name when title is missing', () => {
+        const project = {};
+        const filename = getExportFilename(project);
+        expect(filename).toBe('strategic-proposal-proposal.md');
+    });
+});

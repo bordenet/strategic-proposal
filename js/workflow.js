@@ -212,6 +212,21 @@ export class Workflow {
     getProgress() {
         return Math.round((this.currentPhase / WORKFLOW_CONFIG.phaseCount) * 100);
     }
+
+    /**
+     * Get the last completed phase with its response
+     * @returns {{phase: number, response: string} | null}
+     */
+    getLastCompletedPhase() {
+        // Check phases in reverse order to find the last one with output
+        for (let i = WORKFLOW_CONFIG.phaseCount; i >= 1; i--) {
+            const output = this.getPhaseOutput(i);
+            if (output) {
+                return { phase: i, response: output };
+            }
+        }
+        return null;
+    }
 }
 
 /**

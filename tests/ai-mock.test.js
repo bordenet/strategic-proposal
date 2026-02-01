@@ -1,57 +1,144 @@
-import { isLocalhost, initMockMode, isMockEnabled, getMockResponse } from "../js/ai-mock.js";
+import { isLocalhost, initMockMode, isMockEnabled, getMockResponse } from '../js/ai-mock.js';
 
-describe("AI Mock Module", () => {
-  test("should export isLocalhost function", () => {
-    expect(typeof isLocalhost).toBe('function');
+describe('AI Mock Module', () => {
+  describe('isLocalhost', () => {
+    test('should return true for localhost', () => {
+      // jsdom sets hostname to 'localhost' by default
+      expect(isLocalhost()).toBe(true);
+    });
   });
 
-  test("should export initMockMode function", () => {
-    expect(typeof initMockMode).toBe('function');
+  describe('initMockMode', () => {
+    beforeEach(() => {
+      localStorage.clear();
+      document.body.innerHTML = '';
+    });
+
+    test('should do nothing when not on localhost', () => {
+      // Mock non-localhost
+      const originalHostname = window.location.hostname;
+      Object.defineProperty(window, 'location', {
+        value: { hostname: 'example.com' },
+        writable: true
+      });
+
+      initMockMode();
+
+      // Restore
+      Object.defineProperty(window, 'location', {
+        value: { hostname: originalHostname },
+        writable: true
+      });
+    });
+
+    test('should initialize toggle when elements exist', () => {
+      document.body.innerHTML = `
+        <div id="aiMockToggle" class="hidden"></div>
+        <input type="checkbox" id="mockModeCheckbox" />
+      `;
+
+      initMockMode();
+
+      const toggle = document.getElementById('aiMockToggle');
+      expect(toggle.classList.contains('hidden')).toBe(false);
+    });
+
+    test('should restore previous mock mode state from localStorage', () => {
+      localStorage.setItem('ai-mock-mode', 'true');
+      document.body.innerHTML = `
+        <div id="aiMockToggle" class="hidden"></div>
+        <input type="checkbox" id="mockModeCheckbox" />
+      `;
+
+      initMockMode();
+
+      const checkbox = document.getElementById('mockModeCheckbox');
+      expect(checkbox.checked).toBe(true);
+    });
+
+    test('should handle checkbox change event', () => {
+      document.body.innerHTML = `
+        <div id="aiMockToggle" class="hidden"></div>
+        <input type="checkbox" id="mockModeCheckbox" />
+      `;
+
+      initMockMode();
+
+      const checkbox = document.getElementById('mockModeCheckbox');
+      checkbox.checked = true;
+      checkbox.dispatchEvent(new Event('change'));
+
+      expect(localStorage.getItem('ai-mock-mode')).toBe('true');
+    });
   });
 
-  test("should export isMockEnabled function", () => {
-    expect(typeof isMockEnabled).toBe('function');
+  describe('isMockEnabled', () => {
+    beforeEach(() => {
+      localStorage.clear();
+      document.body.innerHTML = '';
+      // Reset mock mode by re-initializing with unchecked checkbox
+      document.body.innerHTML = `
+        <div id="aiMockToggle" class="hidden"></div>
+        <input type="checkbox" id="mockModeCheckbox" />
+      `;
+      localStorage.removeItem('ai-mock-mode');
+      initMockMode();
+    });
+
+    test('should return false when mock mode not enabled', () => {
+      // Ensure checkbox is unchecked
+      const checkbox = document.getElementById('mockModeCheckbox');
+      checkbox.checked = false;
+      checkbox.dispatchEvent(new Event('change'));
+      expect(isMockEnabled()).toBe(false);
+    });
+
+    test('should return true when mock mode is enabled on localhost', () => {
+      const checkbox = document.getElementById('mockModeCheckbox');
+      checkbox.checked = true;
+      checkbox.dispatchEvent(new Event('change'));
+
+      expect(isMockEnabled()).toBe(true);
+    });
   });
 
-  test("should export getMockResponse function", () => {
-    expect(typeof getMockResponse).toBe('function');
-  });
+  describe('getMockResponse', () => {
+    test('should return Phase 1 response', () => {
+      const project = { dealershipName: 'Test Motors' };
+      const response = getMockResponse(1, project);
 
-  test("getMockResponse should return Phase 1 response", () => {
-    const project = { dealershipName: "Test Motors" };
-    const response = getMockResponse(1, project);
+      expect(response).toContain('Phase 1');
+      expect(response).toContain('Test Motors');
+    });
 
-    expect(response).toContain("Phase 1");
-    expect(response).toContain("Test Motors");
-  });
+    test('should return Phase 2 response', () => {
+      const project = { dealershipName: 'ABC Dealership' };
+      const response = getMockResponse(2, project);
 
-  test("getMockResponse should return Phase 2 response", () => {
-    const project = { dealershipName: "ABC Dealership" };
-    const response = getMockResponse(2, project);
+      expect(response).toContain('Phase 2');
+      expect(response).toContain('ABC Dealership');
+    });
 
-    expect(response).toContain("Phase 2");
-    expect(response).toContain("ABC Dealership");
-  });
+    test('should return Phase 3 response', () => {
+      const project = { dealershipName: 'XYZ Auto' };
+      const response = getMockResponse(3, project);
 
-  test("getMockResponse should return Phase 3 response", () => {
-    const project = { dealershipName: "XYZ Auto" };
-    const response = getMockResponse(3, project);
+      expect(response).toContain('Strategic Proposal');
+      expect(response).toContain('XYZ Auto');
+    });
 
-    expect(response).toContain("Strategic Proposal");
-    expect(response).toContain("XYZ Auto");
-  });
+    test('should handle missing dealership name', () => {
+      const project = {};
+      const response = getMockResponse(1, project);
 
-  test("getMockResponse should handle missing dealership name", () => {
-    const project = {};
-    const response = getMockResponse(1, project);
+      expect(response).toContain('Test Dealership');
+    });
 
-    expect(response).toContain("Test Dealership");
-  });
+    test('should handle invalid phase', () => {
+      const project = { dealershipName: 'Test' };
+      const response = getMockResponse(99, project);
 
-  test("getMockResponse should handle invalid phase", () => {
-    const project = { dealershipName: "Test" };
-    const response = getMockResponse(99, project);
-
-    expect(response).toContain("not available");
+      expect(response).toContain('not available');
+    });
   });
 });
