@@ -26,7 +26,7 @@ export default {
       lines: 50
     }
   },
-  coverageReporters: ['text', 'lcov', 'html'],
+  coverageReporters: ['text', 'lcov', 'html', 'json'],
   transform: {},
   moduleNameMapper: {
     '^(\\.{1,2}/.*)\\.js$': '$1'
