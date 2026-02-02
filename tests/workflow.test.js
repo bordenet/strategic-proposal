@@ -127,11 +127,18 @@ describe('Workflow', () => {
         expect(workflow.project.phase).toBe(2);
     });
 
-    it('should not advance past phase 3', () => {
+    it('should advance from phase 3 to phase 4 (complete)', () => {
         mockProject.phase = 3;
         const workflow = new Workflow(mockProject);
+        expect(workflow.advancePhase()).toBe(true);
+        expect(workflow.currentPhase).toBe(4);
+    });
+
+    it('should not advance past phase 4', () => {
+        mockProject.phase = 4;
+        const workflow = new Workflow(mockProject);
         expect(workflow.advancePhase()).toBe(false);
-        expect(workflow.currentPhase).toBe(3);
+        expect(workflow.currentPhase).toBe(4);
     });
 
     it('should replace variables in template', () => {
