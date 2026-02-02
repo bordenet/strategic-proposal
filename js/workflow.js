@@ -46,7 +46,9 @@ export class Workflow {
      */
     constructor(project) {
         this.project = project;
-        this.currentPhase = project.phase || 1;
+        // Clamp phase to valid range (1 minimum)
+        const rawPhase = project.phase || 1;
+        this.currentPhase = Math.max(1, rawPhase);
     }
 
     /**
@@ -82,6 +84,19 @@ export class Workflow {
         // Allow advancing up to phase 4 (complete state)
         if (this.currentPhase <= WORKFLOW_CONFIG.phaseCount) {
             this.currentPhase++;
+            this.project.phase = this.currentPhase;
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Go back to the previous phase
+     * @returns {boolean} True if went back, false if already at first phase
+     */
+    previousPhase() {
+        if (this.currentPhase > 1) {
+            this.currentPhase--;
             this.project.phase = this.currentPhase;
             return true;
         }
