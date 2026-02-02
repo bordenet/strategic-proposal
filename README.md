@@ -2,6 +2,8 @@
 
 Write strategic proposals with AI. Three phases: draft, review, refine.
 
+[![Star this repo](https://img.shields.io/github/stars/bordenet/strategic-proposal?style=social)](https://github.com/bordenet/strategic-proposal)
+
 **Try it**: [bordenet.github.io/strategic-proposal](https://bordenet.github.io/strategic-proposal/)
 
 > **What is a Strategic Proposal?** A strategic proposal presents a recommended course of action with supporting analysis. It defines the problem, evaluates options, recommends a solution, and outlines implementation. Used for budget requests, organizational changes, and major initiatives.
