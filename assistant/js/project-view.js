@@ -176,6 +176,9 @@ function renderPhaseContent(project, phaseNumber) {
   const meta = getPhaseMetadata(phaseNumber);
   const phaseData = project.phases[phaseNumber] || { prompt: '', response: '', completed: false };
   const aiName = meta.aiModel.includes('Claude') ? 'Claude' : 'Gemini';
+  // Color mapping for phases (canonical WORKFLOW_CONFIG doesn't include colors)
+  const colorMap = { 1: 'blue', 2: 'green', 3: 'purple' };
+  const color = colorMap[phaseNumber] || 'blue';
 
   // Completion banner shown above Phase 3 content when phase is complete
   const completionBanner = phaseNumber === 3 && phaseData.completed ? `
@@ -230,7 +233,7 @@ function renderPhaseContent(project, phaseNumber) {
                 <p class="text-gray-600 dark:text-gray-400 mb-2">
                     ${meta.description}
                 </p>
-                <div class="inline-flex items-center px-3 py-1 bg-${meta.color}-100 dark:bg-${meta.color}-900/20 text-${meta.color}-800 dark:text-${meta.color}-300 rounded-full text-sm">
+                <div class="inline-flex items-center px-3 py-1 bg-${color}-100 dark:bg-${color}-900/20 text-${color}-800 dark:text-${color}-300 rounded-full text-sm">
                     <span class="mr-2">🤖</span>
                     Use with ${meta.aiModel}
                 </div>
