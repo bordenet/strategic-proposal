@@ -40,6 +40,9 @@ cd "${REPO_ROOT}"
 # Source common library
 source "${SCRIPT_DIR}/lib/common.sh"
 
+# shellcheck source=lib/symlinks.sh
+source "${SCRIPT_DIR}/lib/symlinks.sh"
+
 ################################################################################
 # Configuration
 ################################################################################
@@ -147,7 +150,18 @@ main() {
     start_timer
     run_lint || exit 1
     run_tests || exit 1
+
+    # Replace symlinks with real files for GitHub Pages
+    replace_symlinks_with_real_files || exit 1
+
+    # Deploy (with trap to restore symlinks on failure)
+    trap 'restore_symlinks' EXIT
     deploy_to_github || exit 1
+
+    # Restore symlinks for local development
+    restore_symlinks
+    trap - EXIT
+
     verify_deployment
     stop_timer
 
