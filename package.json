@@ -12,13 +12,14 @@
   },
   "scripts": {
     "test": "NODE_OPTIONS='--experimental-vm-modules' jest",
-    "test:unit": "NODE_OPTIONS='--experimental-vm-modules' jest --testPathPattern=\\.test\\.js$",
+    "test:assistant": "NODE_OPTIONS='--experimental-vm-modules' jest assistant/tests/",
+    "test:validator": "NODE_OPTIONS='--experimental-vm-modules' jest validator/tests/",
     "test:e2e": "playwright test",
     "test:coverage": "NODE_OPTIONS='--experimental-vm-modules' jest --coverage",
     "test:watch": "NODE_OPTIONS='--experimental-vm-modules' jest --watch",
-    "lint": "eslint js/**/*.js",
-    "lint:fix": "eslint js/**/*.js --fix",
-    "format": "eslint js/**/*.js --fix",
+    "lint": "eslint assistant/js/ validator/js/",
+    "lint:fix": "eslint assistant/js/ validator/js/ --fix",
+    "format": "eslint assistant/js/ validator/js/ --fix",
     "quality": "npm run lint && npm run test:coverage",
     "serve": "python3 -m http.server 8080",
     "deploy": "./scripts/deploy-web.sh",
@@ -33,11 +34,14 @@
   "author": "Matt J Bordenet",
   "license": "MIT",
   "devDependencies": {
-    "@jest/globals": "^30.2.0",
+    "@eslint/js": "^9.39.2",
+    "@jest/globals": "^29.7.0",
+    "@playwright/test": "^1.58.1",
     "eslint": "^9.39.2",
     "fake-indexeddb": "^6.2.5",
+    "globals": "^17.0.0",
     "jest": "^29.7.0",
-    "jest-environment-jsdom": "^29.7.0"
+    "jest-environment-jsdom": "^30.2.0"
   },
   "bugs": {
     "url": "https://github.com/bordenet/strategic-proposal/issues"

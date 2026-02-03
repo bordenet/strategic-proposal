@@ -9,24 +9,24 @@ import { formatDate, escapeHtml, confirm, showToast, showDocumentPreviewModal } 
 import { navigateTo } from './router.js';
 import { getFinalMarkdown, getExportFilename } from './workflow.js';
 import {
-    ATTACHMENT_CONFIG,
-    validateFile,
-    validateFiles,
-    formatFileSize,
-    handleFiles,
-    resetAttachmentTracking,
-    getAttachmentStats
+  ATTACHMENT_CONFIG,
+  validateFile,
+  validateFiles,
+  formatFileSize,
+  handleFiles,
+  resetAttachmentTracking,
+  getAttachmentStats
 } from './attachments.js';
 
 // Re-export attachment functions for backwards compatibility
 export {
-    ATTACHMENT_CONFIG,
-    validateFile,
-    validateFiles,
-    formatFileSize,
-    handleFiles,
-    resetAttachmentTracking,
-    getAttachmentStats
+  ATTACHMENT_CONFIG,
+  validateFile,
+  validateFiles,
+  formatFileSize,
+  handleFiles,
+  resetAttachmentTracking,
+  getAttachmentStats
 };
 
 /**
@@ -34,10 +34,10 @@ export {
  * @returns {Promise<void>}
  */
 export async function renderProjectsList() {
-    const projects = await getAllProjects();
+  const projects = await getAllProjects();
     
-    const container = document.getElementById('app-container');
-    container.innerHTML = `
+  const container = document.getElementById('app-container');
+  container.innerHTML = `
         <div class="mb-6 flex items-center justify-between">
             <h2 class="text-3xl font-bold text-gray-900 dark:text-white">
                 My Proposals
@@ -63,12 +63,12 @@ export async function renderProjectsList() {
         ` : `
             <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 ${projects.map(project => {
-                    // Check if all phases are complete
-                    const isComplete = project.phases &&
+    // Check if all phases are complete
+    const isComplete = project.phases &&
                         project.phases[1]?.completed &&
                         project.phases[2]?.completed &&
                         project.phases[3]?.completed;
-                    return `
+    return `
                     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow cursor-pointer" data-project-id="${project.id}">
                         <div class="p-6">
                             <div class="flex items-start justify-between mb-3">
@@ -123,53 +123,53 @@ export async function renderProjectsList() {
         `}
     `;
 
-    // Event listeners
-    const newProjectBtns = container.querySelectorAll('#new-project-btn, #new-project-btn-empty');
-    newProjectBtns.forEach(btn => {
-        btn.addEventListener('click', () => navigateTo('new-project'));
-    });
+  // Event listeners
+  const newProjectBtns = container.querySelectorAll('#new-project-btn, #new-project-btn-empty');
+  newProjectBtns.forEach(btn => {
+    btn.addEventListener('click', () => navigateTo('new-project'));
+  });
 
-    const projectCards = container.querySelectorAll('[data-project-id]');
-    projectCards.forEach(card => {
-        card.addEventListener('click', (e) => {
-            if (!e.target.closest('.delete-project-btn') && !e.target.closest('.preview-project-btn')) {
-                navigateTo('project', card.dataset.projectId);
-            }
-        });
+  const projectCards = container.querySelectorAll('[data-project-id]');
+  projectCards.forEach(card => {
+    card.addEventListener('click', (e) => {
+      if (!e.target.closest('.delete-project-btn') && !e.target.closest('.preview-project-btn')) {
+        navigateTo('project', card.dataset.projectId);
+      }
     });
+  });
 
-    // Preview buttons (for completed projects)
-    const previewBtns = container.querySelectorAll('.preview-project-btn');
-    previewBtns.forEach(btn => {
-        btn.addEventListener('click', async (e) => {
-            e.stopPropagation();
-            const projectId = btn.dataset.projectId;
-            const project = projects.find(p => p.id === projectId);
-            if (project) {
-                const markdown = getFinalMarkdown(project);
-                if (markdown) {
-                    showDocumentPreviewModal(markdown, 'Your Proposal is Ready', getExportFilename(project));
-                } else {
-                    showToast('No content to preview', 'warning');
-                }
-            }
-        });
+  // Preview buttons (for completed projects)
+  const previewBtns = container.querySelectorAll('.preview-project-btn');
+  previewBtns.forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const projectId = btn.dataset.projectId;
+      const project = projects.find(p => p.id === projectId);
+      if (project) {
+        const markdown = getFinalMarkdown(project);
+        if (markdown) {
+          showDocumentPreviewModal(markdown, 'Your Proposal is Ready', getExportFilename(project));
+        } else {
+          showToast('No content to preview', 'warning');
+        }
+      }
     });
+  });
 
-    const deleteBtns = container.querySelectorAll('.delete-project-btn');
-    deleteBtns.forEach(btn => {
-        btn.addEventListener('click', async (e) => {
-            e.stopPropagation();
-            const projectId = btn.dataset.projectId;
-            const project = projects.find(p => p.id === projectId);
+  const deleteBtns = container.querySelectorAll('.delete-project-btn');
+  deleteBtns.forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const projectId = btn.dataset.projectId;
+      const project = projects.find(p => p.id === projectId);
 
-            if (await confirm('Delete Proposal', `Are you sure you want to delete the proposal for "${project.dealershipName || project.title}"?`, 'Delete', 'Cancel')) {
-                await deleteProject(projectId);
-                showToast('Proposal deleted', 'success');
-                renderProjectsList();
-            }
-        });
+      if (await confirm('Delete Proposal', `Are you sure you want to delete the proposal for "${project.dealershipName || project.title}"?`, 'Delete', 'Cancel')) {
+        await deleteProject(projectId);
+        showToast('Proposal deleted', 'success');
+        renderProjectsList();
+      }
     });
+  });
 }
 
 /**
@@ -177,10 +177,10 @@ export async function renderProjectsList() {
  * @returns {void}
  */
 export function renderNewProjectForm() {
-    const container = document.getElementById('app-container');
-    if (!container) return;
-    container.innerHTML = getNewProjectFormHTML();
-    setupNewProjectFormListeners();
+  const container = document.getElementById('app-container');
+  if (!container) return;
+  container.innerHTML = getNewProjectFormHTML();
+  setupNewProjectFormListeners();
 }
 
 /**
@@ -188,7 +188,7 @@ export function renderNewProjectForm() {
  * @returns {string} HTML string
  */
 function getNewProjectFormHTML() {
-    return `
+  return `
         <div class="max-w-4xl mx-auto">
             <div class="mb-6">
                 <button id="back-btn" class="text-blue-600 dark:text-blue-400 hover:underline flex items-center">
@@ -329,46 +329,46 @@ function getNewProjectFormHTML() {
  * @returns {void}
  */
 function setupNewProjectFormListeners() {
-    // Reset attachment tracking for new form
-    resetAttachmentTracking();
+  // Reset attachment tracking for new form
+  resetAttachmentTracking();
 
-    document.getElementById('back-btn')?.addEventListener('click', () => navigateTo('home'));
-    document.getElementById('cancel-btn')?.addEventListener('click', () => navigateTo('home'));
+  document.getElementById('back-btn')?.addEventListener('click', () => navigateTo('home'));
+  document.getElementById('cancel-btn')?.addEventListener('click', () => navigateTo('home'));
 
-    // File upload handling
-    const dropZone = document.getElementById('drop-zone');
-    const fileInput = /** @type {HTMLInputElement | null} */ (document.getElementById('file-input'));
+  // File upload handling
+  const dropZone = document.getElementById('drop-zone');
+  const fileInput = /** @type {HTMLInputElement | null} */ (document.getElementById('file-input'));
 
-    if (dropZone && fileInput) {
-        dropZone.addEventListener('click', () => fileInput.click());
-        dropZone.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            dropZone.classList.add('drag-over');
-        });
-        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
-        dropZone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            dropZone.classList.remove('drag-over');
-            if (e.dataTransfer?.files) {
-                handleFiles(e.dataTransfer.files);
-            }
-        });
-        fileInput.addEventListener('change', (e) => {
-            const target = /** @type {HTMLInputElement} */ (e.target);
-            if (target.files) {
-                handleFiles(target.files);
-            }
-        });
-    }
-
-    // Form submission
-    const form = document.getElementById('new-project-form');
-    form?.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const target = /** @type {HTMLFormElement} */ (e.target);
-        const formData = Object.fromEntries(new FormData(target));
-        const project = await createProject(/** @type {import('./types.js').ProjectFormData} */ (formData));
-        showToast('Proposal created successfully!', 'success');
-        navigateTo('project', project.id);
+  if (dropZone && fileInput) {
+    dropZone.addEventListener('click', () => fileInput.click());
+    dropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropZone.classList.add('drag-over');
     });
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('drag-over');
+      if (e.dataTransfer?.files) {
+        handleFiles(e.dataTransfer.files);
+      }
+    });
+    fileInput.addEventListener('change', (e) => {
+      const target = /** @type {HTMLInputElement} */ (e.target);
+      if (target.files) {
+        handleFiles(target.files);
+      }
+    });
+  }
+
+  // Form submission
+  const form = document.getElementById('new-project-form');
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const target = /** @type {HTMLFormElement} */ (e.target);
+    const formData = Object.fromEntries(new FormData(target));
+    const project = await createProject(/** @type {import('./types.js').ProjectFormData} */ (formData));
+    showToast('Proposal created successfully!', 'success');
+    navigateTo('project', project.id);
+  });
 }

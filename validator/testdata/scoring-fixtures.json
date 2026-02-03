@@ -1,0 +1,23 @@
+{
+  "minimal": {
+    "content": "# Problem\n\nWe have a problem.\n\n# Solution\n\nWe will fix it.",
+    "expectedMinScore": 5,
+    "expectedMaxScore": 30
+  },
+  "complete": {
+    "content": "# Problem Statement\n\nOur enterprise clients are experiencing significant delays in contract processing, averaging 6 weeks from initial request to signed agreement. This bottleneck is causing $3.5 million in delayed revenue recognition quarterly. The current manual process is unsustainable as we scale, and competitors are offering 2-week turnarounds.\n\n# Proposed Solution\n\nImplement an automated contract lifecycle management (CLM) system that reduces processing time to 2 weeks. The solution includes:\n\n- AI-powered document analysis for risk assessment\n- Automated approval workflows with escalation rules\n- Self-service portal for standard agreements\n- Integration with Salesforce and DocuSign\n\n# Business Impact\n\n**Financial Benefits:**\n- Accelerate revenue recognition by $3.5M per quarter\n- Reduce legal review costs by 40% ($500K annually)\n- Increase contract throughput by 3x without additional headcount\n\n**Competitive Advantage:**\n- Match competitor turnaround times\n- Improve customer satisfaction scores from 7.2 to 9.0\n\n# Implementation Plan\n\n## Phase 1: Foundation (Weeks 1-4)\n- Vendor selection and contracting\n- Integration architecture design\n- Change management planning\n\n## Phase 2: Build (Weeks 5-12)\n- System configuration\n- Integration development\n- User acceptance testing\n\n## Phase 3: Deploy (Weeks 13-16)\n- Staged rollout to pilot group\n- Training and documentation\n- Full production deployment",
+    "expectedMinScore": 60,
+    "expectedMaxScore": 100
+  },
+  "problemOnly": {
+    "content": "# Problem Statement\n\nCustomers are frustrated with our slow onboarding process. The average onboarding takes 8 weeks, compared to industry standard of 3 weeks. This results in 25% customer churn during onboarding, costing us $800K monthly in lost recurring revenue.",
+    "expectedMinScore": 15,
+    "expectedMaxScore": 35
+  },
+  "noImplementation": {
+    "content": "# Problem Statement\n\nWe need to improve system performance.\n\n# Proposed Solution\n\nWe will optimize the database and upgrade infrastructure.\n\n# Business Impact\n\n- Faster response times\n- Better user experience",
+    "expectedMinScore": 15,
+    "expectedMaxScore": 45
+  }
+}
+

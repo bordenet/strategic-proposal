@@ -16,14 +16,14 @@ import { preloadPromptTemplates } from './prompts.js';
  * @returns {string | null} - The extracted title or null if not found
  */
 export function extractTitleFromMarkdown(markdown) {
-    if (!markdown) return null;
+  if (!markdown) return null;
 
-    // Look for first H1 heading (# Title)
-    const match = markdown.match(/^#\s+(.+?)$/m);
-    if (match && match[1]) {
-        return match[1].trim();
-    }
-    return null;
+  // Look for first H1 heading (# Title)
+  const match = markdown.match(/^#\s+(.+?)$/m);
+  if (match && match[1]) {
+    return match[1].trim();
+  }
+  return null;
 }
 
 /**
@@ -32,16 +32,16 @@ export function extractTitleFromMarkdown(markdown) {
  * @returns {void}
  */
 function updatePhaseTabStyles(activePhase) {
-    document.querySelectorAll('.phase-tab').forEach(tab => {
-        const tabPhase = parseInt(tab.dataset.phase);
-        if (tabPhase === activePhase) {
-            tab.classList.remove('text-gray-600', 'dark:text-gray-400', 'hover:text-gray-900', 'dark:hover:text-gray-200');
-            tab.classList.add('border-b-2', 'border-blue-600', 'text-blue-600', 'dark:text-blue-400');
-        } else {
-            tab.classList.remove('border-b-2', 'border-blue-600', 'text-blue-600', 'dark:text-blue-400');
-            tab.classList.add('text-gray-600', 'dark:text-gray-400', 'hover:text-gray-900', 'dark:hover:text-gray-200');
-        }
-    });
+  document.querySelectorAll('.phase-tab').forEach(tab => {
+    const tabPhase = parseInt(tab.dataset.phase);
+    if (tabPhase === activePhase) {
+      tab.classList.remove('text-gray-600', 'dark:text-gray-400', 'hover:text-gray-900', 'dark:hover:text-gray-200');
+      tab.classList.add('border-b-2', 'border-blue-600', 'text-blue-600', 'dark:text-blue-400');
+    } else {
+      tab.classList.remove('border-b-2', 'border-blue-600', 'text-blue-600', 'dark:text-blue-400');
+      tab.classList.add('text-gray-600', 'dark:text-gray-400', 'hover:text-gray-900', 'dark:hover:text-gray-200');
+    }
+  });
 }
 
 /**
@@ -50,20 +50,20 @@ function updatePhaseTabStyles(activePhase) {
  * @returns {Promise<void>}
  */
 export async function renderProjectView(projectId) {
-    // Preload prompt templates to avoid network delay on first clipboard operation
-    // Fire-and-forget: don't await, let it run in parallel with project load
-    preloadPromptTemplates().catch(() => {});
+  // Preload prompt templates to avoid network delay on first clipboard operation
+  // Fire-and-forget: don't await, let it run in parallel with project load
+  preloadPromptTemplates().catch(() => {});
 
-    const project = await getProject(projectId);
+  const project = await getProject(projectId);
     
-    if (!project) {
-        showToast('Proposal not found', 'error');
-        navigateTo('home');
-        return;
-    }
+  if (!project) {
+    showToast('Proposal not found', 'error');
+    navigateTo('home');
+    return;
+  }
 
-    const container = document.getElementById('app-container');
-    container.innerHTML = `
+  const container = document.getElementById('app-container');
+  container.innerHTML = `
         <div class="mb-6">
             <button id="back-btn" class="text-blue-600 dark:text-blue-400 hover:underline flex items-center mb-4">
                 <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -94,16 +94,16 @@ export async function renderProjectView(projectId) {
         <div class="mb-6 border-b border-gray-200 dark:border-gray-700">
             <div class="flex space-x-1">
                 ${WORKFLOW_CONFIG.phases.map(phase => {
-                    const isActive = project.phase === phase.number;
-                    const isCompleted = project.phases[phase.number]?.completed;
+    const isActive = project.phase === phase.number;
+    const isCompleted = project.phases[phase.number]?.completed;
 
-                    return `
+    return `
                         <button
                             class="phase-tab px-6 py-3 font-medium transition-colors ${
-                                isActive
-                                    ? 'border-b-2 border-blue-600 text-blue-600 dark:text-blue-400'
-                                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
-                            }"
+  isActive
+    ? 'border-b-2 border-blue-600 text-blue-600 dark:text-blue-400'
+    : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+}"
                             data-phase="${phase.number}"
                         >
                             <span class="mr-2">${phase.icon}</span>
@@ -111,7 +111,7 @@ export async function renderProjectView(projectId) {
                             ${isCompleted ? '<span class="ml-2 text-green-500">✓</span>' : ''}
                         </button>
                     `;
-                }).join('')}
+  }).join('')}
             </div>
         </div>
 
@@ -121,49 +121,49 @@ export async function renderProjectView(projectId) {
         </div>
     `;
 
-    // Event listeners
-    document.getElementById('back-btn').addEventListener('click', () => navigateTo('home'));
+  // Event listeners
+  document.getElementById('back-btn').addEventListener('click', () => navigateTo('home'));
 
-    // Export button only exists when phase 3 is complete (Preview & Copy)
-    const exportBtn = document.getElementById('export-document-btn');
-    if (exportBtn) {
-        exportBtn.addEventListener('click', () => {
-            const markdown = getFinalMarkdown(project);
-            if (markdown) {
-                showDocumentPreviewModal(markdown, 'Your Proposal is Ready', getExportFilename(project));
-            } else {
-                showToast('No proposal content to export', 'warning');
-            }
-        });
-    }
-    
-    // Phase tabs - re-fetch project to ensure fresh data
-    document.querySelectorAll('.phase-tab').forEach(tab => {
-        tab.addEventListener('click', async () => {
-            const targetPhase = parseInt(tab.dataset.phase);
-
-            // Re-fetch project from storage to get fresh data
-            const freshProject = await getProject(project.id);
-
-            // Guard: Can only navigate to a phase if all prior phases are complete
-            // Phase 1 is always accessible
-            if (targetPhase > 1) {
-                const priorPhase = targetPhase - 1;
-                const priorPhaseComplete = freshProject.phases?.[priorPhase]?.completed;
-                if (!priorPhaseComplete) {
-                    showToast(`Complete Phase ${priorPhase} before proceeding to Phase ${targetPhase}`, 'warning');
-                    return;
-                }
-            }
-
-            freshProject.phase = targetPhase;
-            updatePhaseTabStyles(targetPhase);
-            document.getElementById('phase-content').innerHTML = renderPhaseContent(freshProject, targetPhase);
-            attachPhaseEventListeners(freshProject, targetPhase);
-        });
+  // Export button only exists when phase 3 is complete (Preview & Copy)
+  const exportBtn = document.getElementById('export-document-btn');
+  if (exportBtn) {
+    exportBtn.addEventListener('click', () => {
+      const markdown = getFinalMarkdown(project);
+      if (markdown) {
+        showDocumentPreviewModal(markdown, 'Your Proposal is Ready', getExportFilename(project));
+      } else {
+        showToast('No proposal content to export', 'warning');
+      }
     });
+  }
+    
+  // Phase tabs - re-fetch project to ensure fresh data
+  document.querySelectorAll('.phase-tab').forEach(tab => {
+    tab.addEventListener('click', async () => {
+      const targetPhase = parseInt(tab.dataset.phase);
 
-    attachPhaseEventListeners(project, project.phase);
+      // Re-fetch project from storage to get fresh data
+      const freshProject = await getProject(project.id);
+
+      // Guard: Can only navigate to a phase if all prior phases are complete
+      // Phase 1 is always accessible
+      if (targetPhase > 1) {
+        const priorPhase = targetPhase - 1;
+        const priorPhaseComplete = freshProject.phases?.[priorPhase]?.completed;
+        if (!priorPhaseComplete) {
+          showToast(`Complete Phase ${priorPhase} before proceeding to Phase ${targetPhase}`, 'warning');
+          return;
+        }
+      }
+
+      freshProject.phase = targetPhase;
+      updatePhaseTabStyles(targetPhase);
+      document.getElementById('phase-content').innerHTML = renderPhaseContent(freshProject, targetPhase);
+      attachPhaseEventListeners(freshProject, targetPhase);
+    });
+  });
+
+  attachPhaseEventListeners(project, project.phase);
 }
 
 /**
@@ -173,11 +173,11 @@ export async function renderProjectView(projectId) {
  * @returns {string} HTML string
  */
 function renderPhaseContent(project, phaseNumber) {
-    const meta = getPhaseMetadata(phaseNumber);
-    const phaseData = project.phases[phaseNumber] || { prompt: '', response: '', completed: false };
-    const aiName = meta.aiModel.includes('Claude') ? 'Claude' : 'Gemini';
+  const meta = getPhaseMetadata(phaseNumber);
+  const phaseData = project.phases[phaseNumber] || { prompt: '', response: '', completed: false };
+  const aiName = meta.aiModel.includes('Claude') ? 'Claude' : 'Gemini';
 
-    return `
+  return `
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
             <div class="mb-6">
                 <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
@@ -321,208 +321,208 @@ function renderPhaseContent(project, phaseNumber) {
  * @returns {void}
  */
 function attachPhaseEventListeners(project, phase) {
-    const copyPromptBtn = document.getElementById('copy-prompt-btn');
-    const saveResponseBtn = document.getElementById('save-response-btn');
-    const responseTextarea = document.getElementById('response-textarea');
-    const prevPhaseBtn = document.getElementById('prev-phase-btn');
-    const nextPhaseBtn = document.getElementById('next-phase-btn');
+  const copyPromptBtn = document.getElementById('copy-prompt-btn');
+  const saveResponseBtn = document.getElementById('save-response-btn');
+  const responseTextarea = document.getElementById('response-textarea');
+  const prevPhaseBtn = document.getElementById('prev-phase-btn');
+  const nextPhaseBtn = document.getElementById('next-phase-btn');
 
-    // CRITICAL: Safari transient activation fix - call copyToClipboardAsync synchronously
-    copyPromptBtn?.addEventListener('click', async () => {
-        // Check if warning was previously acknowledged - MUST happen before clipboard call
-        const warningAcknowledged = localStorage.getItem('external-ai-warning-acknowledged');
+  // CRITICAL: Safari transient activation fix - call copyToClipboardAsync synchronously
+  copyPromptBtn?.addEventListener('click', async () => {
+    // Check if warning was previously acknowledged - MUST happen before clipboard call
+    const warningAcknowledged = localStorage.getItem('external-ai-warning-acknowledged');
 
-        if (!warningAcknowledged) {
-            const confirmed = await confirm(
-                '⚠️ External AI Warning',
-                'You are about to copy a prompt that may contain proprietary data.\n\n' +
+    if (!warningAcknowledged) {
+      const confirmed = await confirm(
+        '⚠️ External AI Warning',
+        'You are about to copy a prompt that may contain proprietary data.\n\n' +
                 '• This prompt will be pasted into an external AI service (Claude/Gemini)\n' +
                 '• Data sent to these services is processed on third-party servers\n' +
                 '• For sensitive documents, use an internal tool like LibreGPT instead\n\n' +
                 'Do you want to continue?',
-                'Copy Anyway',
-                'Cancel'
-            );
+        'Copy Anyway',
+        'Cancel'
+      );
 
-            if (!confirmed) {
-                showToast('Copy cancelled', 'info');
-                return;
-            }
+      if (!confirmed) {
+        showToast('Copy cancelled', 'info');
+        return;
+      }
 
-            // Remember the choice for this session
-            localStorage.setItem('external-ai-warning-acknowledged', 'true');
+      // Remember the choice for this session
+      localStorage.setItem('external-ai-warning-acknowledged', 'true');
+    }
+
+    // Now call clipboard synchronously with Promise - preserves transient activation
+    let generatedPrompt = null;
+    const promptPromise = (async () => {
+      const prompt = await generatePromptForPhase(project, phase);
+      generatedPrompt = prompt;
+      return prompt;
+    })();
+
+    copyToClipboardAsync(promptPromise)
+      .then(async () => {
+        showToast('Prompt copied to clipboard!', 'success');
+
+        // Save prompt but DON'T re-render - user is still working on this phase
+        await updatePhase(project.id, phase, generatedPrompt, project.phases[phase]?.response || '', { skipAutoAdvance: true });
+
+        // Enable the "Open AI" button now that prompt is copied
+        const openAiBtn = document.getElementById('open-ai-btn');
+        if (openAiBtn) {
+          openAiBtn.classList.remove('opacity-50', 'cursor-not-allowed', 'pointer-events-none');
+          openAiBtn.classList.add('hover:bg-purple-700');
+          openAiBtn.removeAttribute('aria-disabled');
         }
 
-        // Now call clipboard synchronously with Promise - preserves transient activation
-        let generatedPrompt = null;
-        const promptPromise = (async () => {
-            const prompt = await generatePromptForPhase(project, phase);
-            generatedPrompt = prompt;
-            return prompt;
-        })();
-
-        copyToClipboardAsync(promptPromise)
-            .then(async () => {
-                showToast('Prompt copied to clipboard!', 'success');
-
-                // Save prompt but DON'T re-render - user is still working on this phase
-                await updatePhase(project.id, phase, generatedPrompt, project.phases[phase]?.response || '', { skipAutoAdvance: true });
-
-                // Enable the "Open AI" button now that prompt is copied
-                const openAiBtn = document.getElementById('open-ai-btn');
-                if (openAiBtn) {
-                    openAiBtn.classList.remove('opacity-50', 'cursor-not-allowed', 'pointer-events-none');
-                    openAiBtn.classList.add('hover:bg-purple-700');
-                    openAiBtn.removeAttribute('aria-disabled');
-                }
-
-                // Show and enable the View Prompt button now that prompt is generated
-                const viewPromptBtn = document.getElementById('view-prompt-btn');
-                if (viewPromptBtn) {
-                    viewPromptBtn.classList.remove('hidden', 'opacity-50', 'cursor-not-allowed');
-                    viewPromptBtn.disabled = false;
-                }
-
-                // Enable the response textarea now that prompt is copied
-                if (responseTextarea) {
-                    responseTextarea.disabled = false;
-                    responseTextarea.classList.remove('opacity-50', 'cursor-not-allowed');
-                    responseTextarea.focus();
-                }
-            })
-            .catch((error) => {
-                console.error('Failed to copy prompt:', error);
-                showToast('Failed to copy to clipboard. Please check browser permissions.', 'error');
-            });
-    });
-
-    // Update save button state as user types
-    responseTextarea?.addEventListener('input', () => {
-        const hasEnoughContent = responseTextarea.value.trim().length >= 3;
-        if (saveResponseBtn) {
-            saveResponseBtn.disabled = !hasEnoughContent;
+        // Show and enable the View Prompt button now that prompt is generated
+        const viewPromptBtn = document.getElementById('view-prompt-btn');
+        if (viewPromptBtn) {
+          viewPromptBtn.classList.remove('hidden', 'opacity-50', 'cursor-not-allowed');
+          viewPromptBtn.disabled = false;
         }
-    });
 
-    saveResponseBtn?.addEventListener('click', async () => {
-        const response = responseTextarea.value.trim();
-        if (response && response.length >= 3) {
-            await updatePhase(project.id, phase, project.phases[phase]?.prompt || '', response);
+        // Enable the response textarea now that prompt is copied
+        if (responseTextarea) {
+          responseTextarea.disabled = false;
+          responseTextarea.classList.remove('opacity-50', 'cursor-not-allowed');
+          responseTextarea.focus();
+        }
+      })
+      .catch((error) => {
+        console.error('Failed to copy prompt:', error);
+        showToast('Failed to copy to clipboard. Please check browser permissions.', 'error');
+      });
+  });
 
-            // Auto-advance to next phase if not on final phase
-            if (phase < 3) {
-                showToast('Response saved! Moving to next phase...', 'success');
-                // Re-fetch the updated project and advance
-                const updatedProject = await getProject(project.id);
-                updatedProject.phase = phase + 1;
-                updatePhaseTabStyles(phase + 1);
-                document.getElementById('phase-content').innerHTML = renderPhaseContent(updatedProject, phase + 1);
-                attachPhaseEventListeners(updatedProject, phase + 1);
-            } else {
-                // Phase 3 complete - extract and update project title if changed
-                const extractedTitle = extractTitleFromMarkdown(response);
-                if (extractedTitle && extractedTitle !== project.dealershipName) {
-                    await updateProject(project.id, {
-                        dealershipName: extractedTitle,
-                        title: `Proposal - ${extractedTitle}`
-                    });
-                    showToast(`Phase 3 complete! Title updated to "${extractedTitle}"`, 'success');
-                } else {
-                    showToast('Phase 3 complete! Your proposal is ready.', 'success');
-                }
-                renderProjectView(project.id);
-            }
+  // Update save button state as user types
+  responseTextarea?.addEventListener('input', () => {
+    const hasEnoughContent = responseTextarea.value.trim().length >= 3;
+    if (saveResponseBtn) {
+      saveResponseBtn.disabled = !hasEnoughContent;
+    }
+  });
+
+  saveResponseBtn?.addEventListener('click', async () => {
+    const response = responseTextarea.value.trim();
+    if (response && response.length >= 3) {
+      await updatePhase(project.id, phase, project.phases[phase]?.prompt || '', response);
+
+      // Auto-advance to next phase if not on final phase
+      if (phase < 3) {
+        showToast('Response saved! Moving to next phase...', 'success');
+        // Re-fetch the updated project and advance
+        const updatedProject = await getProject(project.id);
+        updatedProject.phase = phase + 1;
+        updatePhaseTabStyles(phase + 1);
+        document.getElementById('phase-content').innerHTML = renderPhaseContent(updatedProject, phase + 1);
+        attachPhaseEventListeners(updatedProject, phase + 1);
+      } else {
+        // Phase 3 complete - extract and update project title if changed
+        const extractedTitle = extractTitleFromMarkdown(response);
+        if (extractedTitle && extractedTitle !== project.dealershipName) {
+          await updateProject(project.id, {
+            dealershipName: extractedTitle,
+            title: `Proposal - ${extractedTitle}`
+          });
+          showToast(`Phase 3 complete! Title updated to "${extractedTitle}"`, 'success');
         } else {
-            showToast('Please enter at least 3 characters', 'warning');
+          showToast('Phase 3 complete! Your proposal is ready.', 'success');
         }
+        renderProjectView(project.id);
+      }
+    } else {
+      showToast('Please enter at least 3 characters', 'warning');
+    }
+  });
+
+  // Previous phase button - re-fetch project to ensure fresh data
+  if (prevPhaseBtn) {
+    prevPhaseBtn.addEventListener('click', async () => {
+      const prevPhase = phase - 1;
+      if (prevPhase < 1) return;
+
+      // Re-fetch project from storage to get fresh data
+      const freshProject = await getProject(project.id);
+      freshProject.phase = prevPhase;
+
+      updatePhaseTabStyles(prevPhase);
+      document.getElementById('phase-content').innerHTML = renderPhaseContent(freshProject, prevPhase);
+      attachPhaseEventListeners(freshProject, prevPhase);
     });
+  }
 
-    // Previous phase button - re-fetch project to ensure fresh data
-    if (prevPhaseBtn) {
-        prevPhaseBtn.addEventListener('click', async () => {
-            const prevPhase = phase - 1;
-            if (prevPhase < 1) return;
+  // Edit Details button (phase 1 only)
+  const editDetailsBtn = document.getElementById('edit-details-btn');
+  if (editDetailsBtn) {
+    editDetailsBtn.addEventListener('click', () => {
+      navigateTo(`project/${project.id}/edit`);
+    });
+  }
 
-            // Re-fetch project from storage to get fresh data
-            const freshProject = await getProject(project.id);
-            freshProject.phase = prevPhase;
+  // Next phase button - re-fetch project to ensure fresh data
+  if (nextPhaseBtn && project.phases[phase]?.completed) {
+    nextPhaseBtn.addEventListener('click', async () => {
+      const nextPhase = phase + 1;
 
-            updatePhaseTabStyles(prevPhase);
-            document.getElementById('phase-content').innerHTML = renderPhaseContent(freshProject, prevPhase);
-            attachPhaseEventListeners(freshProject, prevPhase);
-        });
-    }
+      // Re-fetch project from storage to get fresh data
+      const freshProject = await getProject(project.id);
+      freshProject.phase = nextPhase;
 
-    // Edit Details button (phase 1 only)
-    const editDetailsBtn = document.getElementById('edit-details-btn');
-    if (editDetailsBtn) {
-        editDetailsBtn.addEventListener('click', () => {
-            navigateTo(`project/${project.id}/edit`);
-        });
-    }
+      updatePhaseTabStyles(nextPhase);
+      document.getElementById('phase-content').innerHTML = renderPhaseContent(freshProject, nextPhase);
+      attachPhaseEventListeners(freshProject, nextPhase);
+    });
+  }
 
-    // Next phase button - re-fetch project to ensure fresh data
-    if (nextPhaseBtn && project.phases[phase]?.completed) {
-        nextPhaseBtn.addEventListener('click', async () => {
-            const nextPhase = phase + 1;
+  // View Prompt button (main button)
+  const viewPromptMainBtn = document.getElementById('view-prompt-btn');
+  if (viewPromptMainBtn && project.phases[phase]?.prompt) {
+    viewPromptMainBtn.addEventListener('click', () => {
+      const meta = getPhaseMetadata(phase);
+      showPromptModal(project.phases[phase].prompt, `Phase ${phase}: ${meta.name}`);
+    });
+  }
 
-            // Re-fetch project from storage to get fresh data
-            const freshProject = await getProject(project.id);
-            freshProject.phase = nextPhase;
+  // View Full Prompt inline link
+  const viewFullPromptBtn = document.querySelector('.view-full-prompt-btn');
+  if (viewFullPromptBtn && project.phases[phase]?.prompt) {
+    viewFullPromptBtn.addEventListener('click', () => {
+      const meta = getPhaseMetadata(phase);
+      showPromptModal(project.phases[phase].prompt, `Phase ${phase}: ${meta.name}`);
+    });
+  }
 
-            updatePhaseTabStyles(nextPhase);
-            document.getElementById('phase-content').innerHTML = renderPhaseContent(freshProject, nextPhase);
-            attachPhaseEventListeners(freshProject, nextPhase);
-        });
-    }
+  // Delete project button
+  const deleteProjectBtn = document.getElementById('delete-project-btn');
+  if (deleteProjectBtn) {
+    deleteProjectBtn.addEventListener('click', async () => {
+      const confirmed = await confirm(
+        '🗑️ Delete Proposal?',
+        'Are you sure you want to delete this proposal? This cannot be undone.',
+        'Delete',
+        'Cancel'
+      );
+      if (confirmed) {
+        await deleteProject(project.id);
+        showToast('Proposal deleted', 'success');
+        navigateTo('');
+      }
+    });
+  }
 
-    // View Prompt button (main button)
-    const viewPromptMainBtn = document.getElementById('view-prompt-btn');
-    if (viewPromptMainBtn && project.phases[phase]?.prompt) {
-        viewPromptMainBtn.addEventListener('click', () => {
-            const meta = getPhaseMetadata(phase);
-            showPromptModal(project.phases[phase].prompt, `Phase ${phase}: ${meta.name}`);
-        });
-    }
-
-    // View Full Prompt inline link
-    const viewFullPromptBtn = document.querySelector('.view-full-prompt-btn');
-    if (viewFullPromptBtn && project.phases[phase]?.prompt) {
-        viewFullPromptBtn.addEventListener('click', () => {
-            const meta = getPhaseMetadata(phase);
-            showPromptModal(project.phases[phase].prompt, `Phase ${phase}: ${meta.name}`);
-        });
-    }
-
-    // Delete project button
-    const deleteProjectBtn = document.getElementById('delete-project-btn');
-    if (deleteProjectBtn) {
-        deleteProjectBtn.addEventListener('click', async () => {
-            const confirmed = await confirm(
-                '🗑️ Delete Proposal?',
-                'Are you sure you want to delete this proposal? This cannot be undone.',
-                'Delete',
-                'Cancel'
-            );
-            if (confirmed) {
-                await deleteProject(project.id);
-                showToast('Proposal deleted', 'success');
-                navigateTo('');
-            }
-        });
-    }
-
-    // Export phase button (Phase 3 complete - Preview & Copy)
-    const exportPhaseBtn = document.getElementById('export-phase-btn');
-    if (exportPhaseBtn) {
-        exportPhaseBtn.addEventListener('click', () => {
-            const markdown = getFinalMarkdown(project);
-            if (markdown) {
-                showDocumentPreviewModal(markdown, 'Your Proposal is Ready', getExportFilename(project));
-            } else {
-                showToast('No proposal content to export', 'warning');
-            }
-        });
-    }
+  // Export phase button (Phase 3 complete - Preview & Copy)
+  const exportPhaseBtn = document.getElementById('export-phase-btn');
+  if (exportPhaseBtn) {
+    exportPhaseBtn.addEventListener('click', () => {
+      const markdown = getFinalMarkdown(project);
+      if (markdown) {
+        showDocumentPreviewModal(markdown, 'Your Proposal is Ready', getExportFilename(project));
+      } else {
+        showToast('No proposal content to export', 'warning');
+      }
+    });
+  }
 }
 

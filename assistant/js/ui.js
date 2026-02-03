@@ -6,18 +6,18 @@
 
 /** @type {Object.<import('./types.js').ToastType, string>} */
 const TOAST_COLORS = {
-    success: 'bg-green-500',
-    error: 'bg-red-500',
-    warning: 'bg-yellow-500',
-    info: 'bg-blue-500'
+  success: 'bg-green-500',
+  error: 'bg-red-500',
+  warning: 'bg-yellow-500',
+  info: 'bg-blue-500'
 };
 
 /** @type {Object.<import('./types.js').ToastType, string>} */
 const TOAST_ICONS = {
-    success: '✓',
-    error: '✗',
-    warning: '⚠',
-    info: 'ℹ'
+  success: '✓',
+  error: '✗',
+  warning: '⚠',
+  info: 'ℹ'
 };
 
 /**
@@ -28,23 +28,23 @@ const TOAST_ICONS = {
  * @returns {void}
  */
 export function showToast(message, type = 'info', duration = 3000) {
-    const container = document.getElementById('toast-container');
-    if (!container) return;
+  const container = document.getElementById('toast-container');
+  if (!container) return;
 
-    const toast = document.createElement('div');
-    toast.className = `${TOAST_COLORS[type]} text-white px-6 py-3 rounded-lg shadow-lg flex items-center space-x-2 transform transition-all duration-300 translate-x-full`;
-    toast.innerHTML = `
+  const toast = document.createElement('div');
+  toast.className = `${TOAST_COLORS[type]} text-white px-6 py-3 rounded-lg shadow-lg flex items-center space-x-2 transform transition-all duration-300 translate-x-full`;
+  toast.innerHTML = `
         <span class="text-xl">${TOAST_ICONS[type]}</span>
         <span>${message}</span>
     `;
 
-    container.appendChild(toast);
+  container.appendChild(toast);
 
-    setTimeout(() => toast.classList.remove('translate-x-full'), 10);
-    setTimeout(() => {
-        toast.classList.add('translate-x-full');
-        setTimeout(() => toast.remove(), 300);
-    }, duration);
+  setTimeout(() => toast.classList.remove('translate-x-full'), 10);
+  setTimeout(() => {
+    toast.classList.add('translate-x-full');
+    setTimeout(() => toast.remove(), 300);
+  }, duration);
 }
 
 /**
@@ -53,10 +53,10 @@ export function showToast(message, type = 'info', duration = 3000) {
  * @returns {void}
  */
 export function showLoading(text = 'Loading...') {
-    const overlay = document.getElementById('loading-overlay');
-    const loadingText = document.getElementById('loading-text');
-    if (loadingText) loadingText.textContent = text;
-    if (overlay) overlay.classList.remove('hidden');
+  const overlay = document.getElementById('loading-overlay');
+  const loadingText = document.getElementById('loading-text');
+  if (loadingText) loadingText.textContent = text;
+  if (overlay) overlay.classList.remove('hidden');
 }
 
 /**
@@ -64,8 +64,8 @@ export function showLoading(text = 'Loading...') {
  * @returns {void}
  */
 export function hideLoading() {
-    const overlay = document.getElementById('loading-overlay');
-    if (overlay) overlay.classList.add('hidden');
+  const overlay = document.getElementById('loading-overlay');
+  if (overlay) overlay.classList.add('hidden');
 }
 
 /**
@@ -77,10 +77,10 @@ export function hideLoading() {
  * @returns {Promise<boolean>} True if confirmed, false if cancelled
  */
 export function confirm(title = 'Confirm', message = '', confirmLabel = 'Confirm', cancelLabel = 'Cancel') {
-    return new Promise((resolve) => {
-        const modal = document.createElement('div');
-        modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4';
-        modal.innerHTML = `
+  return new Promise((resolve) => {
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4';
+    modal.innerHTML = `
             <div class="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md shadow-xl">
                 <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">${escapeHtml(title)}</h3>
                 <p class="text-gray-700 dark:text-gray-300 mb-6 whitespace-pre-line">${escapeHtml(message)}</p>
@@ -95,25 +95,25 @@ export function confirm(title = 'Confirm', message = '', confirmLabel = 'Confirm
             </div>
         `;
 
-        document.body.appendChild(modal);
+    document.body.appendChild(modal);
 
-        modal.querySelector('#confirm-btn')?.addEventListener('click', () => {
-            modal.remove();
-            resolve(true);
-        });
-
-        modal.querySelector('#cancel-btn')?.addEventListener('click', () => {
-            modal.remove();
-            resolve(false);
-        });
-
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                modal.remove();
-                resolve(false);
-            }
-        });
+    modal.querySelector('#confirm-btn')?.addEventListener('click', () => {
+      modal.remove();
+      resolve(true);
     });
+
+    modal.querySelector('#cancel-btn')?.addEventListener('click', () => {
+      modal.remove();
+      resolve(false);
+    });
+
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        modal.remove();
+        resolve(false);
+      }
+    });
+  });
 }
 
 /**
@@ -122,23 +122,23 @@ export function confirm(title = 'Confirm', message = '', confirmLabel = 'Confirm
  * @returns {string} Formatted relative time
  */
 export function formatDate(isoString) {
-    const date = new Date(isoString);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffMins = Math.floor(diffMs / 60000);
-    const diffHours = Math.floor(diffMs / 3600000);
-    const diffDays = Math.floor(diffMs / 86400000);
+  const date = new Date(isoString);
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMs / 3600000);
+  const diffDays = Math.floor(diffMs / 86400000);
 
-    if (diffMins < 1) return 'Just now';
-    if (diffMins < 60) return `${diffMins} minute${diffMins > 1 ? 's' : ''} ago`;
-    if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
-    if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+  if (diffMins < 1) return 'Just now';
+  if (diffMins < 60) return `${diffMins} minute${diffMins > 1 ? 's' : ''} ago`;
+  if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+  if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
 
-    return date.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
-    });
+  return date.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric'
+  });
 }
 
 /**
@@ -147,11 +147,11 @@ export function formatDate(isoString) {
  * @returns {string} Formatted string (e.g., "1.5 MB")
  */
 export function formatBytes(bytes) {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
+  if (bytes === 0) return '0 Bytes';
+  const k = 1024;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
 }
 
 /**
@@ -160,13 +160,13 @@ export function formatBytes(bytes) {
  * @returns {string} Escaped HTML string
  */
 export function escapeHtml(text) {
-    if (!text) return '';
-    return String(text)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
+  if (!text) return '';
+  return String(text)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
 }
 
 /**
@@ -180,7 +180,7 @@ export function escapeHtml(text) {
  * @throws {Error} If clipboard access fails
  */
 export async function copyToClipboard(text) {
-    return copyToClipboardAsync(Promise.resolve(text));
+  return copyToClipboardAsync(Promise.resolve(text));
 }
 
 /**
@@ -205,59 +205,59 @@ export async function copyToClipboard(text) {
  * });
  */
 export async function copyToClipboardAsync(textPromise) {
-    // Safari transient activation fix: Call clipboard.write() SYNCHRONOUSLY with Promise-wrapped Blob
-    // The transient activation is evaluated when write() is called, not when Promise resolves
-    if (navigator.clipboard && window.isSecureContext && typeof ClipboardItem !== 'undefined') {
-        try {
-            // Create a Promise that resolves to a Blob - this preserves transient activation
-            const blobPromise = textPromise.then(text => new Blob([text], { type: 'text/plain' }));
-            const item = new ClipboardItem({ 'text/plain': blobPromise });
-            await navigator.clipboard.write([item]);
-            return;
-        } catch (err) {
-            console.warn('ClipboardItem with Promise failed, trying execCommand:', err?.message);
-        }
-    }
-
-    // Fallback: Wait for text and use execCommand
-    // This may fail on Safari if transient activation expired, but it's our last resort
-    const text = await textPromise;
-
-    // Legacy execCommand fallback
-    // CRITICAL: Position IN viewport - iOS Safari rejects off-screen elements
-    const textarea = document.createElement('textarea');
-    textarea.value = text;
-    textarea.setAttribute('readonly', '');
-    textarea.setAttribute('contenteditable', 'true');
-    textarea.style.position = 'fixed';
-    textarea.style.left = '0';
-    textarea.style.top = '0';
-    textarea.style.width = '1px';
-    textarea.style.height = '1px';
-    textarea.style.padding = '0';
-    textarea.style.border = 'none';
-    textarea.style.outline = 'none';
-    textarea.style.boxShadow = 'none';
-    textarea.style.background = 'transparent';
-    textarea.style.opacity = '0.01';
-    textarea.style.fontSize = '16px'; // Prevent iOS zoom
-
-    document.body.appendChild(textarea);
-
+  // Safari transient activation fix: Call clipboard.write() SYNCHRONOUSLY with Promise-wrapped Blob
+  // The transient activation is evaluated when write() is called, not when Promise resolves
+  if (navigator.clipboard && window.isSecureContext && typeof ClipboardItem !== 'undefined') {
     try {
-        textarea.focus();
-        textarea.setSelectionRange(0, text.length);
-        const successful = document.execCommand('copy');
-        if (!successful) {
-            throw new Error('execCommand copy returned false');
-        }
+      // Create a Promise that resolves to a Blob - this preserves transient activation
+      const blobPromise = textPromise.then(text => new Blob([text], { type: 'text/plain' }));
+      const item = new ClipboardItem({ 'text/plain': blobPromise });
+      await navigator.clipboard.write([item]);
+      return;
     } catch (err) {
-        throw new Error('Failed to copy to clipboard: ' + (err?.message || 'unknown error'));
-    } finally {
-        if (document.body.contains(textarea)) {
-            document.body.removeChild(textarea);
-        }
+      console.warn('ClipboardItem with Promise failed, trying execCommand:', err?.message);
     }
+  }
+
+  // Fallback: Wait for text and use execCommand
+  // This may fail on Safari if transient activation expired, but it's our last resort
+  const text = await textPromise;
+
+  // Legacy execCommand fallback
+  // CRITICAL: Position IN viewport - iOS Safari rejects off-screen elements
+  const textarea = document.createElement('textarea');
+  textarea.value = text;
+  textarea.setAttribute('readonly', '');
+  textarea.setAttribute('contenteditable', 'true');
+  textarea.style.position = 'fixed';
+  textarea.style.left = '0';
+  textarea.style.top = '0';
+  textarea.style.width = '1px';
+  textarea.style.height = '1px';
+  textarea.style.padding = '0';
+  textarea.style.border = 'none';
+  textarea.style.outline = 'none';
+  textarea.style.boxShadow = 'none';
+  textarea.style.background = 'transparent';
+  textarea.style.opacity = '0.01';
+  textarea.style.fontSize = '16px'; // Prevent iOS zoom
+
+  document.body.appendChild(textarea);
+
+  try {
+    textarea.focus();
+    textarea.setSelectionRange(0, text.length);
+    const successful = document.execCommand('copy');
+    if (!successful) {
+      throw new Error('execCommand copy returned false');
+    }
+  } catch (err) {
+    throw new Error('Failed to copy to clipboard: ' + (err?.message || 'unknown error'));
+  } finally {
+    if (document.body.contains(textarea)) {
+      document.body.removeChild(textarea);
+    }
+  }
 }
 
 /**
@@ -267,9 +267,9 @@ export async function copyToClipboardAsync(textPromise) {
  * @returns {void}
  */
 export function showPromptModal(prompt, title = 'Full Prompt') {
-    const modal = document.createElement('div');
-    modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4';
-    modal.innerHTML = `
+  const modal = document.createElement('div');
+  modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4';
+  modal.innerHTML = `
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] flex flex-col">
             <div class="flex justify-between items-center p-4 border-b border-gray-200 dark:border-gray-700">
                 <h3 class="text-lg font-bold text-gray-900 dark:text-white">${title}</h3>
@@ -285,20 +285,20 @@ export function showPromptModal(prompt, title = 'Full Prompt') {
         </div>
     `;
 
-    document.body.appendChild(modal);
+  document.body.appendChild(modal);
 
-    const closeModal = () => modal.remove();
-    modal.querySelector('#close-prompt-modal')?.addEventListener('click', closeModal);
-    modal.querySelector('#close-modal-btn')?.addEventListener('click', closeModal);
-    modal.querySelector('#copy-modal-prompt')?.addEventListener('click', async () => {
-        try {
-            await copyToClipboard(prompt);
-            showToast('Prompt copied to clipboard!', 'success');
-        } catch {
-            showToast('Failed to copy prompt to clipboard', 'error');
-        }
-    });
-    modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+  const closeModal = () => modal.remove();
+  modal.querySelector('#close-prompt-modal')?.addEventListener('click', closeModal);
+  modal.querySelector('#close-modal-btn')?.addEventListener('click', closeModal);
+  modal.querySelector('#copy-modal-prompt')?.addEventListener('click', async () => {
+    try {
+      await copyToClipboard(prompt);
+      showToast('Prompt copied to clipboard!', 'success');
+    } catch {
+      showToast('Failed to copy prompt to clipboard', 'error');
+    }
+  });
+  modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
 }
 
 /**

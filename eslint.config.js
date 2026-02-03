@@ -1,34 +1,54 @@
+import globals from 'globals';
+import js from '@eslint/js';
+
 export default [
-    {
-        languageOptions: {
-            ecmaVersion: 2022,
-            sourceType: 'module',
-            globals: {
-                window: 'readonly',
-                document: 'readonly',
-                console: 'readonly',
-                localStorage: 'readonly',
-                indexedDB: 'readonly',
-                navigator: 'readonly',
-                crypto: 'readonly',
-                URL: 'readonly',
-                Blob: 'readonly',
-                FileReader: 'readonly',
-                FormData: 'readonly',
-                fetch: 'readonly',
-                setTimeout: 'readonly',
-                marked: 'readonly' // Loaded via CDN for markdown rendering
-            }
-        },
-        rules: {
-            'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
-            'no-console': 'off',
-            'semi': ['error', 'always'],
-            'quotes': ['error', 'single', { avoidEscape: true }]
-        }
+  // Recommended rules
+  js.configs.recommended,
+
+  // Global settings for all files
+  {
+    languageOptions: {
+      ecmaVersion: 'latest',
+      sourceType: 'module',
+      globals: {
+        ...globals.browser,
+        ...globals.es2021,
+        process: 'readonly',
+        marked: 'readonly', // Loaded via CDN for markdown rendering
+      },
     },
-    {
-        ignores: ['node_modules/', 'genesis/', 'tests/', 'js/lib/**', '**/*.min.js']
-    }
+    rules: {
+      'indent': ['error', 2],
+      'linebreak-style': ['error', 'unix'],
+      'quotes': ['error', 'single'],
+      'semi': ['error', 'always'],
+      'no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+      'no-console': 'off',
+    },
+  },
+
+  // Test files configuration
+  {
+    files: ['**/tests/**/*.js', '**/*.test.js'],
+    languageOptions: {
+      globals: {
+        ...globals.jest,
+      },
+    },
+  },
+
+  // Ignore patterns
+  {
+    ignores: [
+      'node_modules/**',
+      'coverage/**',
+      'docs/**',
+      'dist/**',
+      '**/lib/**',
+      '**/core/**',
+      '*.min.js',
+      '**/*.min.js',
+    ],
+  },
 ];
 
