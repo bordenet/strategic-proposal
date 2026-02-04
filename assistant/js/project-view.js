@@ -5,8 +5,8 @@
  */
 
 import { getProject, updatePhase, updateProject, deleteProject } from './projects.js';
-import { getPhaseMetadata, generatePromptForPhase, getFinalMarkdown, getExportFilename, WORKFLOW_CONFIG } from './workflow.js';
-import { escapeHtml, showToast, copyToClipboardAsync, showPromptModal, confirm, showDocumentPreviewModal } from './ui.js';
+import { getPhaseMetadata, generatePromptForPhase, getFinalMarkdown, getExportFilename, WORKFLOW_CONFIG, Workflow } from './workflow.js';
+import { escapeHtml, showToast, copyToClipboard, copyToClipboardAsync, showPromptModal, confirm, showDocumentPreviewModal, createActionMenu } from './ui.js';
 import { navigateTo } from './router.js';
 import { preloadPromptTemplates } from './prompts.js';
 import { computeWordDiff, renderDiffHtml, getDiffStats } from './diff-view.js';
@@ -229,17 +229,25 @@ function renderPhaseContent(project, phaseNumber) {
         ${completionBanner}
 
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-            <div class="mb-6">
-                <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                    ${meta.icon} ${meta.name}
-                </h3>
-                <p class="text-gray-600 dark:text-gray-400 mb-2">
-                    ${meta.description}
-                </p>
-                <div class="inline-flex items-center px-3 py-1 bg-${color}-100 dark:bg-${color}-900/20 text-${color}-800 dark:text-${color}-300 rounded-full text-sm">
-                    <span class="mr-2">🤖</span>
-                    Use with ${meta.aiModel}
+            <div class="mb-6 flex justify-between items-start">
+                <div>
+                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                        ${meta.icon} ${meta.name}
+                    </h3>
+                    <p class="text-gray-600 dark:text-gray-400 mb-2">
+                        ${meta.description}
+                    </p>
+                    <div class="inline-flex items-center px-3 py-1 bg-${color}-100 dark:bg-${color}-900/20 text-${color}-800 dark:text-${color}-300 rounded-full text-sm">
+                        <span class="mr-2">🤖</span>
+                        Use with ${meta.aiModel}
+                    </div>
                 </div>
+                <!-- Overflow Menu (top-right) -->
+                <button id="more-actions-btn" class="action-menu-trigger text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" aria-label="More actions" aria-haspopup="menu" aria-expanded="false">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/>
+                    </svg>
+                </button>
             </div>
 
             <!-- Step A: Generate Prompt -->
@@ -247,35 +255,21 @@ function renderPhaseContent(project, phaseNumber) {
                 <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">
                     Step A: Copy Prompt to AI
                 </h4>
-                <div class="flex justify-between items-center flex-wrap gap-3">
-                    <div class="flex gap-3 flex-wrap">
-                        <button id="copy-prompt-btn" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
-                            📋 ${phaseData.prompt ? 'Copy Prompt Again' : 'Generate & Copy Prompt'}
-                        </button>
-                        <a
-                            id="open-ai-btn"
-                            href="${meta.aiUrl}"
-                            target="ai-assistant-tab"
-                            rel="noopener noreferrer"
-                            class="px-6 py-3 bg-green-600 text-white rounded-lg transition-colors font-medium ${phaseData.prompt ? 'hover:bg-green-700' : 'opacity-50 cursor-not-allowed pointer-events-none'}"
-                            ${phaseData.prompt ? '' : 'aria-disabled="true"'}
-                        >
-                            🔗 Open ${aiName}
-                        </a>
-                    </div>
-                    <button id="view-prompt-btn" class="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors font-medium ${phaseData.prompt ? '' : 'hidden'}">
-                        👁️ View Prompt
+                <div class="flex gap-3 flex-wrap">
+                    <button id="copy-prompt-btn" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
+                        📋 ${phaseData.prompt ? 'Copy Prompt Again' : 'Generate & Copy Prompt'}
                     </button>
+                    <a
+                        id="open-ai-btn"
+                        href="${meta.aiUrl}"
+                        target="ai-assistant-tab"
+                        rel="noopener noreferrer"
+                        class="px-6 py-3 bg-green-600 text-white rounded-lg transition-colors font-medium ${phaseData.prompt ? 'hover:bg-green-700' : 'opacity-50 cursor-not-allowed pointer-events-none'}"
+                        ${phaseData.prompt ? '' : 'aria-disabled="true"'}
+                    >
+                        🔗 Open ${aiName}
+                    </a>
                 </div>
-                ${phaseData.prompt ? `
-                    <div class="mt-3 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700">
-                        <div class="flex items-center justify-between mb-2">
-                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Generated Prompt:</span>
-                            <button class="view-full-prompt-btn text-blue-600 dark:text-blue-400 hover:underline text-sm">View Full Prompt</button>
-                        </div>
-                        <p class="text-sm text-gray-600 dark:text-gray-400 line-clamp-3">${escapeHtml(phaseData.prompt.substring(0, 200))}...</p>
-                    </div>
-                ` : ''}
             </div>
 
             <!-- Step B: Paste Response -->
@@ -305,26 +299,12 @@ function renderPhaseContent(project, phaseNumber) {
 
 
             <!-- Navigation -->
-            <div class="flex justify-between items-center pt-6 border-t border-gray-200 dark:border-gray-700">
-                <div class="flex gap-3">
-                    ${phaseNumber === 1 ? `
-                    <button id="edit-details-btn" class="px-6 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
-                        ← Edit Details
-                    </button>
-                    ` : `
-                    <button id="prev-phase-btn" class="px-6 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
-                        ← Previous Phase
-                    </button>
-                    `}
-                    ${phaseData.completed && phaseNumber < 3 ? `
+            <div class="flex justify-end items-center pt-6 border-t border-gray-200 dark:border-gray-700">
+                ${phaseData.completed && phaseNumber < 3 ? `
                     <button id="next-phase-btn" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
                         Next Phase →
                     </button>
-                    ` : ''}
-                </div>
-                <button id="delete-project-btn" class="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium">
-                    Delete
-                </button>
+                ` : ''}
             </div>
         </div>
     `;
@@ -340,8 +320,8 @@ function attachPhaseEventListeners(project, phase) {
   const copyPromptBtn = document.getElementById('copy-prompt-btn');
   const saveResponseBtn = document.getElementById('save-response-btn');
   const responseTextarea = document.getElementById('response-textarea');
-  const prevPhaseBtn = document.getElementById('prev-phase-btn');
   const nextPhaseBtn = document.getElementById('next-phase-btn');
+  const meta = getPhaseMetadata(phase);
 
   // CRITICAL: Safari transient activation fix - call copyToClipboardAsync synchronously
   copyPromptBtn?.addEventListener('click', async () => {
@@ -390,13 +370,6 @@ function attachPhaseEventListeners(project, phase) {
           openAiBtn.classList.remove('opacity-50', 'cursor-not-allowed', 'pointer-events-none');
           openAiBtn.classList.add('hover:bg-purple-700');
           openAiBtn.removeAttribute('aria-disabled');
-        }
-
-        // Show and enable the View Prompt button now that prompt is generated
-        const viewPromptBtn = document.getElementById('view-prompt-btn');
-        if (viewPromptBtn) {
-          viewPromptBtn.classList.remove('hidden', 'opacity-50', 'cursor-not-allowed');
-          viewPromptBtn.disabled = false;
         }
 
         // Enable the response textarea now that prompt is copied
@@ -453,30 +426,6 @@ function attachPhaseEventListeners(project, phase) {
     }
   });
 
-  // Previous phase button - re-fetch project to ensure fresh data
-  if (prevPhaseBtn) {
-    prevPhaseBtn.addEventListener('click', async () => {
-      const prevPhase = phase - 1;
-      if (prevPhase < 1) return;
-
-      // Re-fetch project from storage to get fresh data
-      const freshProject = await getProject(project.id);
-      freshProject.phase = prevPhase;
-
-      updatePhaseTabStyles(prevPhase);
-      document.getElementById('phase-content').innerHTML = renderPhaseContent(freshProject, prevPhase);
-      attachPhaseEventListeners(freshProject, prevPhase);
-    });
-  }
-
-  // Edit Details button (phase 1 only)
-  const editDetailsBtn = document.getElementById('edit-details-btn');
-  if (editDetailsBtn) {
-    editDetailsBtn.addEventListener('click', () => {
-      navigateTo(`project/${project.id}/edit`);
-    });
-  }
-
   // Next phase button - re-fetch project to ensure fresh data
   if (nextPhaseBtn && project.phases[phase]?.completed) {
     nextPhaseBtn.addEventListener('click', async () => {
@@ -489,42 +438,6 @@ function attachPhaseEventListeners(project, phase) {
       updatePhaseTabStyles(nextPhase);
       document.getElementById('phase-content').innerHTML = renderPhaseContent(freshProject, nextPhase);
       attachPhaseEventListeners(freshProject, nextPhase);
-    });
-  }
-
-  // View Prompt button (main button)
-  const viewPromptMainBtn = document.getElementById('view-prompt-btn');
-  if (viewPromptMainBtn && project.phases[phase]?.prompt) {
-    viewPromptMainBtn.addEventListener('click', () => {
-      const meta = getPhaseMetadata(phase);
-      showPromptModal(project.phases[phase].prompt, `Phase ${phase}: ${meta.name}`);
-    });
-  }
-
-  // View Full Prompt inline link
-  const viewFullPromptBtn = document.querySelector('.view-full-prompt-btn');
-  if (viewFullPromptBtn && project.phases[phase]?.prompt) {
-    viewFullPromptBtn.addEventListener('click', () => {
-      const meta = getPhaseMetadata(phase);
-      showPromptModal(project.phases[phase].prompt, `Phase ${phase}: ${meta.name}`);
-    });
-  }
-
-  // Delete project button
-  const deleteProjectBtn = document.getElementById('delete-project-btn');
-  if (deleteProjectBtn) {
-    deleteProjectBtn.addEventListener('click', async () => {
-      const confirmed = await confirm(
-        '🗑️ Delete Proposal?',
-        'Are you sure you want to delete this proposal? This cannot be undone.',
-        'Delete',
-        'Cancel'
-      );
-      if (confirmed) {
-        await deleteProject(project.id);
-        showToast('Proposal deleted', 'success');
-        navigateTo('');
-      }
     });
   }
 
@@ -545,20 +458,95 @@ function attachPhaseEventListeners(project, phase) {
   const comparePhasesBtn = document.getElementById('compare-phases-btn');
   if (comparePhasesBtn) {
     comparePhasesBtn.addEventListener('click', () => {
-      const phases = {
+      const phasesData = {
         1: project.phases?.[1]?.response || '',
         2: project.phases?.[2]?.response || '',
         3: project.phases?.[3]?.response || ''
       };
 
       // Need at least 2 phases completed
-      const completedPhases = Object.entries(phases).filter(([, v]) => v).map(([k]) => parseInt(k));
+      const completedPhases = Object.entries(phasesData).filter(([, v]) => v).map(([k]) => parseInt(k));
       if (completedPhases.length < 2) {
         showToast('At least 2 phases must be completed to compare', 'warning');
         return;
       }
 
-      showDiffModal(phases, completedPhases);
+      showDiffModal(phasesData, completedPhases);
+    });
+  }
+
+  // Setup overflow "More" menu with secondary actions
+  const moreActionsBtn = document.getElementById('more-actions-btn');
+  if (moreActionsBtn) {
+    const phaseData = project.phases?.[phase] || {};
+    const hasPrompt = !!phaseData.prompt;
+
+    // Build menu items based on current state
+    const menuItems = [];
+
+    // View Prompt (only if prompt exists)
+    if (hasPrompt) {
+      menuItems.push({
+        label: 'View Prompt',
+        icon: '👁️',
+        onClick: () => {
+          showPromptModal(project.phases[phase].prompt, `Phase ${phase}: ${meta.name}`);
+        }
+      });
+    }
+
+    // Edit Details (always available)
+    menuItems.push({
+      label: 'Edit Details',
+      icon: '✏️',
+      onClick: () => navigateTo(`project/${project.id}/edit`)
+    });
+
+    // Compare Phases (only if 2+ phases completed)
+    const completedCount = [1, 2, 3].filter(p => project.phases?.[p]?.response).length;
+    if (completedCount >= 2) {
+      menuItems.push({
+        label: 'Compare Phases',
+        icon: '🔄',
+        onClick: () => {
+          const phasesData = {
+            1: project.phases?.[1]?.response || '',
+            2: project.phases?.[2]?.response || '',
+            3: project.phases?.[3]?.response || ''
+          };
+          const completedPhases = Object.entries(phasesData).filter(([, v]) => v).map(([k]) => parseInt(k));
+          showDiffModal(phasesData, completedPhases);
+        }
+      });
+    }
+
+    // Separator before destructive action
+    menuItems.push({ separator: true });
+
+    // Delete (destructive)
+    menuItems.push({
+      label: 'Delete...',
+      icon: '🗑️',
+      destructive: true,
+      onClick: async () => {
+        const confirmed = await confirm(
+          '🗑️ Delete Proposal?',
+          'Are you sure you want to delete this proposal? This cannot be undone.',
+          'Delete',
+          'Cancel'
+        );
+        if (confirmed) {
+          await deleteProject(project.id);
+          showToast('Proposal deleted', 'success');
+          navigateTo('');
+        }
+      }
+    });
+
+    createActionMenu({
+      triggerElement: moreActionsBtn,
+      items: menuItems,
+      position: 'bottom-end'
     });
   }
 }
