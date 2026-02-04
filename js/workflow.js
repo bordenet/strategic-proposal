@@ -10,9 +10,13 @@ import {
   generatePhase2Prompt as genPhase2,
   generatePhase3Prompt as genPhase3
 } from './prompts.js';
+import { detectPromptPaste } from './core/workflow.js';
 
 // Re-export WORKFLOW_CONFIG for backward compatibility
 export { WORKFLOW_CONFIG };
+
+// Re-export detectPromptPaste from core for backward compatibility
+export { detectPromptPaste };
 
 /**
  * Helper to get phase output, handling both flat and nested formats
@@ -320,28 +324,4 @@ export function getFinalMarkdown(project) {
  */
 export function getExportFilename(project) {
   return `${(project.title || 'strategic-proposal').replace(/[^a-z0-9]/gi, '-').toLowerCase()}-proposal.md`;
-}
-
-/**
- * Detect if text appears to be a prompt rather than an AI response.
- * Simple check: all prompts start with "# Phase N:" header.
- * @param {string} text - The text to check
- * @returns {{ isPrompt: boolean, reason: string }} Detection result
- */
-export function detectPromptPaste(text) {
-  if (!text || typeof text !== 'string') {
-    return { isPrompt: false, reason: '' };
-  }
-
-  const trimmed = text.trim();
-
-  // Check if text starts with "# Phase N:" header (standard prompt format)
-  if (/^#\s*phase\s*\d+/im.test(trimmed)) {
-    return {
-      isPrompt: true,
-      reason: 'This looks like the prompt you copied, not the AI response. Please paste the AI\'s answer instead.'
-    };
-  }
-
-  return { isPrompt: false, reason: '' };
 }
