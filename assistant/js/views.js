@@ -35,7 +35,7 @@ export {
  */
 export async function renderProjectsList() {
   const projects = await getAllProjects();
-    
+
   const container = document.getElementById('app-container');
   container.innerHTML = `
         <div class="mb-6 flex items-center justify-between">
@@ -189,7 +189,7 @@ export function renderNewProjectForm() {
  */
 function getNewProjectFormHTML() {
   return `
-        <div class="max-w-4xl mx-auto">
+        <div class="max-w-6xl mx-auto">
             <div class="mb-6">
                 <button id="back-btn" class="text-blue-600 dark:text-blue-400 hover:underline flex items-center">
                     <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">

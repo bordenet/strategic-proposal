@@ -5,7 +5,7 @@
  */
 
 import { getProject, updatePhase, updateProject, deleteProject } from './projects.js';
-import { getPhaseMetadata, generatePromptForPhase, getFinalMarkdown, getExportFilename, WORKFLOW_CONFIG, Workflow } from './workflow.js';
+import { getPhaseMetadata, generatePromptForPhase, getFinalMarkdown, getExportFilename, WORKFLOW_CONFIG, Workflow, detectPromptPaste } from './workflow.js';
 import { escapeHtml, showToast, copyToClipboard, copyToClipboardAsync, showPromptModal, confirm, showDocumentPreviewModal, createActionMenu } from './ui.js';
 import { navigateTo } from './router.js';
 import { preloadPromptTemplates } from './prompts.js';
@@ -56,7 +56,7 @@ export async function renderProjectView(projectId) {
   preloadPromptTemplates().catch(() => {});
 
   const project = await getProject(projectId);
-    
+
   if (!project) {
     showToast('Proposal not found', 'error');
     navigateTo('home');
@@ -72,7 +72,7 @@ export async function renderProjectView(projectId) {
                 </svg>
                 Back to Proposals
             </button>
-            
+
             <div class="flex items-start justify-between">
                 <div>
                     <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">
@@ -137,7 +137,7 @@ export async function renderProjectView(projectId) {
       }
     });
   }
-    
+
   // Phase tabs - re-fetch project to ensure fresh data
   document.querySelectorAll('.phase-tab').forEach(tab => {
     tab.addEventListener('click', async () => {
@@ -393,6 +393,13 @@ function attachPhaseEventListeners(project, phase) {
   saveResponseBtn?.addEventListener('click', async () => {
     const response = responseTextarea.value.trim();
     if (response && response.length >= 3) {
+      // Check if user accidentally pasted the prompt instead of the AI response
+      const promptCheck = detectPromptPaste(response);
+      if (promptCheck.isPrompt) {
+        showToast(promptCheck.reason, 'error');
+        return;
+      }
+
       await updatePhase(project.id, phase, project.phases[phase]?.prompt || '', response);
 
       // Auto-advance to next phase if not on final phase
@@ -661,4 +668,3 @@ function showDiffModal(phases, completedPhases) {
   };
   document.addEventListener('keydown', handleEscape);
 }
-
