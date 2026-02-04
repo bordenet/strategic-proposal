@@ -93,6 +93,31 @@ Structure the final proposal as a polished executive summary:
    - Next steps
    - Decision timeline
 
+## ⚠️ FINAL AI Slop Sweep
+
+Before finalizing, eliminate ALL remaining slop:
+
+### Zero Tolerance Patterns
+
+**These MUST NOT appear in final output:**
+
+| Category | Banned Examples |
+|----------|-----------------|
+| Vague metrics | "improve", "enhance", "optimize" (without numbers) |
+| Filler phrases | "It's important to note", "At the end of the day" |
+| Buzzwords | "leverage", "synergy", "cutting-edge", "game-changing" |
+| Hedges | "could potentially", "generally speaking" |
+| Superlatives | "best-in-class", "industry-leading" (without citations) |
+
+### Required Patterns
+
+**These MUST appear in final output:**
+- All ROI claims: **Specific dollar amounts with assumptions stated**
+- All projections: **Conservative estimates with sensitivity analysis**
+- All comparisons: **Baseline → Target with timeline**
+
+---
+
 ## Quality Standards
 
 **LENGTH CONSTRAINT: The final document must not exceed 1.25 pages (approximately 500-600 words). This is meant to be a concise executive summary, not a comprehensive report.**
@@ -104,4 +129,4 @@ Structure the final proposal as a polished executive summary:
 - Write for a sophisticated, skeptical reader
 - Use professional formatting with clear headers and bullet points
 - Ruthlessly prioritize - include only the most impactful information
-
+- **Zero AI Slop**: No vague terms, filler, or buzzwords in final output

@@ -131,6 +131,44 @@ Structure your proposal as a professional executive summary with clear section h
 - Professional, factual language (avoid hyperbole)
 - Concise writing - every sentence must earn its place
 
+## ⚠️ CRITICAL: AI Slop Prevention Rules
+
+### Banned Vague Language
+
+❌ **NEVER use these without specific quantification:**
+
+| Banned Term | Replace With |
+|-------------|--------------|
+| "improve" | "increase from X to Y" or "reduce from X to Y" |
+| "enhance" | specific capability added |
+| "optimize" | exact metric and improvement amount |
+| "significant ROI" | "ROI of X% based on Y" |
+| "substantial savings" | "$X/month savings" |
+| "better performance" | specific baseline → target |
+
+### Banned Filler Phrases
+
+❌ **DELETE these entirely:**
+- "It's important to note that..."
+- "In today's competitive market..."
+- "At the end of the day..."
+- "Let's dive in / Let's explore..."
+- "First and foremost..."
+
+### Banned Buzzwords
+
+❌ **Replace with plain language:**
+- leverage → use
+- utilize → use
+- synergy → combined benefit
+- cutting-edge → (name the specific technology)
+- game-changing → (quantify the change)
+- best-in-class → (cite specific benchmark)
+- industry-leading → (cite specific ranking or metric)
+- robust/seamless/comprehensive → (describe specific capabilities)
+
+---
+
 ## Important Guidelines
 
 - Be specific and concrete - use actual numbers and details from the source materials
@@ -138,4 +176,4 @@ Structure your proposal as a professional executive summary with clear section h
 - Write for a shrewd decision-maker who will scrutinize every claim
 - If information is missing, note what additional data would strengthen the proposal
 - Keep the tone professional and consultative, not salesy
-
+- **Zero AI Slop**: No vague terms, no filler phrases, no buzzwords

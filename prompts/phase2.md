@@ -68,6 +68,31 @@ Evaluate this proposal as if your job depends on making the right call. Provide 
 - Are the promotional offers genuinely time-limited?
 - Would waiting 6 months change the calculus?
 
+## ⚠️ CRITICAL: AI Slop Detection Checklist
+
+**Flag these issues in the Phase 1 proposal:**
+
+### Vague Claims (demand specifics)
+- [ ] "significant ROI" without actual numbers
+- [ ] "improved performance" without baseline → target
+- [ ] "substantial savings" without dollar amounts
+- [ ] "enhanced capabilities" without naming them
+
+### Filler Phrases (call these out)
+- [ ] "It's important to note..."
+- [ ] "In today's competitive market..."
+- [ ] "At the end of the day..."
+- [ ] "First and foremost..."
+
+### Buzzwords (demand plain language)
+- [ ] leverage, utilize, synergy
+- [ ] cutting-edge, game-changing, best-in-class
+- [ ] robust, seamless, comprehensive (without specifics)
+
+**Your critique should specifically call out any AI slop detected in the proposal.**
+
+---
+
 ## Output Format
 
 **LENGTH CONSTRAINT: The final critique must not exceed 2 pages (approximately 800-1000 words).**
@@ -77,8 +102,8 @@ Structure your critique as a decision-maker's internal memo with:
 1. **Executive Summary** - Your overall assessment in 2-3 sentences
 2. **Strengths** - What's genuinely compelling about this proposal
 3. **Weaknesses** - Specific gaps, unsupported claims, or concerns
-4. **Questions That Must Be Answered** - Before any decision is made
-5. **Recommendation** - Proceed, reject, or request more information
+4. **AI Slop Detected** - Any vague language, filler, or buzzwords found
+5. **Questions That Must Be Answered** - Before any decision is made
+6. **Recommendation** - Proceed, reject, or request more information
 
 Be specific. Quote the proposal where relevant. Don't soften your critique - the goal is to stress-test this proposal before it goes to final decision. Prioritize the most important concerns over exhaustive coverage.
-
