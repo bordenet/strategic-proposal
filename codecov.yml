@@ -26,4 +26,3 @@ ignore:
   - "node_modules/**/*"
   - "*.config.js"
   - "*.setup.js"
-

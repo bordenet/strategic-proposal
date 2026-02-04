@@ -20,4 +20,3 @@
   "include": ["js/**/*.js"],
   "exclude": ["node_modules", "tests", "coverage"]
 }
-

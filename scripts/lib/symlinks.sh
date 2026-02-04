@@ -100,4 +100,3 @@ restore_symlinks() {
 
     _symlink_log_ok "Symlinks restored"
 }
-

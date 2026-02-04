@@ -39,7 +39,6 @@ This document describes the core design patterns used consistently across all ge
 | `ui.js` | Toast, clipboard, formatting utilities |
 | `error-handler.js` | Global error handling |
 | `ai-mock.js` | Mock AI responses for development |
-| `attachments.js` | File attachment handling |
 
 ---
 
@@ -132,6 +131,16 @@ try {
 
 ---
 
+## 8. Mock Mode Pattern
+
+**Purpose**: Enable offline development and testing without AI APIs.
+
+- Mock toggle only visible on localhost
+- Simulates network delay for realistic testing
+- Phase-specific mock responses
+
+---
+
 ## Technology Stack
 
 | Component | Technology |
@@ -140,7 +149,7 @@ try {
 | Styling | Tailwind CSS 3.x (CDN) |
 | Storage | IndexedDB (native API) |
 | Build | None (zero build step) |
-| Testing | Vitest |
+| Testing | Jest with ES6 module support |
 | Deployment | GitHub Pages (static) |
 
 ---
@@ -156,9 +165,8 @@ try {
 
 ## Related Repos
 
-- [product-requirements-assistant](https://github.com/bordenet/product-requirements-assistant)
-- [one-pager](https://github.com/bordenet/one-pager)
-- [power-statement-assistant](https://github.com/bordenet/power-statement-assistant)
-- [pr-faq-assistant](https://github.com/bordenet/pr-faq-assistant)
-- [architecture-decision-record](https://github.com/bordenet/architecture-decision-record)
-
+- [product-requirements-assistant](https://github.com/bordenet/product-requirements-assistant) - PRD generation
+- [one-pager](https://github.com/bordenet/one-pager) - One-pager documents
+- [power-statement-assistant](https://github.com/bordenet/power-statement-assistant) - Power statements
+- [pr-faq-assistant](https://github.com/bordenet/pr-faq-assistant) - PR-FAQ documents
+- [architecture-decision-record](https://github.com/bordenet/architecture-decision-record) - ADR documents

@@ -210,4 +210,3 @@ export function createStorage(storageKey, maxVersions = 10) {
     formatBytes
   };
 }
-

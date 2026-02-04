@@ -14,13 +14,13 @@ describe('Button State Logic', () => {
     // Setup DOM elements matching app.js
     document.body.innerHTML = `
       <button id="btn-copy-llm-prompt" class="bg-indigo-600">Copy</button>
-      <button 
-        id="btn-view-llm-prompt" 
+      <button
+        id="btn-view-llm-prompt"
         class="bg-slate-300 dark:bg-slate-600 text-slate-500 dark:text-slate-400 cursor-not-allowed"
         disabled
         aria-disabled="true"
       >View</button>
-      <a 
+      <a
         id="btn-open-claude-llm"
         href="https://claude.ai"
         class="bg-slate-300 dark:bg-slate-600 text-slate-500 dark:text-slate-400 cursor-not-allowed pointer-events-none"
@@ -102,4 +102,3 @@ describe('Button State Logic', () => {
     });
   });
 });
-

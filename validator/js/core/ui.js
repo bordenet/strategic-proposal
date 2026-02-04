@@ -219,4 +219,3 @@ export function showPromptModal(promptText, title = 'Prompt', onCopySuccess = nu
   };
   document.addEventListener('keydown', handleEscape);
 }
-
