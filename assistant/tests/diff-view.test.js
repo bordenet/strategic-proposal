@@ -146,4 +146,3 @@ describe('getDiffStats', () => {
     expect(stats.unchanged).toBe(0);
   });
 });
-
