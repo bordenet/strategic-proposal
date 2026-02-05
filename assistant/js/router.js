@@ -4,12 +4,12 @@
  * @module router
  */
 
-import { renderProjectsList, renderNewProjectForm } from './views.js';
+import { renderProjectsList, renderNewProjectForm, renderEditProjectForm } from './views.js';
 import { renderProjectView } from './project-view.js';
 import storage from './storage.js';
 
 /**
- * @typedef {'home' | 'new-project' | 'project'} RouteName
+ * @typedef {'home' | 'new-project' | 'project' | 'edit'} RouteName
  */
 
 /**
@@ -22,7 +22,8 @@ import storage from './storage.js';
 const routes = {
   'home': renderProjectsList,
   'new-project': renderNewProjectForm,
-  'project': renderProjectView
+  'project': renderProjectView,
+  'edit': renderEditProjectForm
 };
 
 /** @type {RouteName | null} */
@@ -72,6 +73,8 @@ export async function navigateTo(route, ...params) {
     window.location.hash = '#new';
   } else if (route === 'project' && params[0]) {
     window.location.hash = `#project/${params[0]}`;
+  } else if (route === 'edit' && params[0]) {
+    window.location.hash = `#edit/${params[0]}`;
   }
 
   const handler = routes[route];
@@ -108,6 +111,9 @@ async function handleHashChange() {
   } else if (hash.startsWith('project/')) {
     const projectId = hash.split('/')[1];
     await navigateTo('project', projectId);
+  } else if (hash.startsWith('edit/')) {
+    const projectId = hash.split('/')[1];
+    await navigateTo('edit', projectId);
   } else {
     await navigateTo('home');
   }

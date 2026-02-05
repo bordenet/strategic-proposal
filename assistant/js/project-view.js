@@ -503,7 +503,7 @@ function attachPhaseEventListeners(project, phase) {
     menuItems.push({
       label: 'Edit Details',
       icon: '✏️',
-      onClick: () => navigateTo(`project/${project.id}/edit`)
+      onClick: () => navigateTo('edit', project.id)
     });
 
     // Compare Phases (only if 2+ phases completed)

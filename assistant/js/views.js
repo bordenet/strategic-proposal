@@ -4,7 +4,7 @@
  * @module views
  */
 
-import { getAllProjects, createProject, deleteProject } from './projects.js';
+import { getAllProjects, createProject, updateProject, getProject, deleteProject } from './projects.js';
 import { formatDate, escapeHtml, confirm, showToast, showDocumentPreviewModal } from './ui.js';
 import { navigateTo } from './router.js';
 import { getFinalMarkdown, getExportFilename } from './workflow.js';
@@ -369,6 +369,158 @@ function setupNewProjectFormListeners() {
     const formData = Object.fromEntries(new FormData(target));
     const project = await createProject(/** @type {import('./types.js').ProjectFormData} */ (formData));
     showToast('Proposal created successfully!', 'success');
+    navigateTo('project', project.id);
+  });
+}
+
+/**
+ * Render the edit project form
+ * @param {string} projectId - ID of the project to edit
+ * @returns {Promise<void>}
+ */
+export async function renderEditProjectForm(projectId) {
+  const project = await getProject(projectId);
+  if (!project) {
+    showToast('Proposal not found', 'error');
+    navigateTo('home');
+    return;
+  }
+
+  const container = document.getElementById('app-container');
+  if (!container) return;
+  container.innerHTML = getEditProjectFormHTML(project);
+  setupEditProjectFormListeners(project);
+}
+
+/**
+ * Generate HTML for the edit project form
+ * @param {import('./types.js').Project} project - Project to edit
+ * @returns {string} HTML string
+ */
+function getEditProjectFormHTML(project) {
+  return `
+        <div class="max-w-6xl mx-auto">
+            <div class="mb-6">
+                <button id="back-btn" class="text-blue-600 dark:text-blue-400 hover:underline flex items-center">
+                    <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                    </svg>
+                    Back to Proposal
+                </button>
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-8">
+                <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+                    Edit Proposal Details
+                </h2>
+
+                <form id="edit-project-form" class="space-y-8">
+                    <!-- Dealership Information Section -->
+                    <section>
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 pb-2 border-b border-gray-200 dark:border-gray-700">
+                            🏢 Dealership Information
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="dealershipName" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Dealership Name <span class="text-red-500">*</span></label>
+                                <input type="text" id="dealershipName" name="dealershipName" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="e.g., Team Auto Group" value="${escapeHtml(project.dealershipName || '')}">
+                            </div>
+                            <div>
+                                <label for="dealershipLocation" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Location</label>
+                                <input type="text" id="dealershipLocation" name="dealershipLocation" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="e.g., Dallas, TX" value="${escapeHtml(project.dealershipLocation || '')}">
+                            </div>
+                            <div>
+                                <label for="storeCount" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Number of Stores</label>
+                                <input type="number" id="storeCount" name="storeCount" min="1" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="e.g., 5" value="${escapeHtml(project.storeCount || '')}">
+                            </div>
+                            <div>
+                                <label for="currentVendor" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Current Vendor (if any)</label>
+                                <input type="text" id="currentVendor" name="currentVendor" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="e.g., Purple Cloud" value="${escapeHtml(project.currentVendor || '')}">
+                            </div>
+                        </div>
+                    </section>
+                    <!-- Decision Maker Section -->
+                    <section>
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 pb-2 border-b border-gray-200 dark:border-gray-700">
+                            👤 Decision Maker
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="decisionMakerName" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Name</label>
+                                <input type="text" id="decisionMakerName" name="decisionMakerName" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="e.g., John Smith" value="${escapeHtml(project.decisionMakerName || '')}">
+                            </div>
+                            <div>
+                                <label for="decisionMakerRole" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Role/Title</label>
+                                <input type="text" id="decisionMakerRole" name="decisionMakerRole" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="e.g., General Manager, Owner" value="${escapeHtml(project.decisionMakerRole || '')}">
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Conversation Materials Section -->
+                    <section>
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 pb-2 border-b border-gray-200 dark:border-gray-700">
+                            💬 Conversation Materials
+                        </h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label for="conversationTranscripts" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Call Transcripts / Conversation Logs</label>
+                                <textarea id="conversationTranscripts" name="conversationTranscripts" rows="6" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="Paste call transcripts, email threads, or conversation logs here...">${escapeHtml(project.conversationTranscripts || '')}</textarea>
+                            </div>
+                            <div>
+                                <label for="meetingNotes" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Meeting Notes</label>
+                                <textarea id="meetingNotes" name="meetingNotes" rows="4" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="Any meeting notes or discovery call summaries...">${escapeHtml(project.meetingNotes || '')}</textarea>
+                            </div>
+                            <div>
+                                <label for="painPoints" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Known Pain Points</label>
+                                <textarea id="painPoints" name="painPoints" rows="4" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="List specific pain points identified with current vendor or situation...">${escapeHtml(project.painPoints || '')}</textarea>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Additional Context -->
+                    <section>
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 pb-2 border-b border-gray-200 dark:border-gray-700">
+                            ℹ️ Additional Context
+                        </h3>
+                        <div>
+                            <textarea id="additionalContext" name="additionalContext" rows="4" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white" placeholder="Any other context, special considerations, or instructions...">${escapeHtml(project.additionalContext || '')}</textarea>
+                        </div>
+                    </section>
+
+                    <!-- Submit Buttons -->
+                    <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+                        <button type="button" id="cancel-btn" class="px-6 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
+                            Cancel
+                        </button>
+                        <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                            Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    `;
+}
+
+/**
+ * Set up event listeners for the edit project form
+ * @param {import('./types.js').Project} project - Project being edited
+ * @returns {void}
+ */
+function setupEditProjectFormListeners(project) {
+  document.getElementById('back-btn')?.addEventListener('click', () => navigateTo('project', project.id));
+  document.getElementById('cancel-btn')?.addEventListener('click', () => navigateTo('project', project.id));
+
+  // Form submission
+  const form = document.getElementById('edit-project-form');
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const target = /** @type {HTMLFormElement} */ (e.target);
+    const formData = Object.fromEntries(new FormData(target));
+    // Update title based on dealership name
+    formData.title = `Proposal - ${formData.dealershipName}`;
+    await updateProject(project.id, formData);
+    showToast('Proposal updated successfully!', 'success');
     navigateTo('project', project.id);
   });
 }
