@@ -1,5 +1,5 @@
 import { describe, test, expect, beforeEach, afterEach, jest } from '@jest/globals';
-import { showToast, showLoading, hideLoading, confirm, formatDate, formatBytes, escapeHtml, copyToClipboard, copyToClipboardAsync, showPromptModal, showDocumentPreviewModal } from '../js/ui.js';
+import { showToast, showLoading, hideLoading, confirm, confirmWithRemember, formatDate, formatBytes, escapeHtml, copyToClipboard, copyToClipboardAsync, showPromptModal, showDocumentPreviewModal } from '../js/ui.js';
 
 describe('UI Module', () => {
     beforeEach(() => {
@@ -137,6 +137,86 @@ describe('UI Module', () => {
             // Clean up
             document.querySelector('#cancel-btn').click();
             await confirmPromise;
+        });
+    });
+
+    describe('confirmWithRemember', () => {
+        test('should resolve with confirmed=true and remember=false when confirm clicked without checkbox', async () => {
+            const confirmPromise = confirmWithRemember('Are you sure?', 'Warning');
+
+            await new Promise(resolve => setTimeout(resolve, 0));
+
+            const confirmBtn = document.querySelector('#confirm-btn');
+            expect(confirmBtn).toBeTruthy();
+            confirmBtn.click();
+
+            const result = await confirmPromise;
+            expect(result).toEqual({ confirmed: true, remember: false });
+        });
+
+        test('should resolve with confirmed=true and remember=true when checkbox is checked', async () => {
+            const confirmPromise = confirmWithRemember('Are you sure?', 'Warning');
+
+            await new Promise(resolve => setTimeout(resolve, 0));
+
+            const checkbox = document.querySelector('#remember-checkbox');
+            expect(checkbox).toBeTruthy();
+            checkbox.checked = true;
+
+            const confirmBtn = document.querySelector('#confirm-btn');
+            confirmBtn.click();
+
+            const result = await confirmPromise;
+            expect(result).toEqual({ confirmed: true, remember: true });
+        });
+
+        test('should resolve with confirmed=false when cancel clicked', async () => {
+            const confirmPromise = confirmWithRemember('Are you sure?', 'Warning');
+
+            await new Promise(resolve => setTimeout(resolve, 0));
+
+            const cancelBtn = document.querySelector('#cancel-btn');
+            expect(cancelBtn).toBeTruthy();
+            cancelBtn.click();
+
+            const result = await confirmPromise;
+            expect(result).toEqual({ confirmed: false, remember: false });
+        });
+
+        test('should display custom button text from options', async () => {
+            const confirmPromise = confirmWithRemember('Continue?', 'Confirm', {
+                confirmText: 'Yes, Continue',
+                cancelText: 'No, Go Back',
+                checkboxLabel: 'Remember my choice'
+            });
+
+            await new Promise(resolve => setTimeout(resolve, 0));
+
+            const modal = document.querySelector('.fixed');
+            expect(modal.innerHTML).toContain('Yes, Continue');
+            expect(modal.innerHTML).toContain('No, Go Back');
+            expect(modal.innerHTML).toContain('Remember my choice');
+
+            // Clean up
+            document.querySelector('#cancel-btn').click();
+            await confirmPromise;
+        });
+
+        test('should resolve with confirmed=false when backdrop is clicked', async () => {
+            const confirmPromise = confirmWithRemember('Are you sure?', 'Warning');
+
+            await new Promise(resolve => setTimeout(resolve, 0));
+
+            const modal = document.querySelector('.fixed');
+            expect(modal).toBeTruthy();
+
+            // Simulate backdrop click
+            const event = new MouseEvent('click', { bubbles: true });
+            Object.defineProperty(event, 'target', { value: modal, enumerable: true });
+            modal.dispatchEvent(event);
+
+            const result = await confirmPromise;
+            expect(result).toEqual({ confirmed: false, remember: false });
         });
     });
 
