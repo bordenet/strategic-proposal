@@ -10,7 +10,7 @@ import { escapeHtml, showToast, copyToClipboard, copyToClipboardAsync, showPromp
 import { navigateTo } from './router.js';
 import { preloadPromptTemplates } from './prompts.js';
 import { computeWordDiff, renderDiffHtml, getDiffStats } from './diff-view.js';
-import { validateStrategicProposal, getScoreColor, getScoreLabel } from './validator-inline.js';
+import { validateDocument, getScoreColor, getScoreLabel } from './validator-inline.js';
 
 /**
  * Extract title from markdown content (looks for # Title at the beginning)
@@ -186,7 +186,7 @@ function renderPhaseContent(project, phaseNumber) {
   let completionBanner = '';
   if (phaseNumber === 3 && phaseData.completed) {
     const proposalContent = phaseData.response || '';
-    const validationResult = validateStrategicProposal(proposalContent);
+    const validationResult = validateDocument(proposalContent);
     const scoreColor = getScoreColor(validationResult.totalScore);
     const scoreLabel = getScoreLabel(validationResult.totalScore);
 
@@ -223,7 +223,7 @@ function renderPhaseContent(project, phaseNumber) {
             <div class="mt-4 p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
                 <div class="flex items-center justify-between mb-3">
                     <h5 class="font-semibold text-gray-900 dark:text-white flex items-center">
-                        📊 Strategic Proposal Quality Score
+                        📊 Document Quality Rating
                     </h5>
                     <div class="flex items-center gap-2">
                         <span class="text-3xl font-bold text-${scoreColor}-600 dark:text-${scoreColor}-400">${validationResult.totalScore}</span>
