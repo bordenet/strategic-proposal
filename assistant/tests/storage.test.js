@@ -151,5 +151,63 @@ describe('Storage Module', () => {
             expect(value).toBe('dark');
         });
     });
+
+    describe('exportAll and importAll', () => {
+        it('exportAll should export all projects', async () => {
+            const project1 = {
+                id: 'export-1',
+                title: 'Export Test 1',
+                dealershipName: 'Test Motors'
+            };
+            const project2 = {
+                id: 'export-2',
+                title: 'Export Test 2',
+                dealershipName: 'Test Motors 2'
+            };
+            await storage.saveProject(project1);
+            await storage.saveProject(project2);
+
+            const backup = await storage.exportAll();
+
+            expect(backup.version).toBeDefined();
+            expect(backup.exportDate).toBeDefined();
+            expect(backup.projectCount).toBe(2);
+            expect(backup.projects).toHaveLength(2);
+        });
+
+        it('importAll should import all projects from export data', async () => {
+            const importData = {
+                version: 1,
+                exportDate: new Date().toISOString(),
+                projectCount: 2,
+                projects: [
+                    { id: 'import-1', title: 'Import Test 1', dealershipName: 'Motors 1' },
+                    { id: 'import-2', title: 'Import Test 2', dealershipName: 'Motors 2' }
+                ]
+            };
+
+            const count = await storage.importAll(importData);
+
+            expect(count).toBe(2);
+            const project1 = await storage.getProject('import-1');
+            const project2 = await storage.getProject('import-2');
+            expect(project1.title).toBe('Import Test 1');
+            expect(project2.title).toBe('Import Test 2');
+        });
+
+        it('importAll should throw on invalid import data', async () => {
+            await expect(storage.importAll({})).rejects.toThrow('Invalid import data');
+            await expect(storage.importAll({ projects: 'not-array' })).rejects.toThrow('Invalid import data');
+        });
+
+        it('exportAll should export empty backup when no projects', async () => {
+            const backup = await storage.exportAll();
+
+            expect(backup.version).toBeDefined();
+            expect(backup.exportDate).toBeDefined();
+            expect(backup.projectCount).toBe(0);
+            expect(backup.projects).toHaveLength(0);
+        });
+    });
 });
 

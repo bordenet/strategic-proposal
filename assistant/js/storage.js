@@ -212,6 +212,44 @@ class Storage {
       request.onerror = () => reject(request.error);
     });
   }
+
+  /**
+   * Export all projects as JSON backup
+   * @returns {Promise<{version: number, exportDate: string, projectCount: number, projects: Array}>}
+   */
+  async exportAll() {
+    const projects = await this.getAllProjects();
+    return {
+      version: DB_VERSION,
+      exportDate: new Date().toISOString(),
+      projectCount: projects.length,
+      projects: projects
+    };
+  }
+
+  /**
+   * Import projects from JSON backup
+   * @param {Object} data - Import data with projects array
+   * @returns {Promise<number>} Number of projects imported
+   */
+  async importAll(data) {
+    if (!data.projects || !Array.isArray(data.projects)) {
+      throw new Error('Invalid import data');
+    }
+
+    const tx = this.db.transaction(STORE_NAME, 'readwrite');
+    const store = tx.objectStore(STORE_NAME);
+
+    for (const project of data.projects) {
+      await new Promise((resolve, reject) => {
+        const request = store.put(project);
+        request.onsuccess = () => resolve();
+        request.onerror = () => reject(request.error);
+      });
+    }
+
+    return data.projects.length;
+  }
 }
 
 export default new Storage();
