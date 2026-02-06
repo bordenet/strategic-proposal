@@ -209,5 +209,51 @@ describe('Storage Module', () => {
             expect(backup.projects).toHaveLength(0);
         });
     });
+
+});
+
+// Separate describe block without the beforeEach cleanup that calls getAllProjects
+describe('Storage Module - error handling when db not initialized', () => {
+    let originalDb;
+
+    beforeAll(async () => {
+        await storage.init();
+        originalDb = storage.db;
+    });
+
+    afterEach(() => {
+        // Restore db after each test
+        storage.db = originalDb;
+    });
+
+    it('getAllProjects should reject when db is null', async () => {
+        storage.db = null;
+        await expect(storage.getAllProjects()).rejects.toThrow('Database not initialized');
+    });
+
+    it('getProject should reject when db is null', async () => {
+        storage.db = null;
+        await expect(storage.getProject('test-id')).rejects.toThrow('Database not initialized');
+    });
+
+    it('saveProject should reject when db is null', async () => {
+        storage.db = null;
+        await expect(storage.saveProject({ id: 'test', title: 'Test' })).rejects.toThrow('Database not initialized');
+    });
+
+    it('deleteProject should reject when db is null', async () => {
+        storage.db = null;
+        await expect(storage.deleteProject('test-id')).rejects.toThrow('Database not initialized');
+    });
+
+    it('getSetting should reject when db is null', async () => {
+        storage.db = null;
+        await expect(storage.getSetting('test-key')).rejects.toThrow('Database not initialized');
+    });
+
+    it('saveSetting should reject when db is null', async () => {
+        storage.db = null;
+        await expect(storage.saveSetting('test-key', 'test-value')).rejects.toThrow('Database not initialized');
+    });
 });
 

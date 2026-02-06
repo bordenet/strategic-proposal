@@ -12,7 +12,8 @@ import {
   deleteProject,
   exportProject,
   exportAllProjects,
-  importProjects
+  importProjects,
+  extractTitleFromMarkdown
 } from '../js/projects.js';
 import storage from '../js/storage.js';
 
@@ -300,6 +301,121 @@ describe('Projects Module', () => {
       await exportAllProjects();
 
       expect(capturedDownloadName).toMatch(/^strategic-proposals-backup-\d{4}-\d{2}-\d{2}\.json$/);
+    });
+  });
+
+  describe('extractTitleFromMarkdown', () => {
+    test('should return empty string for null input', () => {
+      expect(extractTitleFromMarkdown(null)).toBe('');
+    });
+
+    test('should return empty string for empty input', () => {
+      expect(extractTitleFromMarkdown('')).toBe('');
+    });
+
+    test('should extract H1 header', () => {
+      const md = '# My Document Title\n\nSome content here.';
+      expect(extractTitleFromMarkdown(md)).toBe('My Document Title');
+    });
+
+    test('should skip PRESS RELEASE header', () => {
+      const md = '# PRESS RELEASE\n\n**Exciting Headline Here**\n\nContent...';
+      expect(extractTitleFromMarkdown(md)).toBe('Exciting Headline Here');
+    });
+
+    test('should extract bold headline after PRESS RELEASE', () => {
+      const md = '# PRESS RELEASE\n**Company Announces New Feature**\n\nDetails follow.';
+      expect(extractTitleFromMarkdown(md)).toBe('Company Announces New Feature');
+    });
+
+    test('should extract first bold line as fallback', () => {
+      const md = 'Some text\n**This Is A Good Headline Title**\n\nMore content.';
+      expect(extractTitleFromMarkdown(md)).toBe('This Is A Good Headline Title');
+    });
+
+    test('should reject too-short bold text', () => {
+      const md = '**Short**\n\nMore content.';
+      expect(extractTitleFromMarkdown(md)).toBe('');
+    });
+
+    test('should reject bold text ending with period (sentences)', () => {
+      const md = '**This is a sentence ending with period.**\n\nMore content.';
+      expect(extractTitleFromMarkdown(md)).toBe('');
+    });
+  });
+
+  describe('updatePhase', () => {
+    test('should update phase with prompt and response', async () => {
+      const project = await createProject({
+        dealershipName: 'Test Dealer',
+        dealershipLocation: 'Seattle, WA'
+      });
+
+      const updated = await updatePhase(project.id, 1, 'Test prompt', 'Test response');
+
+      expect(updated.phases[1].prompt).toBe('Test prompt');
+      expect(updated.phases[1].response).toBe('Test response');
+      expect(updated.phases[1].completed).toBe(true);
+      expect(updated.phase1_output).toBe('Test response');
+    });
+
+    test('should auto-advance to next phase', async () => {
+      const project = await createProject({
+        dealershipName: 'Test Dealer',
+        dealershipLocation: 'Seattle, WA'
+      });
+
+      const updated = await updatePhase(project.id, 1, 'Prompt', 'Response');
+      expect(updated.phase).toBe(2);
+    });
+
+    test('should not auto-advance when skipAutoAdvance is true', async () => {
+      const project = await createProject({
+        dealershipName: 'Test Dealer',
+        dealershipLocation: 'Seattle, WA'
+      });
+
+      const updated = await updatePhase(project.id, 1, 'Prompt', 'Response', { skipAutoAdvance: true });
+      expect(updated.phase).toBe(1);
+    });
+
+    test('should extract title from phase 3 response', async () => {
+      const project = await createProject({
+        dealershipName: 'Test Dealer',
+        dealershipLocation: 'Seattle, WA'
+      });
+
+      await updatePhase(project.id, 1, 'P1', 'R1');
+      await updatePhase(project.id, 2, 'P2', 'R2');
+      const updated = await updatePhase(project.id, 3, 'P3', '# Amazing Proposal Title\n\nContent here.');
+
+      expect(updated.title).toBe('Amazing Proposal Title');
+    });
+
+    test('should throw error for non-existent project', async () => {
+      await expect(updatePhase('non-existent', 1, 'P', 'R')).rejects.toThrow('Project not found');
+    });
+  });
+
+  describe('updateProject', () => {
+    test('should update project with partial data', async () => {
+      const project = await createProject({
+        dealershipName: 'Original Dealer',
+        dealershipLocation: 'Seattle, WA'
+      });
+
+      const updated = await updateProject(project.id, {
+        dealershipName: 'Updated Dealer',
+        painPoints: 'New pain points'
+      });
+
+      expect(updated.dealershipName).toBe('Updated Dealer');
+      expect(updated.painPoints).toBe('New pain points');
+      expect(updated.dealershipLocation).toBe('Seattle, WA');
+    });
+
+    test('should throw error for non-existent project', async () => {
+      await expect(updateProject('non-existent', { title: 'X' })).rejects.toThrow('Project not found');
     });
   });
 });

@@ -102,5 +102,97 @@ Team: 2 engineers for 3 months
       expect(label).toBeDefined();
     });
   });
+
+  describe('branch coverage', () => {
+    test('should score partial problem language', () => {
+      const content = `
+# Problem Statement
+There is a challenge we need to address.
+This is a long enough document to pass validation.
+`.repeat(5);
+      const result = validateDocument(content);
+      expect(result.problemStatement.score).toBeGreaterThan(0);
+    });
+
+    test('should score partial solution language', () => {
+      const content = `
+# Proposed Solution
+We will implement a new approach.
+This is a long enough document to pass validation.
+`.repeat(5);
+      const result = validateDocument(content);
+      expect(result.proposedSolution.score).toBeGreaterThan(0);
+    });
+
+    test('should score partial action items', () => {
+      const content = `
+# Proposed Solution
+We will build a system to address this.
+This is a long enough document to pass validation.
+`.repeat(5);
+      const result = validateDocument(content);
+      expect(result.proposedSolution.score).toBeGreaterThan(0);
+    });
+
+    test('should score partial impact language', () => {
+      const content = `
+# Business Impact
+This will improve our operations.
+This is a long enough document to pass validation.
+`.repeat(5);
+      const result = validateDocument(content);
+      expect(result.businessImpact.score).toBeGreaterThan(0);
+    });
+
+    test('should score partial timeline', () => {
+      const content = `
+# Implementation Plan
+Phase 1 will begin next month.
+This is a long enough document to pass validation.
+`.repeat(5);
+      const result = validateDocument(content);
+      expect(result.implementationPlan.score).toBeGreaterThan(0);
+    });
+
+    test('should score partial resources', () => {
+      const content = `
+# Implementation Plan
+We need a team of engineers.
+This is a long enough document to pass validation.
+`.repeat(5);
+      const result = validateDocument(content);
+      expect(result.implementationPlan.score).toBeGreaterThan(0);
+    });
+
+    test('should score single actionable item in solution', () => {
+      const content = `
+# Proposed Solution
+We will build a new system.
+This is a long enough document to pass validation.
+`.repeat(5);
+      const result = validateDocument(content);
+      expect(result.proposedSolution.score).toBeGreaterThan(0);
+    });
+
+    test('should score single phase in implementation', () => {
+      const content = `
+# Implementation Plan
+Phase 1: Initial setup
+This is a long enough document to pass validation.
+`.repeat(5);
+      const result = validateDocument(content);
+      expect(result.implementationPlan.score).toBeGreaterThan(0);
+    });
+
+    test('should score single date in implementation', () => {
+      const content = `
+# Implementation Plan
+Starting Q1 2024
+This is a long enough document to pass validation.
+`.repeat(5);
+      const result = validateDocument(content);
+      expect(result.implementationPlan.score).toBeGreaterThan(0);
+    });
+  });
 });
 
