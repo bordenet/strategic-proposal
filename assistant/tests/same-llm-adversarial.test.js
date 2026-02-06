@@ -607,5 +607,4 @@ Evaluate the document on:
             expect(result.pattern).toBeNull();
         });
     });
-
 });
