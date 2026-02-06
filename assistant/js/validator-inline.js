@@ -533,8 +533,17 @@ export function validateStrategicProposal(text) {
     }
   }
 
+  // Include slop deduction in implementationPlan category so categories sum to total
+  const adjustedImplementationPlan = {
+    ...implementationPlan,
+    score: Math.max(0, implementationPlan.score - slopDeduction),
+    issues: slopDeduction > 0
+      ? [...implementationPlan.issues, `AI patterns detected (-${slopDeduction})`]
+      : implementationPlan.issues
+  };
+
   const totalScore = Math.max(0,
-    problemStatement.score + proposedSolution.score + businessImpact.score + implementationPlan.score - slopDeduction
+    problemStatement.score + proposedSolution.score + businessImpact.score + adjustedImplementationPlan.score
   );
 
   return {
@@ -542,7 +551,7 @@ export function validateStrategicProposal(text) {
     problemStatement,
     proposedSolution,
     businessImpact,
-    implementationPlan,
+    implementationPlan: adjustedImplementationPlan,
     slopDetection: {
       ...slopPenalty,
       deduction: slopDeduction,
