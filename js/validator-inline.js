@@ -10,6 +10,11 @@
  * 4. Implementation Plan (25 pts) - Timeline and resources
  */
 
+import { getSlopPenalty, calculateSlopScore } from './slop-detection.js';
+
+// Re-export for direct access
+export { calculateSlopScore };
+
 const PROBLEM_PATTERNS = {
   section: /^#+\s*(problem|challenge|issue|opportunity|context)/im,
   language: /\b(problem|challenge|issue|opportunity|gap|limitation|constraint|blocker|pain.?point)\b/gi,
@@ -153,9 +158,30 @@ export function validateDocument(text) {
   const businessImpact = scoreBusinessImpact(text);
   const implementationPlan = scoreImplementationPlan(text);
 
+  // AI slop detection
+  const slopPenalty = getSlopPenalty(text);
+  let slopDeduction = 0;
+  const slopIssues = [];
+
+  if (slopPenalty.penalty > 0) {
+    slopDeduction = Math.min(5, Math.floor(slopPenalty.penalty * 0.6));
+    if (slopPenalty.issues.length > 0) {
+      slopIssues.push(...slopPenalty.issues.slice(0, 2));
+    }
+  }
+
+  const totalScore = Math.max(0,
+    problemStatement.score + proposedSolution.score + businessImpact.score + implementationPlan.score - slopDeduction
+  );
+
   return {
-    totalScore: problemStatement.score + proposedSolution.score + businessImpact.score + implementationPlan.score,
-    problemStatement, proposedSolution, businessImpact, implementationPlan
+    totalScore,
+    problemStatement, proposedSolution, businessImpact, implementationPlan,
+    slopDetection: {
+      ...slopPenalty,
+      deduction: slopDeduction,
+      issues: slopIssues
+    }
   };
 }
 
