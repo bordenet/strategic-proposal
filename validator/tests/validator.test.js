@@ -90,11 +90,12 @@ describe('validateStrategicProposal', () => {
       }
     });
 
-    test('total score equals sum of dimension scores', () => {
+    test('total score equals sum of dimension scores minus slop deduction', () => {
       const result = validateStrategicProposal(fixtures.complete.content);
       const sum = result.problemStatement.score + result.proposedSolution.score +
                   result.businessImpact.score + result.implementationPlan.score;
-      expect(result.totalScore).toBe(sum);
+      const slopDeduction = result.slopDetection?.deduction || 0;
+      expect(result.totalScore).toBe(sum - slopDeduction);
     });
   });
 });
