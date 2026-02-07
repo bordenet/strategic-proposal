@@ -10,19 +10,22 @@ import {
   generatePhase3Prompt,
   getPhaseMetadata,
   preloadPromptTemplates
-} from '../js/prompts.js';
+} from '../../shared/js/prompts.js';
 
 // Mock fetch for loading prompt templates
+// Handles both shared/prompts/ (root) and ../shared/prompts/ (assistant/) paths
 global.fetch = jest.fn(async (url) => {
   const templates = {
-    'prompts/phase1.md': 'Phase 1: Proposal for {{DEALERSHIP_NAME}} in {{DEALERSHIP_LOCATION}} with {{STORE_COUNT}} stores. Current vendor: {{CURRENT_VENDOR}}. Decision maker: {{DECISION_MAKER_NAME}} ({{DECISION_MAKER_ROLE}}). Transcripts: {{CONVERSATION_TRANSCRIPTS}}. Notes: {{MEETING_NOTES}}. Pain points: {{PAIN_POINTS}}. Attachments: {{ATTACHMENT_TEXT}}. Draft: {{WORKING_DRAFT}}. Context: {{ADDITIONAL_CONTEXT}}.',
-    'prompts/phase2.md': 'Phase 2: Review for {{DECISION_MAKER_NAME}} ({{DECISION_MAKER_ROLE}}) at {{DEALERSHIP_NAME}}. Previous output: {{PHASE1_OUTPUT}}',
-    'prompts/phase3.md': 'Phase 3: Final synthesis for {{DEALERSHIP_NAME}}. Phase 1: {{PHASE1_OUTPUT}}. Phase 2: {{PHASE2_OUTPUT}}'
+    'phase1.md': 'Phase 1: Proposal for {{DEALERSHIP_NAME}} in {{DEALERSHIP_LOCATION}} with {{STORE_COUNT}} stores. Current vendor: {{CURRENT_VENDOR}}. Decision maker: {{DECISION_MAKER_NAME}} ({{DECISION_MAKER_ROLE}}). Transcripts: {{CONVERSATION_TRANSCRIPTS}}. Notes: {{MEETING_NOTES}}. Pain points: {{PAIN_POINTS}}. Attachments: {{ATTACHMENT_TEXT}}. Draft: {{WORKING_DRAFT}}. Context: {{ADDITIONAL_CONTEXT}}.',
+    'phase2.md': 'Phase 2: Review for {{DECISION_MAKER_NAME}} ({{DECISION_MAKER_ROLE}}) at {{DEALERSHIP_NAME}}. Previous output: {{PHASE1_OUTPUT}}',
+    'phase3.md': 'Phase 3: Final synthesis for {{DEALERSHIP_NAME}}. Phase 1: {{PHASE1_OUTPUT}}. Phase 2: {{PHASE2_OUTPUT}}'
   };
 
+  // Extract filename from path (handles shared/prompts/phase1.md or ../shared/prompts/phase1.md)
+  const filename = url.split('/').pop();
   return {
     ok: true,
-    text: async () => templates[url] || 'Default template'
+    text: async () => templates[filename] || 'Default template'
   };
 });
 
@@ -80,9 +83,12 @@ describe('preloadPromptTemplates', () => {
   test('should preload all phase templates', async () => {
     await preloadPromptTemplates();
 
-    expect(global.fetch).toHaveBeenCalledWith('prompts/phase1.md');
-    expect(global.fetch).toHaveBeenCalledWith('prompts/phase2.md');
-    expect(global.fetch).toHaveBeenCalledWith('prompts/phase3.md');
+    // Check that all 3 phases were fetched (path includes shared/prompts/)
+    expect(global.fetch).toHaveBeenCalledTimes(3);
+    const calls = global.fetch.mock.calls.map(c => c[0]);
+    expect(calls.some(url => url.includes('phase1.md'))).toBe(true);
+    expect(calls.some(url => url.includes('phase2.md'))).toBe(true);
+    expect(calls.some(url => url.includes('phase3.md'))).toBe(true);
   });
 });
 

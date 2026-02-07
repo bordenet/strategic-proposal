@@ -2,7 +2,7 @@
  * @jest-environment jsdom
  */
 
-import { DOCUMENT_TEMPLATES, getTemplate, getAllTemplates } from '../js/document-specific-templates.js';
+import { DOCUMENT_TEMPLATES, getTemplate, getAllTemplates } from '../../shared/js/document-specific-templates.js';
 
 describe('Document-Specific Templates', () => {
   describe('DOCUMENT_TEMPLATES', () => {
