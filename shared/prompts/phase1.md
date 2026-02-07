@@ -78,45 +78,17 @@ Both styles should convey the same strategic content and impact—this is purely
 
 ### If Bullet-Point Style is Selected
 
-Use this template structure:
-
-```
-[Vendor/Solution Name] — In Partnership With [Dealership Name]
-[Document Title]
-
-Objective
-• [Key goal 1]
-• [Key goal 2]
-• [Key goal 3]
-
-Solution Summary
-• [Core capability 1]
-• [Core capability 2]
-• [Core capability 3]
-• [Core capability 4]
-
-[Integration/Technical Details] (if applicable)
-• [Integration point 1]
-• [Integration point 2]
-• [Key technical benefit]
-
-Investment
-• [Monthly cost with included features]
-• [One-time costs if applicable]
-
-Billing Plan
-• [When billing begins]
-• [Any promotional terms]
-
-Timeline
-• [Full implementation timeframe]
-• [Key milestones]
-
-Next Steps
-• [Immediate action 1]
-• [Target decision date]
-• [What happens upon approval]
-```
+| Section | Content | Format |
+|---------|---------|--------|
+| Header | [Vendor] — In Partnership With [Dealership] | Title line |
+| Document Title | Strategic proposal name | Subtitle |
+| Objective | 3 key goals | Bullet list |
+| Solution Summary | 4 core capabilities | Bullet list |
+| Integration/Technical Details | Integration points and benefits | Bullet list (if applicable) |
+| Investment | Monthly cost with included features | Bullet list |
+| Billing Plan | When billing begins, promotional terms | Bullet list |
+| Timeline | Implementation timeframe, key milestones | Bullet list |
+| Next Steps | Actions, decision date, approval outcomes | Bullet list |
 
 ### If Narrative Style is Selected
 
@@ -177,3 +149,13 @@ Structure your proposal as a professional executive summary with clear section h
 - If information is missing, note what additional data would strengthen the proposal
 - Keep the tone professional and consultative, not salesy
 - **Zero AI Slop**: No vague terms, no filler phrases, no buzzwords
+
+<output_rules>
+CRITICAL - Your final proposal must be COPY-PASTE READY:
+- Start IMMEDIATELY with "[Vendor Name] — In Partnership With [Dealership]" or the document title (no preamble like "Here's the proposal...")
+- End after the Next Steps section (no sign-off like "Let me know if...")
+- NO markdown code fences (```markdown) wrapping the output
+- NO explanations of what you did or why
+- Maximum 800-1000 words (2 pages)
+- The user will paste your ENTIRE response directly into the tool
+</output_rules>

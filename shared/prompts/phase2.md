@@ -97,13 +97,25 @@ Evaluate this proposal as if your job depends on making the right call. Provide 
 
 **LENGTH CONSTRAINT: The final critique must not exceed 2 pages (approximately 800-1000 words).**
 
-Structure your critique as a decision-maker's internal memo with:
+<output_rules>
+CRITICAL - Your critique must be COPY-PASTE READY:
+- Start IMMEDIATELY with "## Executive Summary" (no preamble like "Here's my review...")
+- End after the Recommendation section (no sign-off like "Let me know if...")
+- NO markdown code fences (```markdown) wrapping the output
+- NO explanations of what you did or why
+- Maximum 800-1000 words (2 pages)
+- The user will paste your ENTIRE response directly into the tool
+</output_rules>
 
-1. **Executive Summary** - Your overall assessment in 2-3 sentences
-2. **Strengths** - What's genuinely compelling about this proposal
-3. **Weaknesses** - Specific gaps, unsupported claims, or concerns
-4. **AI Slop Detected** - Any vague language, filler, or buzzwords found
-5. **Questions That Must Be Answered** - Before any decision is made
-6. **Recommendation** - Proceed, reject, or request more information
+### Required Sections
+
+| Section | Content | Format |
+|---------|---------|--------|
+| ## Executive Summary | Overall assessment in 2-3 sentences | Paragraph |
+| ## Strengths | What's genuinely compelling | Bullet list |
+| ## Weaknesses | Specific gaps, unsupported claims, concerns | Numbered list |
+| ## AI Slop Detected | Vague language, filler, buzzwords found | Bullet list |
+| ## Questions That Must Be Answered | Before any decision is made | Numbered list |
+| ## Recommendation | Proceed, reject, or request more information | Paragraph |
 
 Be specific. Quote the proposal where relevant. Don't soften your critique - the goal is to stress-test this proposal before it goes to final decision. Prioritize the most important concerns over exhaustive coverage.

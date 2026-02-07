@@ -552,6 +552,11 @@ export function validateStrategicProposal(text) {
     proposedSolution,
     businessImpact,
     implementationPlan: adjustedImplementationPlan,
+    // Dimension mappings for app.js compatibility
+    dimension1: problemStatement,
+    dimension2: proposedSolution,
+    dimension3: businessImpact,
+    dimension4: adjustedImplementationPlan,
     slopDetection: {
       ...slopPenalty,
       deduction: slopDeduction,

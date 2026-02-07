@@ -57,41 +57,27 @@ Create the final strategic proposal that:
 
 ## Output Format
 
-Structure the final proposal as a polished executive summary:
+<output_rules>
+CRITICAL - Your final proposal must be COPY-PASTE READY:
+- Start IMMEDIATELY with "## Executive Summary" (no preamble like "Here's the final proposal...")
+- End after the Recommendation section (no sign-off like "Let me know if...")
+- NO markdown code fences (```markdown) wrapping the output
+- NO explanations of what you did or why
+- Maximum 500-600 words (1.25 pages)
+- The user will paste your ENTIRE response directly into the tool
+</output_rules>
 
-1. **Executive Summary** (2-3 paragraphs)
-   - Why this matters now
-   - Key recommendation
-   - Bottom-line financial impact
+### Required Sections
 
-2. **Current Situation Analysis**
-   - Validated pain points (only those confirmed)
-   - Operational impact quantified where possible
-
-3. **Proposed Solution**
-   - Vendor capabilities mapped to specific needs
-   - Implementation approach and timeline
-
-4. **Financial Analysis**
-   - Conservative projections with explicit assumptions
-   - Sensitivity analysis
-   - Comparison to current state
-   - Payback period
-
-5. **Risk Assessment & Mitigation**
-   - Key risks identified
-   - Mitigation strategies
-   - Contract protections
-
-6. **Pricing & Terms**
-   - Clear cost structure
-   - Concessions and promotions
-   - Net effective cost
-
-7. **Recommendation**
-   - Clear call to action
-   - Next steps
-   - Decision timeline
+| Section | Content | Format |
+|---------|---------|--------|
+| ## Executive Summary | Why now, recommendation, financial impact | 2-3 paragraphs |
+| ## Current Situation Analysis | Validated pain points, operational impact | Bullet list |
+| ## Proposed Solution | Capabilities mapped to needs, timeline | Paragraphs with bullets |
+| ## Financial Analysis | Projections, sensitivity, comparison, payback | Table or structured list |
+| ## Risk Assessment & Mitigation | Risks, strategies, contract protections | Bullet list |
+| ## Pricing & Terms | Cost structure, concessions, net cost | Table or list |
+| ## Recommendation | Call to action, next steps, decision timeline | Paragraph with bullets |
 
 ## ⚠️ FINAL AI Slop Sweep
 
