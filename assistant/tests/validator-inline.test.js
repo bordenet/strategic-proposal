@@ -1,8 +1,29 @@
 /**
- * Tests for validator-inline.js
- * Strategic Proposal inline validation
+ * Tests for validator-inline.js - Strategic Proposal
+ *
+ * Comprehensive tests for all scoring functions:
+ * - Problem Statement (25 pts)
+ * - Proposed Solution (25 pts)
+ * - Business Impact (25 pts)
+ * - Implementation Plan (25 pts)
  */
-import { validateDocument, getScoreColor, getScoreLabel } from '../../shared/js/validator-inline.js';
+
+import {
+  validateDocument,
+  getScoreColor,
+  getScoreLabel,
+  scoreProblemStatement,
+  scoreProposedSolution,
+  scoreBusinessImpact,
+  scoreImplementationPlan,
+  detectProblemStatement,
+  detectUrgency,
+  detectSolution,
+  detectBusinessImpact,
+  detectImplementation,
+  detectRisks,
+  detectSuccessMetrics
+} from '../../shared/js/validator-inline.js';
 
 describe('Inline Strategic Proposal Validator', () => {
   describe('validateDocument', () => {
@@ -196,3 +217,222 @@ This is a long enough document to pass validation.
   });
 });
 
+// ============================================================================
+// Scoring Function Tests
+// ============================================================================
+
+describe('scoreProblemStatement', () => {
+  test('should detect problem section', () => {
+    const content = `
+# Problem Statement
+Our team faces significant challenges with current workflow.
+`.repeat(3);
+    const result = scoreProblemStatement(content);
+    expect(result.score).toBeGreaterThan(0);
+  });
+
+  test('should detect urgency language', () => {
+    const content = `
+# Problem
+This is a critical issue that requires urgent attention.
+The situation has been escalating for months.
+`.repeat(2);
+    const result = scoreProblemStatement(content);
+    expect(result.score).toBeGreaterThan(5);
+  });
+
+  test('should return issues for missing problem', () => {
+    const content = `
+# Solution
+We will implement a new system.
+`.repeat(3);
+    const result = scoreProblemStatement(content);
+    expect(result.issues.length).toBeGreaterThan(0);
+  });
+});
+
+describe('scoreProposedSolution', () => {
+  test('should detect solution section', () => {
+    const content = `
+# Proposed Solution
+We will implement an automated system to address this.
+`.repeat(3);
+    const result = scoreProposedSolution(content);
+    expect(result.score).toBeGreaterThan(0);
+  });
+
+  test('should detect action items', () => {
+    const content = `
+# Solution
+We will build a new platform.
+We will implement automation.
+We will deliver measurable improvements.
+`.repeat(2);
+    const result = scoreProposedSolution(content);
+    expect(result.score).toBeGreaterThan(5);
+  });
+
+  test('should return issues for missing solution', () => {
+    const content = `
+# Problem
+There is a problem.
+`.repeat(3);
+    const result = scoreProposedSolution(content);
+    expect(result.issues.length).toBeGreaterThan(0);
+  });
+});
+
+describe('scoreBusinessImpact', () => {
+  test('should detect business impact section', () => {
+    const content = `
+# Business Impact
+This will improve our revenue by 25%.
+`.repeat(3);
+    const result = scoreBusinessImpact(content);
+    expect(result.score).toBeGreaterThan(0);
+  });
+
+  test('should detect ROI and financial metrics', () => {
+    const content = `
+# Impact
+Expected ROI of 300%.
+Cost savings of $100,000 annually.
+Revenue improvement of 40%.
+`.repeat(2);
+    const result = scoreBusinessImpact(content);
+    expect(result.score).toBeGreaterThan(5);
+  });
+
+  test('should return issues for missing impact', () => {
+    const content = `
+# Solution
+We will do something.
+`.repeat(3);
+    const result = scoreBusinessImpact(content);
+    expect(result.issues.length).toBeGreaterThan(0);
+  });
+});
+
+describe('scoreImplementationPlan', () => {
+  test('should detect implementation section', () => {
+    const content = `
+# Implementation Plan
+Phase 1 will begin in Q1.
+`.repeat(3);
+    const result = scoreImplementationPlan(content);
+    expect(result.score).toBeGreaterThan(0);
+  });
+
+  test('should detect timeline and resources', () => {
+    const content = `
+# Implementation
+Phase 1 (Q1): Design
+Phase 2 (Q2): Development
+Budget: $50,000
+Team: 3 engineers
+`.repeat(2);
+    const result = scoreImplementationPlan(content);
+    expect(result.score).toBeGreaterThan(5);
+  });
+
+  test('should return issues for missing plan', () => {
+    const content = `
+# Problem
+There is a problem.
+`.repeat(3);
+    const result = scoreImplementationPlan(content);
+    expect(result.issues.length).toBeGreaterThan(0);
+  });
+});
+
+// ============================================================================
+// Detection Function Tests
+// ============================================================================
+
+describe('Detection Functions', () => {
+  describe('detectProblemStatement', () => {
+    test('should detect problem section', () => {
+      const content = '# Problem\\nThere is a challenge.';
+      const result = detectProblemStatement(content);
+      expect(result.hasProblemSection).toBe(true);
+    });
+
+    test('should detect problem language', () => {
+      const content = 'We face challenges and struggle with this issue daily.';
+      const result = detectProblemStatement(content);
+      expect(result.hasProblemLanguage).toBe(true);
+    });
+  });
+
+  describe('detectUrgency', () => {
+    test('should detect urgency markers', () => {
+      const content = 'This is a critical and urgent matter that requires immediate attention.';
+      const result = detectUrgency(content);
+      expect(result.hasUrgencyLanguage).toBe(true);
+    });
+  });
+
+  describe('detectSolution', () => {
+    test('should detect solution section', () => {
+      const content = '# Solution\\nWe will implement a new system.';
+      const result = detectSolution(content);
+      expect(result.hasSolutionSection).toBe(true);
+    });
+
+    test('should detect solution language', () => {
+      const content = 'We will build and implement a solution to deliver value.';
+      const result = detectSolution(content);
+      expect(result.hasSolutionLanguage).toBe(true);
+    });
+  });
+
+  describe('detectBusinessImpact', () => {
+    test('should detect impact language', () => {
+      const content = 'This will have a major impact and deliver significant benefit and value.';
+      const result = detectBusinessImpact(content);
+      expect(result.hasImpactLanguage).toBe(true);
+    });
+
+    test('should detect financial terms', () => {
+      const content = 'ROI of 200%, cost savings of $50,000, revenue growth of 30%.';
+      const result = detectBusinessImpact(content);
+      expect(result.hasFinancialTerms).toBe(true);
+    });
+  });
+
+  describe('detectImplementation', () => {
+    test('should detect implementation section', () => {
+      const content = '# Implementation\\nPhase 1 starts Q1.';
+      const result = detectImplementation(content);
+      expect(result.hasImplementationSection).toBe(true);
+    });
+
+    test('should detect timeline', () => {
+      const content = 'Phase 1 in Q1 2024, Phase 2 in Q2 2024.';
+      const result = detectImplementation(content);
+      expect(result.hasTimeline).toBe(true);
+    });
+  });
+
+  describe('detectRisks', () => {
+    test('should detect risk section', () => {
+      const content = '# Risks\\nThere are integration risks.';
+      const result = detectRisks(content);
+      expect(result.hasRiskSection).toBe(true);
+    });
+  });
+
+  describe('detectSuccessMetrics', () => {
+    test('should detect metrics section', () => {
+      const content = '# Success Metrics\\n- 99% uptime';
+      const result = detectSuccessMetrics(content);
+      expect(result.hasMetricsSection).toBe(true);
+    });
+
+    test('should detect quantified metrics', () => {
+      const content = 'Target: 95% accuracy, 200ms response, $100K savings.';
+      const result = detectSuccessMetrics(content);
+      expect(result.hasQuantified).toBe(true);
+    });
+  });
+});
