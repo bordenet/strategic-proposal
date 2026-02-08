@@ -148,6 +148,97 @@ For dealership proposals, domain-specific patterns (gross profit per store, call
 | 20-39 | D | Weak - restart with executive lens |
 | 0-19 | F | Not a proposal - missing structure entirely |
 
+## LLM Scoring
+
+The validator uses a **dual-scoring architecture**: JavaScript pattern matching provides fast, deterministic scoring, while LLM evaluation adds semantic understanding. Both systems use aligned rubrics but may diverge on edge cases.
+
+### Three LLM Prompts
+
+| Prompt | Purpose | When Used |
+|--------|---------|-----------|
+| **Scoring Prompt** | Evaluate proposal against rubric, return dimension scores | Initial validation |
+| **Critique Prompt** | Generate clarifying questions to improve weak areas | After scoring |
+| **Rewrite Prompt** | Produce improved proposal targeting 85+ score | User-requested rewrite |
+
+### LLM Scoring Rubric
+
+The LLM uses the same 4-dimension rubric as JavaScript, with identical point allocations:
+
+| Dimension | Points | LLM Focus |
+|-----------|--------|-----------|
+| Problem Statement | 25 | Clear problem definition, quantified urgency, strategic alignment |
+| Proposed Solution | 25 | Actionable approach, alternatives considered, clear rationale |
+| Business Impact | 25 | Quantified metrics (numbers, %, $), financial terms, competitive advantage |
+| Implementation Plan | 25 | Phased approach with milestones, specific dates, ownership and resources |
+
+### LLM Calibration Guidance
+
+The LLM prompt includes explicit calibration signals:
+
+**Reward signals:**
+- Specific timelines, budgets, and resource allocations
+- Quantified metrics and business impact
+- Alternatives with trade-off analysis
+- Named ownership for each phase
+
+**Penalty signals:**
+- Every vague qualifier without metrics
+- Weasel words: "should be able to", "might", "could potentially"
+- Marketing fluff: "best-in-class", "cutting-edge", "world-class"
+- Missing required sections
+
+**Calibration baseline:** "Be HARSH. Most proposals score 40-60. Only exceptional ones score 80+."
+
+### LLM Critique Prompt
+
+The critique prompt receives the current JS validation scores and generates improvement questions:
+
+```
+Score Summary: [totalScore]/100
+- Problem Statement: [X]/25
+- Proposed Solution: [X]/25
+- Business Impact: [X]/25
+- Implementation Plan: [X]/25
+```
+
+Output includes:
+- Top 3 issues (specific gaps)
+- 3-5 clarifying questions focused on weakest dimensions
+- Quick wins (fixes that don't require user input)
+- Focus areas: problem quantification, solution specificity, ROI metrics
+
+### LLM Rewrite Prompt
+
+The rewrite prompt targets an 85+ score with specific requirements:
+- Concise and executive-focused
+- All required sections (Problem, Solution, Impact, Implementation, Resources, Risks, Metrics)
+- Clear urgency and strategic alignment
+- Specific, quantified impact metrics (numbers, percentages, dollar amounts)
+- Actionable solutions with clear rationale
+- Defined ownership and required resources
+- Realistic timeline with phases/milestones
+- Identified risks with mitigation strategies
+- SMART success metrics
+- No vague qualifiers, weasel words, or marketing fluff
+
+### JS vs LLM Score Divergence
+
+| Scenario | JS Score | LLM Score | Explanation |
+|----------|----------|-----------|-------------|
+| Urgency words without quantification | Higher | Lower | LLM requires "$X/month lost" not just "urgent" |
+| Alternatives listed without analysis | May pass | Lower | LLM evaluates trade-off depth |
+| Implementation details overload | May score high | Lower | LLM values executive-level clarity |
+| Domain-specific jargon (dealership) | Domain bonus | Variable | LLM may not recognize domain expertise |
+
+### LLM-Specific Adversarial Notes
+
+| Gaming Attempt | Why LLM Catches It |
+|----------------|-------------------|
+| "Big opportunity" without numbers | LLM requires quantified impact |
+| Generic "We recommend this" | LLM demands alternatives analysis |
+| Vague timeline ("coming months") | LLM requires specific dates (Q2, March) |
+| "Team will execute" | LLM requires named roles/ownership |
+
 ## Related Files
 
 - `validator/js/validator.js` - Implementation of scoring functions
