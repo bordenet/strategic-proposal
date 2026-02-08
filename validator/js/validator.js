@@ -85,6 +85,15 @@ const METRICS_PATTERNS = {
   timebound: /\b(by|within|after|before|during|end.of|q[1-4]|fy\d+|month|quarter|year)\b/gi
 };
 
+// Stakeholder patterns - compounded from business-justification-assistant adversarial review
+const STAKEHOLDER_PATTERNS = {
+  stakeholderSection: /^#+\s*(stakeholder|team|owner|raci|responsible|approval)/im,
+  stakeholderLanguage: /\b(stakeholder|owner|lead|team|responsible|accountable|raci|sponsor|approver)\b/gi,
+  // Extended stakeholder concerns - includes FP&A, People Team, C-suite
+  stakeholderConcerns: /\b(finance|fp&a|fp.?&.?a|financial.planning|hr|people.?team|people.?ops|legal|compliance|equity|liability|approval|sign.?off|cfo|cto|ceo|vp|director|gm|general.?manager)\b/gi,
+  roleDefinition: /\b(responsible|accountable|consulted|informed|raci)\b/gi
+};
+
 // ============================================================================
 // Detection Functions
 // ============================================================================
