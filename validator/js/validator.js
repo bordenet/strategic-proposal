@@ -14,14 +14,22 @@ import { getSlopPenalty, calculateSlopScore } from './slop-detection.js';
 // Constants
 // ============================================================================
 
+// ALIGNED WITH Phase1.md sections - expanded patterns for dealership domain
 const REQUIRED_SECTIONS = [
-  { pattern: /^#+\s*(problem|challenge|issue|opportunity|context)/im, name: 'Problem Statement', weight: 2 },
+  // Problem/Pain Points - matches Phase1 "Document Current Pain Points"
+  { pattern: /^#+\s*(problem|challenge|issue|opportunity|context|pain.?point|current.?pain)/im, name: 'Problem Statement', weight: 2 },
+  // Solution - matches Phase1 "Present Proposed Solutions"
   { pattern: /^#+\s*(solution|proposal|approach|recommendation|strategy)/im, name: 'Proposed Solution', weight: 2 },
-  { pattern: /^#+\s*(impact|benefit|outcome|value|roi|return)/im, name: 'Business Impact', weight: 2 },
-  { pattern: /^#+\s*(implementation|plan|timeline|roadmap|execution)/im, name: 'Implementation Plan', weight: 2 },
-  { pattern: /^#+\s*(resource|budget|cost|investment|team)/im, name: 'Resources/Budget', weight: 1 },
+  // Business Impact - matches Phase1 "Financial Impact Modeling"
+  { pattern: /^#+\s*(impact|benefit|outcome|value|roi|return|financial.?impact|gross.?profit|revenue)/im, name: 'Business Impact', weight: 2 },
+  // Implementation - matches Phase1 "Timeline" subsection
+  { pattern: /^#+\s*(implementation|plan|timeline|roadmap|execution|next.?steps)/im, name: 'Implementation Plan', weight: 2 },
+  // Resources/Pricing - matches Phase1 "Pricing Proposal"
+  { pattern: /^#+\s*(resource|budget|cost|investment|team|pricing|price|subscription|commercials)/im, name: 'Resources/Budget', weight: 1 },
+  // Risks - optional but scored
   { pattern: /^#+\s*(risk|assumption|dependency|constraint)/im, name: 'Risks/Assumptions', weight: 1 },
-  { pattern: /^#+\s*(success|metric|kpi|measure)/im, name: 'Success Metrics', weight: 1 }
+  // Success Metrics - optional but scored
+  { pattern: /^#+\s*(success|metric|kpi|measure|objective)/im, name: 'Success Metrics', weight: 1 }
 ];
 
 // Problem statement patterns
@@ -42,13 +50,15 @@ const SOLUTION_PATTERNS = {
   justification: /\b(because|reason|rationale|why|justify|basis|evidence|data.shows|research)\b/gi
 };
 
-// Business impact patterns
+// Business impact patterns - DEALERSHIP DOMAIN AWARE
 const IMPACT_PATTERNS = {
-  impactSection: /^#+\s*(impact|benefit|outcome|value|roi|return|business.case)/im,
+  impactSection: /^#+\s*(impact|benefit|outcome|value|roi|return|business.case|financial.?impact)/im,
   impactLanguage: /\b(impact|benefit|value|roi|return|outcome|result|improvement|gain|savings)\b/gi,
   quantified: /\d+\s*(%|million|thousand|hour|day|week|month|year|\$|dollar|user|customer|revenue)/gi,
   financialTerms: /\b(revenue|cost|savings|profit|margin|efficiency|productivity|reduction|increase)\b/gi,
-  competitiveTerms: /\b(competitive|market|position|advantage|differentiat|leader|first.mover)\b/gi
+  competitiveTerms: /\b(competitive|market|position|advantage|differentiat|leader|first.mover)\b/gi,
+  // Dealership-specific impact patterns from Phase1.md
+  dealershipImpact: /\b(gross.?profit.*store|per.?store|per.?rooftop|call.?conversion|appointment.?rate|inbound.?call|outbound.?connection|missed.?opportunit|vendor.?switch)\b/gi
 };
 
 // Implementation patterns
