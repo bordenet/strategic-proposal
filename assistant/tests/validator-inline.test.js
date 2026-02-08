@@ -1,5 +1,5 @@
 /**
- * Tests for validator-inline.js - Strategic Proposal
+ * Tests for Strategic Proposal Validator
  *
  * Comprehensive tests for all scoring functions:
  * - Problem Statement (25 pts)
@@ -23,7 +23,7 @@ import {
   detectImplementation,
   detectRisks,
   detectSuccessMetrics
-} from '../../shared/js/validator-inline.js';
+} from '../../validator/js/validator.js';
 
 describe('Inline Strategic Proposal Validator', () => {
   describe('validateDocument', () => {

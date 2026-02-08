@@ -1,144 +1,155 @@
-# ADVERSARIAL REVIEW: strategic-proposal
+# Adversarial Review: Strategic Proposal Assistant
 
-## CONTEXT
+You are a meticulous QA engineer tasked with finding MISALIGNMENTS between 5 components that must be perfectly synchronized. Your job is to identify where these components contradict, diverge, or create scoring gaps.
 
-You are an expert prompt engineer performing an **ADVERSARIAL review** of LLM prompts for a Strategic Proposal assistant tool. This tool generates vendor evaluation proposals for executive decision-makers.
+## The 5-Component Chain
 
-This tool uses a **3-phase LLM chain** plus **dual scoring systems**:
-1. **Phase 1 (Claude)** - Generates initial proposal draft
-2. **Phase 2 (Gemini)** - Reviews for completeness and rigor
-3. **Phase 3 (Claude)** - Synthesizes final proposal
-4. **LLM Scoring (prompts.js)** - Sends document to LLM for evaluation
-5. **JavaScript Scoring (validator.js)** - Deterministic regex/pattern matching
+1. **phase1.md** - User-facing prompt that generates strategic proposal drafts
+2. **phase2.md** - Adversarial review prompt (skeptical decision-maker perspective)
+3. **phase3.md** - Synthesis prompt combining Phase 1 + Phase 2
+4. **prompts.js** - LLM scoring rubric
+5. **validator.js** - JavaScript heuristic scorer
 
----
+## Your Mission
 
-## ⚠️ CRITICAL ALIGNMENT CHAIN
+Find ALL misalignments across these categories:
 
-These 5 components **MUST be perfectly aligned**:
+### A. Dimension Weight Misalignments
+- Do all components agree on the 4 dimensions and their weights?
+  - Problem Statement: 25 pts
+  - Proposed Solution: 25 pts
+  - Business Impact: 25 pts
+  - Implementation Plan: 25 pts
 
-| Component | Purpose | Risk if Misaligned |
-|-----------|---------|-------------------|
-| phase1.md | Generates proposal | LLM produces sections validator doesn't detect |
-| phase2.md | Reviews for rigor | Different criteria than scoring rubric |
-| phase3.md | Final synthesis | Quality gate doesn't match validator |
-| prompts.js | LLM scoring rubric | Scores dimensions validator doesn't check |
-| validator.js | JavaScript scoring | Misses patterns prompts.js rewards |
+### B. Section Requirements Misalignments
+- phase1.md defines specific sections (Strategic Context, Pain Points, Solutions, Financial Impact, Pricing, Conclusion)
+- Does prompts.js mention the same sections?
+- Does validator.js REQUIRED_SECTIONS array match?
 
----
+### C. Terminology Inconsistencies
+- Different names for the same concept across files
+- Example: "Pain Points" vs "Problem Statement" vs "Current Situation"
+- Example: "Financial Impact Modeling" vs "Business Impact" vs "ROI"
 
-## CURRENT TAXONOMY (4 dimensions, 100 pts total)
+### D. Detection Pattern Gaps
+- Things mentioned in phase1/2/3 that validator.js doesn't detect
+- Things validator.js scores that prompts.js doesn't mention
+- Scoring guidance in prompts.js without corresponding validator.js logic
 
-| Dimension | prompts.js | validator.js | Weight Description |
-|-----------|------------|--------------|-------------------|
-| Problem Statement | 25 pts | 25 pts | Problem definition, urgency, strategic alignment |
-| Proposed Solution | 25 pts | 25 pts | Clear approach, actionable, rationale |
-| Business Impact | 25 pts | 25 pts | Impact definition, quantified metrics, business value |
-| Implementation Plan | 25 pts | 25 pts | Phased approach, timeline, resources |
+### E. AI Slop Prevention Alignment
+- phase1.md has extensive "Banned Vague Language" and "Banned Buzzwords" lists
+- Does validator.js detect all these banned terms?
+- Are penalty points consistent across components?
 
----
+### F. Dealership Domain Patterns
+- phase1.md is dealership-focused (gross profit per store, call conversion, etc.)
+- Does validator.js have matching dealership-specific patterns?
+- Does prompts.js mention dealership domain?
 
-## COMPONENT 1: phase1.md (Claude - Initial Draft)
+### G. Length Constraints
+- phase1.md: 800-1000 words (2 pages)
+- phase2.md: 800-1000 words (2 pages)
+- phase3.md: 500-600 words (1.25 pages)
+- Does validator.js enforce word count limits?
 
-See: `shared/prompts/phase1.md` (162 lines)
-
-**Key Elements:**
-- CRITICAL: Use ONLY provided information (no hallucination)
-- Strategic Context: Why this evaluation matters now
-- Pain Points: Specific issues with current vendor/situation
-- Proposed Solutions: Map pain points to vendor capabilities
-- Financial Impact Modeling: Conservative projections with hedge statement
-- Pricing Proposal: Monthly pricing, concessions, comparison
-- Style choice: Bullet-point vs Narrative
-
----
-
-## COMPONENT 4: prompts.js (LLM Scoring Rubric)
-
-See: `validator/js/prompts.js` (180 lines)
-
-**Scoring Rubric:**
-
-### 1. Problem Statement (25 points)
-- Problem Definition (10 pts): Clear, specific with dedicated section
-- Urgency (8 pts): Quantified urgency - why action needed NOW
-- Strategic Alignment (7 pts): Tied to organizational goals
-
-### 2. Proposed Solution (25 points)
-- Clear Approach (10 pts): Well-defined with dedicated section
-- Actionable (8 pts): Specific action verbs and next steps
-- Rationale (7 pts): Justification for why this over alternatives
-
-### 3. Business Impact (25 points)
-- Impact Definition (10 pts): Clear outcomes and expected results
-- Quantified Metrics (10 pts): Numbers, percentages, dollar amounts
-- Business Value (5 pts): Financial, competitive, or efficiency impact
-
-### 4. Implementation Plan (25 points)
-- Phased Approach (10 pts): Clear phases, milestones, deliverables
-- Timeline (8 pts): Specific dates, quarters, periods
-- Resources (7 pts): Ownership, team, required resources
+### H. Hedge Statement Requirement
+- phase1.md requires: "Even if estimates are 50% high, ROI still exceeds..."
+- Does validator.js detect hedge statements?
+- Does prompts.js mention this requirement?
 
 ---
 
-# YOUR ADVERSARIAL REVIEW TASK
+## COMPONENT 1: phase1.md (User-Facing Prompt)
 
-## SPECIFIC QUESTIONS TO ANSWER
-
-### 1. PAIN POINT TO SOLUTION MAPPING
-Phase1.md requires mapping pain points to vendor capabilities. Does validator.js:
-- ✅ Detect pain point sections?
-- ✅ Detect solution mapping?
-
-### 2. FINANCIAL IMPACT MODELING
-Phase1.md requires conservative projections with hedge statement. Does validator.js:
-- ✅ Detect financial projections?
-- ✅ Detect hedge language ("Even if estimates are 50% high...")?
-
-Look for: `ROI`, `gross profit`, `additional`, `conservative`, `hedge`
-
-### 3. URGENCY DETECTION
-prompts.js allocates 8 pts for urgency. Does validator.js detect:
-- Budget timing?
-- Contract renewal?
-- Competitive pressure?
-
-Look for: `urgent`, `now`, `immediate`, `deadline`, `expir`
-
-### 4. PHASED APPROACH
-prompts.js allocates 10 pts for phased approach. Does validator.js detect:
-- Phase 1, Phase 2, Phase 3?
-- Milestones?
-- Deliverables?
-
-### 5. WEASEL WORD DETECTION
-prompts.js penalizes "should be able to", "might", "could potentially". Does validator.js detect?
-
-### 6. SLOP DETECTION
-Does validator.js import and apply slop penalties?
-
-```bash
-grep -n "getSlopPenalty\|calculateSlopScore\|slop" validator.js
-```
+Key requirements from phase1.md (162 lines):
+- 6 main sections: Strategic Context, Pain Points, Solutions, Financial Impact, Pricing, Conclusion
+- Style choice: Bullet-point OR Narrative
+- Banned vague language: "improve", "enhance", "optimize", "significant ROI", "substantial savings", "better performance"
+- Banned filler phrases: "It's important to note...", "In today's competitive market...", "At the end of the day..."
+- Banned buzzwords: leverage, utilize, synergy, cutting-edge, game-changing, best-in-class, industry-leading, robust, seamless, comprehensive
+- Financial Impact must include: Inbound call capture, Outbound connection rate, Accountability lift, "additional gross profit per store per month"
+- Hedge statement required: "Even if estimates are 50% high..."
+- Length: 800-1000 words max
 
 ---
 
-## DELIVERABLES
+## COMPONENT 2: phase2.md (Adversarial Review Prompt)
 
-### 1. CRITICAL FAILURES
-For each issue: Issue, Severity, Evidence, Fix
-
-### 2. ALIGNMENT TABLE
-| Component | Dimension | Weight | Aligned? | Issue |
-
-### 3. GAMING VULNERABILITIES
-- Fake financial projections
-- Generic pain points
-- Missing hedge statements
-
-### 4. RECOMMENDED FIXES (P0/P1/P2)
+Key requirements from phase2.md (122 lines):
+- Role: Skeptical decision-maker who controls budget
+- 7 review areas: Financial Projections, Pain Point Validation, Solution Claims, Missing Information, Risk Analysis, Competitive Considerations, Timing/Urgency
+- AI Slop Detection Checklist: Vague claims, filler phrases, buzzwords
+- Output sections: Executive Summary, Strengths, Weaknesses, AI Slop Detected, Questions, Recommendation
+- Length: 800-1000 words max
 
 ---
 
-**VERIFY CLAIMS. Evidence before assertions.**
+## COMPONENT 3: phase3.md (Synthesis Prompt)
 
+Key requirements from phase3.md (119 lines):
+- 5 synthesis tasks: Address criticisms, Strengthen projections, Fill gaps, Address risks, Maintain persuasion
+- Zero Tolerance Patterns: vague metrics, filler phrases, buzzwords, hedges, superlatives
+- Required Patterns: Specific dollar amounts, sensitivity analysis, baseline → target
+- Output sections: Executive Summary, Current Situation, Proposed Solution, Financial Analysis, Risk Assessment, Pricing, Recommendation
+- Length: 500-600 words max
+
+---
+
+## COMPONENT 4: prompts.js (LLM Scoring Prompt)
+
+Scoring rubric from prompts.js (180 lines):
+- Problem Statement (25 pts): Problem Definition 10, Urgency 8, Strategic Alignment 7
+- Proposed Solution (25 pts): Clear Approach 10, Actionable 8, Rationale 7
+- Business Impact (25 pts): Impact Definition 10, Quantified Metrics 10, Business Value 5
+- Implementation Plan (25 pts): Phased Approach 10, Timeline 8, Resources 7
+
+Calibration guidance mentions: vague qualifiers, weasel words, marketing fluff, specific timelines, quantified metrics
+
+---
+
+## COMPONENT 5: validator.js (JavaScript Scorer)
+
+Key patterns from validator.js (578 lines):
+- REQUIRED_SECTIONS: 7 sections (Problem, Solution, Impact, Implementation, Resources, Risks, Metrics)
+- PROBLEM_PATTERNS: problemSection, problemLanguage, urgency, quantified, strategicAlignment
+- SOLUTION_PATTERNS: solutionSection, solutionLanguage, actionable, alternatives, justification
+- IMPACT_PATTERNS: impactSection, impactLanguage, quantified, financialTerms, competitiveTerms, dealershipImpact
+- IMPLEMENTATION_PATTERNS: implementationSection, phaseLanguage, datePatterns, ownershipLanguage, resourceLanguage
+- STAKEHOLDER_PATTERNS: Extended from business-justification adversarial review
+
+Scoring functions:
+- scoreProblemStatement(): 25 pts max (10 + 8 + 7)
+- scoreProposedSolution(): 25 pts max (10 + 8 + 7)
+- scoreBusinessImpact(): 25 pts max (10 + 10 + 5)
+- scoreImplementationPlan(): 25 pts max (10 + 8 + 7)
+
+---
+
+## COMPONENT 6: Scoring_Methods.md (Reference Documentation)
+
+Documents the scoring taxonomy (157 lines):
+- 4 dimensions at 25 pts each
+- Optional bonus dimensions: Risks (+5), Success Metrics (+5), Stakeholder Alignment (+5)
+- Adversarial robustness patterns documented
+- Calibration notes for urgency, alternatives, dealership domain
+
+---
+
+## YOUR TASK
+
+Analyze all 6 components and produce a table of misalignments:
+
+| Issue # | Component A | Component B | Misalignment Description | Severity (High/Med/Low) | Recommended Fix |
+|---------|-------------|-------------|--------------------------|-------------------------|-----------------|
+| 1 | phase1.md | validator.js | ... | ... | ... |
+
+Focus on:
+1. **Section name mismatches** - phase1.md sections vs validator.js REQUIRED_SECTIONS
+2. **Missing patterns** - Banned terms in phase1.md not detected in validator.js
+3. **Terminology drift** - Same concept, different names
+4. **Penalty inconsistencies** - Different penalty amounts for same offense
+5. **Word count enforcement** - phase1/2/3 have limits, does validator.js check?
+6. **Hedge statement detection** - Required in phase1.md, detected in validator.js?
+7. **Dealership domain gaps** - phase1.md is dealership-focused, is validator.js aligned?
+
+**Be adversarial. Find every gap.**

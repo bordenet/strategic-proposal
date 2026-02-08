@@ -126,21 +126,44 @@ describe('Smoke Test - App Initialization', () => {
     });
   });
 
-  describe('Export Consistency - validator-inline.js exports match project-view.js imports', () => {
+  describe('Export Consistency - validator.js exports match project-view.js imports', () => {
     // All projects must use validateDocument (generic name for shared library)
-    test('validator-inline.js exports validateDocument', async () => {
-      const validator = await import('../../shared/js/validator-inline.js');
+    test('validator.js exports validateDocument', async () => {
+      const validator = await import('../../validator/js/validator.js');
       expect(typeof validator.validateDocument).toBe('function');
     });
 
-    test('validator-inline.js exports getScoreColor', async () => {
-      const validator = await import('../../shared/js/validator-inline.js');
+    test('validator.js exports getScoreColor', async () => {
+      const validator = await import('../../validator/js/validator.js');
       expect(typeof validator.getScoreColor).toBe('function');
     });
 
-    test('validator-inline.js exports getScoreLabel', async () => {
-      const validator = await import('../../shared/js/validator-inline.js');
+    test('validator.js exports getScoreLabel', async () => {
+      const validator = await import('../../validator/js/validator.js');
       expect(typeof validator.getScoreLabel).toBe('function');
+    });
+  });
+
+  describe('Single Source of Truth - No Duplicate Validator', () => {
+    test('validator-inline.js should NOT exist in shared/js', async () => {
+      const fs = await import('fs');
+      const path = await import('path');
+      const filePath = path.join(process.cwd(), 'shared/js/validator-inline.js');
+      expect(fs.existsSync(filePath)).toBe(false);
+    });
+
+    test('all validator imports should point to validator/js/validator.js', async () => {
+      const fs = await import('fs');
+      const path = await import('path');
+      const sharedDir = path.join(process.cwd(), 'shared/js');
+      const files = fs.readdirSync(sharedDir).filter(f => f.endsWith('.js'));
+
+      for (const file of files) {
+        const content = fs.readFileSync(path.join(sharedDir, file), 'utf-8');
+        const hasOldImport = content.includes("from './validator-inline.js'") ||
+                            content.includes('from "./validator-inline.js"');
+        expect(hasOldImport).toBe(false);
+      }
     });
   });
 
