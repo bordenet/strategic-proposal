@@ -167,6 +167,58 @@ describe('Smoke Test - App Initialization', () => {
     });
   });
 
+  /**
+   * API Contract Tests - Verify validateDocument returns structure project-view.js expects
+   *
+   * This catches the bug where validator returns different property names than project-view.js expects.
+   * Result: "Cannot read properties of undefined (reading 'issues')" at runtime
+   */
+  describe('API Contract - validateDocument returns structure project-view.js expects', () => {
+    let result;
+
+    beforeAll(async () => {
+      const validator = await import('../../validator/js/validator.js');
+      result = validator.validateDocument('# Strategic Proposal\n\n## Problem Statement\nWe need to solve X.');
+    });
+
+    test('returns totalScore property (number)', () => {
+      expect(result.totalScore).toBeDefined();
+      expect(typeof result.totalScore).toBe('number');
+    });
+
+    test('returns businessImpact category breakdown with issues array', () => {
+      expect(result.businessImpact).toBeDefined();
+      expect(result.businessImpact).toHaveProperty('score');
+      expect(result.businessImpact).toHaveProperty('maxScore');
+      expect(result.businessImpact).toHaveProperty('issues');
+      expect(Array.isArray(result.businessImpact.issues)).toBe(true);
+    });
+
+    test('returns implementationPlan category breakdown with issues array', () => {
+      expect(result.implementationPlan).toBeDefined();
+      expect(result.implementationPlan).toHaveProperty('score');
+      expect(result.implementationPlan).toHaveProperty('maxScore');
+      expect(result.implementationPlan).toHaveProperty('issues');
+      expect(Array.isArray(result.implementationPlan.issues)).toBe(true);
+    });
+
+    test('returns problemStatement category breakdown with issues array', () => {
+      expect(result.problemStatement).toBeDefined();
+      expect(result.problemStatement).toHaveProperty('score');
+      expect(result.problemStatement).toHaveProperty('maxScore');
+      expect(result.problemStatement).toHaveProperty('issues');
+      expect(Array.isArray(result.problemStatement.issues)).toBe(true);
+    });
+
+    test('returns proposedSolution category breakdown with issues array', () => {
+      expect(result.proposedSolution).toBeDefined();
+      expect(result.proposedSolution).toHaveProperty('score');
+      expect(result.proposedSolution).toHaveProperty('maxScore');
+      expect(result.proposedSolution).toHaveProperty('issues');
+      expect(Array.isArray(result.proposedSolution.issues)).toBe(true);
+    });
+  });
+
   describe('Export Consistency - diff-view.js exports match project-view.js imports', () => {
     test('diff-view.js exports computeWordDiff', async () => {
       const diffView = await import('../../shared/js/diff-view.js');
