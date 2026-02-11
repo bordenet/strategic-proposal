@@ -14,7 +14,7 @@ describe('Document-Specific Templates', () => {
     });
 
     it('should have all required properties for each template', () => {
-      const requiredProps = ['id', 'name', 'icon', 'description', 'dealershipName', 'storeCount', 'currentVendor', 'painPoints'];
+      const requiredProps = ['id', 'name', 'icon', 'description', 'organizationName', 'siteCount', 'currentVendor', 'painPoints'];
       Object.values(DOCUMENT_TEMPLATES).forEach(template => {
         requiredProps.forEach(prop => {
           expect(template).toHaveProperty(prop);
@@ -45,7 +45,7 @@ describe('Document-Specific Templates', () => {
     it('should return blank template', () => {
       const template = getTemplate('blank');
       expect(template).toBeDefined();
-      expect(template.dealershipName).toBe('');
+      expect(template.organizationName).toBe('');
       expect(template.painPoints).toBe('');
     });
   });
@@ -84,14 +84,14 @@ describe('Document-Specific Templates', () => {
       expect(template.currentVendor).toContain('None');
     });
 
-    it('expansion should reference CallBox', () => {
+    it('expansion should reference current vendor', () => {
       const template = getTemplate('expansion');
-      expect(template.currentVendor).toContain('CallBox');
+      expect(template.currentVendor).toContain('partial');
     });
 
-    it('enterprise should have storeCount of 10+', () => {
+    it('enterprise should have siteCount of 10+', () => {
       const template = getTemplate('enterprise');
-      expect(template.storeCount).toBe('10+');
+      expect(template.siteCount).toBe('10+');
     });
   });
 });

@@ -70,8 +70,8 @@ describe('Projects Module', () => {
     test('should import a single project from JSON file', async () => {
       // Create a project to export
       const original = await createProject({
-        dealershipName: 'Test Dealership',
-        dealershipLocation: 'Seattle, WA',
+        organizationName: 'Test Organization',
+        organizationLocation: 'Seattle, WA',
         title: 'Test Proposal'
       });
 
@@ -90,15 +90,15 @@ describe('Projects Module', () => {
       // Verify it was imported
       const retrieved = await getProject(original.id);
       expect(retrieved).toBeTruthy();
-      expect(retrieved.dealershipName).toBe('Test Dealership');
-      expect(retrieved.dealershipLocation).toBe('Seattle, WA');
+      expect(retrieved.organizationName).toBe('Test Organization');
+      expect(retrieved.organizationLocation).toBe('Seattle, WA');
     });
 
     test('should import multiple projects from backup file', async () => {
       // Create multiple projects
-      const project1 = await createProject({ dealershipName: 'Dealer 1', dealershipLocation: 'City 1' });
-      const project2 = await createProject({ dealershipName: 'Dealer 2', dealershipLocation: 'City 2' });
-      const project3 = await createProject({ dealershipName: 'Dealer 3', dealershipLocation: 'City 3' });
+      const project1 = await createProject({ organizationName: 'Organization 1', organizationLocation: 'City 1' });
+      const project2 = await createProject({ organizationName: 'Organization 2', organizationLocation: 'City 2' });
+      const project3 = await createProject({ organizationName: 'Organization 3', organizationLocation: 'City 3' });
 
       // Create backup format
       const backup = {
@@ -400,18 +400,18 @@ describe('Projects Module', () => {
   describe('updateProject', () => {
     test('should update project with partial data', async () => {
       const project = await createProject({
-        dealershipName: 'Original Dealer',
-        dealershipLocation: 'Seattle, WA'
+        organizationName: 'Original Organization',
+        organizationLocation: 'Seattle, WA'
       });
 
       const updated = await updateProject(project.id, {
-        dealershipName: 'Updated Dealer',
+        organizationName: 'Updated Organization',
         painPoints: 'New pain points'
       });
 
-      expect(updated.dealershipName).toBe('Updated Dealer');
+      expect(updated.organizationName).toBe('Updated Organization');
       expect(updated.painPoints).toBe('New pain points');
-      expect(updated.dealershipLocation).toBe('Seattle, WA');
+      expect(updated.organizationLocation).toBe('Seattle, WA');
     });
 
     test('should throw error for non-existent project', async () => {

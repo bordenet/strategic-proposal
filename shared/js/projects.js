@@ -55,7 +55,7 @@ export function extractTitleFromMarkdown(markdown) {
  */
 
 /**
- * Create a new proposal project with dealership-specific fields
+ * Create a new proposal project with organization-specific fields
  * @param {import('./types.js').ProjectFormData} formData
  * @returns {Promise<import('./types.js').Project>}
  */
@@ -63,12 +63,12 @@ export async function createProject(formData) {
   /** @type {import('./types.js').Project} */
   const project = {
     id: crypto.randomUUID(),
-    title: formData.title || `Proposal - ${formData.dealershipName}`,
+    title: formData.title || `Proposal - ${formData.organizationName}`,
 
-    // Dealership Information
-    dealershipName: formData.dealershipName || '',
-    dealershipLocation: formData.dealershipLocation || '',
-    storeCount: formData.storeCount || '',
+    // Organization Information
+    organizationName: formData.organizationName || '',
+    organizationLocation: formData.organizationLocation || '',
+    siteCount: formData.siteCount || '',
     currentVendor: formData.currentVendor || '',
     decisionMakerName: formData.decisionMakerName || '',
     decisionMakerRole: formData.decisionMakerRole || '',
@@ -199,7 +199,7 @@ export async function exportProject(projectId) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `proposal-${sanitizeFilename(project.dealershipName)}.json`;
+  a.download = `proposal-${sanitizeFilename(project.organizationName)}.json`;
   a.click();
   URL.revokeObjectURL(url);
 }
@@ -251,7 +251,7 @@ export async function importProjects(file) {
             await storage.saveProject(project);
             imported++;
           }
-        } else if (content.id && content.dealershipName) {
+        } else if (content.id && content.organizationName) {
           await storage.saveProject(content);
           imported = 1;
         } else {

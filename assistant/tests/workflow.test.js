@@ -360,7 +360,7 @@ describe('getFinalMarkdown helper', () => {
   it('should return markdown when phase output exists', () => {
     const project = {
       title: 'Test',
-      dealershipName: 'Test Dealer',
+      organizationName: 'Test Organization',
       phase3_output: 'Final content',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
@@ -372,7 +372,7 @@ describe('getFinalMarkdown helper', () => {
   it('should return markdown from phase 1 when phase 3 not available', () => {
     const project = {
       title: 'Test',
-      dealershipName: 'Test Dealer',
+      organizationName: 'Test Organization',
       phase1_output: 'Phase 1 content',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
@@ -488,19 +488,19 @@ describe('loadDefaultPrompts', () => {
 // Workflow.replaceVariables Tests
 // =================================================================
 describe('Workflow.replaceVariables', () => {
-  test('should replace dealership variables', () => {
+  test('should replace organization variables', () => {
     const project = {
-      dealershipName: 'ABC Motors',
-      dealershipLocation: 'Chicago, IL',
-      storeCount: '5',
+      organizationName: 'ABC Corp',
+      organizationLocation: 'Chicago, IL',
+      siteCount: '5',
       currentVendor: 'Old Vendor',
       decisionMakerName: 'John Doe',
       decisionMakerRole: 'CEO'
     };
     const workflow = new Workflow(project);
-    const template = '{dealershipName} in {dealershipLocation} with {storeCount} stores';
+    const template = '{organizationName} in {organizationLocation} with {siteCount} sites';
     const result = workflow.replaceVariables(template);
-    expect(result).toBe('ABC Motors in Chicago, IL with 5 stores');
+    expect(result).toBe('ABC Corp in Chicago, IL with 5 sites');
   });
 
   test('should replace context variables', () => {
@@ -531,9 +531,9 @@ describe('Workflow.replaceVariables', () => {
   test('should handle missing values with placeholders', () => {
     const project = {};
     const workflow = new Workflow(project);
-    const template = 'Name: {dealershipName}';
+    const template = 'Name: {organizationName}';
     const result = workflow.replaceVariables(template);
-    expect(result).toBe('Name: [Dealership name not provided]');
+    expect(result).toBe('Name: [Organization name not provided]');
   });
 });
 

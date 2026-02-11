@@ -45,7 +45,7 @@ describe('Storage Module', () => {
             const project = {
                 id: 'test-1',
                 title: 'Test Project',
-                dealershipName: 'Acme Motors'
+                organizationName: 'Acme Corp'
             };
             const saved = await storage.saveProject(project);
             expect(saved.id).toBe('test-1');
@@ -157,12 +157,12 @@ describe('Storage Module', () => {
             const project1 = {
                 id: 'export-1',
                 title: 'Export Test 1',
-                dealershipName: 'Test Motors'
+                organizationName: 'Test Corp'
             };
             const project2 = {
                 id: 'export-2',
                 title: 'Export Test 2',
-                dealershipName: 'Test Motors 2'
+                organizationName: 'Test Corp 2'
             };
             await storage.saveProject(project1);
             await storage.saveProject(project2);
@@ -181,8 +181,8 @@ describe('Storage Module', () => {
                 exportDate: new Date().toISOString(),
                 projectCount: 2,
                 projects: [
-                    { id: 'import-1', title: 'Import Test 1', dealershipName: 'Motors 1' },
-                    { id: 'import-2', title: 'Import Test 2', dealershipName: 'Motors 2' }
+                    { id: 'import-1', title: 'Import Test 1', organizationName: 'Corp 1' },
+                    { id: 'import-2', title: 'Import Test 2', organizationName: 'Corp 2' }
                 ]
             };
 

@@ -139,9 +139,9 @@ export class Workflow {
   async generatePrompt() {
     const p = this.project;
     const formData = {
-      dealershipName: p.dealershipName,
-      dealershipLocation: p.dealershipLocation,
-      storeCount: p.storeCount,
+      organizationName: p.organizationName,
+      organizationLocation: p.organizationLocation,
+      siteCount: p.siteCount,
       currentVendor: p.currentVendor,
       decisionMakerName: p.decisionMakerName,
       decisionMakerRole: p.decisionMakerRole,
@@ -182,10 +182,10 @@ export class Workflow {
     const val = (v, label) => v?.trim() || `[${label} not provided]`;
     const optVal = (v) => v?.trim() || '[Not provided]';
 
-    // Dealership information - required fields get specific labels
-    result = result.replace(/\{dealershipName\}/g, val(p.dealershipName, 'Dealership name'));
-    result = result.replace(/\{dealershipLocation\}/g, optVal(p.dealershipLocation));
-    result = result.replace(/\{storeCount\}/g, optVal(p.storeCount));
+    // Organization information - required fields get specific labels
+    result = result.replace(/\{organizationName\}/g, val(p.organizationName, 'Organization name'));
+    result = result.replace(/\{organizationLocation\}/g, optVal(p.organizationLocation));
+    result = result.replace(/\{siteCount\}/g, optVal(p.siteCount));
     result = result.replace(/\{currentVendor\}/g, optVal(p.currentVendor));
     result = result.replace(/\{decisionMakerName\}/g, optVal(p.decisionMakerName));
     result = result.replace(/\{decisionMakerRole\}/g, optVal(p.decisionMakerRole));
@@ -234,7 +234,7 @@ export class Workflow {
   exportAsMarkdown() {
     const attribution = '\n\n---\n\n*Generated with [Strategic Proposal Assistant](https://bordenet.github.io/strategic-proposal/)*';
 
-    let md = `# Strategic Proposal: ${this.project.dealershipName}\n\n`;
+    let md = `# Strategic Proposal: ${this.project.organizationName}\n\n`;
     md += `**Created**: ${new Date(this.project.createdAt).toLocaleDateString()}\n`;
     md += `**Last Updated**: ${new Date(this.project.updatedAt).toLocaleDateString()}\n\n`;
 

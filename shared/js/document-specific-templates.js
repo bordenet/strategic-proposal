@@ -1,6 +1,6 @@
 /**
  * Document-Specific Templates for Strategic Proposal
- * Pre-filled content for common dealership proposal use cases
+ * Pre-filled content for common proposal use cases
  * @module document-specific-templates
  */
 
@@ -10,8 +10,8 @@
  * @property {string} name - Display name
  * @property {string} icon - Emoji icon
  * @property {string} description - Short description
- * @property {string} dealershipName - Pre-filled dealership name
- * @property {string} storeCount - Pre-filled store count
+ * @property {string} organizationName - Pre-filled organization name
+ * @property {string} siteCount - Pre-filled site count
  * @property {string} currentVendor - Pre-filled current vendor
  * @property {string} painPoints - Pre-filled pain points
  */
@@ -23,8 +23,8 @@ export const DOCUMENT_TEMPLATES = {
     name: 'Blank',
     icon: '📄',
     description: 'Start from scratch',
-    dealershipName: '',
-    storeCount: '',
+    organizationName: '',
+    siteCount: '',
     currentVendor: '',
     painPoints: ''
   },
@@ -33,13 +33,13 @@ export const DOCUMENT_TEMPLATES = {
     name: 'Competitor Switch',
     icon: '🔄',
     description: 'Replace competitor solution',
-    dealershipName: '[Dealership Name]',
-    storeCount: '',
+    organizationName: '[Organization Name]',
+    siteCount: '',
     currentVendor: '[Current Vendor]',
     painPoints: `- Limited functionality in [specific area]
 - Poor response time / support issues
-- Pricing concerns (cost per store, hidden fees)
-- Integration issues with DMS/CRM
+- Pricing concerns (cost per site, hidden fees)
+- Integration issues with existing systems
 - Lack of customization options`
   },
   greenfield: {
@@ -47,11 +47,11 @@ export const DOCUMENT_TEMPLATES = {
     name: 'New Implementation',
     icon: '🌱',
     description: 'First-time solution',
-    dealershipName: '[Dealership Name]',
-    storeCount: '',
+    organizationName: '[Organization Name]',
+    siteCount: '',
     currentVendor: 'None (manual processes)',
-    painPoints: `- Manual call handling overwhelms staff
-- Missed calls during peak hours
+    painPoints: `- Manual processes overwhelm staff
+- Missed opportunities during peak hours
 - No after-hours coverage
 - Inconsistent customer experience
 - Staff turnover creates training burden`
@@ -61,9 +61,9 @@ export const DOCUMENT_TEMPLATES = {
     name: 'Expansion Deal',
     icon: '📈',
     description: 'Existing customer growth',
-    dealershipName: '[Dealership Name]',
-    storeCount: '',
-    currentVendor: 'CallBox (partial)',
+    organizationName: '[Organization Name]',
+    siteCount: '',
+    currentVendor: '[Current Vendor] (partial)',
     painPoints: `- Current deployment working well, need more coverage
 - New acquisitions need onboarding
 - Want to standardize across all locations
@@ -73,9 +73,9 @@ export const DOCUMENT_TEMPLATES = {
     id: 'enterprise',
     name: 'Enterprise Group',
     icon: '🏢',
-    description: 'Large dealer group',
-    dealershipName: '[Group Name]',
-    storeCount: '10+',
+    description: 'Large enterprise organization',
+    organizationName: '[Organization Name]',
+    siteCount: '10+',
     currentVendor: '[Current Vendor(s)]',
     painPoints: `- Inconsistent solutions across locations
 - Need centralized reporting/management

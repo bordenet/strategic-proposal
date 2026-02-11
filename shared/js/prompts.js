@@ -15,7 +15,7 @@ export const WORKFLOW_CONFIG = {
       icon: '📝',
       aiModel: 'Claude',
       aiUrl: 'https://claude.ai/new',
-      description: 'Generate initial proposal from dealership data and conversations'
+      description: 'Generate initial proposal from organization data and conversations'
     },
     {
       number: 2,
@@ -121,9 +121,9 @@ function replaceTemplateVars(template, vars) {
 export async function generatePhase1Prompt(formData) {
   const template = await loadPromptTemplate(1);
   return replaceTemplateVars(template, {
-    DEALERSHIP_NAME: formData.dealershipName || '',
-    DEALERSHIP_LOCATION: formData.dealershipLocation || '',
-    STORE_COUNT: formData.storeCount || '',
+    ORGANIZATION_NAME: formData.organizationName || '',
+    ORGANIZATION_LOCATION: formData.organizationLocation || '',
+    SITE_COUNT: formData.siteCount || '',
     CURRENT_VENDOR: formData.currentVendor || '',
     DECISION_MAKER_NAME: formData.decisionMakerName || '',
     DECISION_MAKER_ROLE: formData.decisionMakerRole || '',
@@ -147,7 +147,7 @@ export async function generatePhase2Prompt(formData, phase1Output) {
   return replaceTemplateVars(template, {
     DECISION_MAKER_NAME: formData.decisionMakerName || '',
     DECISION_MAKER_ROLE: formData.decisionMakerRole || '',
-    DEALERSHIP_NAME: formData.dealershipName || '',
+    ORGANIZATION_NAME: formData.organizationName || '',
     PHASE1_OUTPUT: phase1Output
   });
 }
@@ -162,7 +162,7 @@ export async function generatePhase2Prompt(formData, phase1Output) {
 export async function generatePhase3Prompt(formData, phase1Output, phase2Output) {
   const template = await loadPromptTemplate(3);
   return replaceTemplateVars(template, {
-    DEALERSHIP_NAME: formData.dealershipName || '',
+    ORGANIZATION_NAME: formData.organizationName || '',
     PHASE1_OUTPUT: phase1Output,
     PHASE2_OUTPUT: phase2Output
   });

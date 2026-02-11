@@ -16,9 +16,9 @@ import {
 // Handles both shared/prompts/ (root) and ../shared/prompts/ (assistant/) paths
 global.fetch = jest.fn(async (url) => {
   const templates = {
-    'phase1.md': 'Phase 1: Proposal for {{DEALERSHIP_NAME}} in {{DEALERSHIP_LOCATION}} with {{STORE_COUNT}} stores. Current vendor: {{CURRENT_VENDOR}}. Decision maker: {{DECISION_MAKER_NAME}} ({{DECISION_MAKER_ROLE}}). Transcripts: {{CONVERSATION_TRANSCRIPTS}}. Notes: {{MEETING_NOTES}}. Pain points: {{PAIN_POINTS}}. Attachments: {{ATTACHMENT_TEXT}}. Draft: {{WORKING_DRAFT}}. Context: {{ADDITIONAL_CONTEXT}}.',
-    'phase2.md': 'Phase 2: Review for {{DECISION_MAKER_NAME}} ({{DECISION_MAKER_ROLE}}) at {{DEALERSHIP_NAME}}. Previous output: {{PHASE1_OUTPUT}}',
-    'phase3.md': 'Phase 3: Final synthesis for {{DEALERSHIP_NAME}}. Phase 1: {{PHASE1_OUTPUT}}. Phase 2: {{PHASE2_OUTPUT}}'
+    'phase1.md': 'Phase 1: Proposal for {{ORGANIZATION_NAME}} in {{ORGANIZATION_LOCATION}} with {{SITE_COUNT}} sites. Current vendor: {{CURRENT_VENDOR}}. Decision maker: {{DECISION_MAKER_NAME}} ({{DECISION_MAKER_ROLE}}). Transcripts: {{CONVERSATION_TRANSCRIPTS}}. Notes: {{MEETING_NOTES}}. Pain points: {{PAIN_POINTS}}. Attachments: {{ATTACHMENT_TEXT}}. Draft: {{WORKING_DRAFT}}. Context: {{ADDITIONAL_CONTEXT}}.',
+    'phase2.md': 'Phase 2: Review for {{DECISION_MAKER_NAME}} ({{DECISION_MAKER_ROLE}}) at {{ORGANIZATION_NAME}}. Previous output: {{PHASE1_OUTPUT}}',
+    'phase3.md': 'Phase 3: Final synthesis for {{ORGANIZATION_NAME}}. Phase 1: {{PHASE1_OUTPUT}}. Phase 2: {{PHASE2_OUTPUT}}'
   };
 
   // Extract filename from path (handles shared/prompts/phase1.md or ../shared/prompts/phase1.md)
@@ -99,9 +99,9 @@ describe('generatePhase1Prompt', () => {
 
   test('should generate prompt with all form data', async () => {
     const formData = {
-      dealershipName: 'Test Auto Group',
-      dealershipLocation: 'Dallas, TX',
-      storeCount: '5',
+      organizationName: 'Test Auto Group',
+      organizationLocation: 'Dallas, TX',
+      siteCount: '5',
       currentVendor: 'Purple Cloud',
       decisionMakerName: 'John Smith',
       decisionMakerRole: 'General Manager',
@@ -128,12 +128,12 @@ describe('generatePhase1Prompt', () => {
 
   test('should handle missing form data with placeholders', async () => {
     const formData = {
-      dealershipName: 'Test Dealer'
+      organizationName: 'Test Organization'
     };
 
     const prompt = await generatePhase1Prompt(formData);
 
-    expect(prompt).toContain('Test Dealer');
+    expect(prompt).toContain('Test Organization');
     expect(prompt).toContain('[Not provided]');
   });
 });
@@ -141,7 +141,7 @@ describe('generatePhase1Prompt', () => {
 describe('generatePhase2Prompt', () => {
   test('should include phase 1 output', async () => {
     const formData = {
-      dealershipName: 'Test Dealer',
+      organizationName: 'Test Organization',
       decisionMakerName: 'Jane Doe',
       decisionMakerRole: 'Owner'
     };
@@ -151,19 +151,19 @@ describe('generatePhase2Prompt', () => {
     expect(prompt).toContain('Phase 1 generated content');
     expect(prompt).toContain('Jane Doe');
     expect(prompt).toContain('Owner');
-    expect(prompt).toContain('Test Dealer');
+    expect(prompt).toContain('Test Organization');
   });
 });
 
 describe('generatePhase3Prompt', () => {
   test('should include both phase 1 and phase 2 outputs', async () => {
     const formData = {
-      dealershipName: 'Final Test Dealer'
+      organizationName: 'Final Test Organization'
     };
 
     const prompt = await generatePhase3Prompt(formData, 'Phase 1 content', 'Phase 2 critique');
 
-    expect(prompt).toContain('Final Test Dealer');
+    expect(prompt).toContain('Final Test Organization');
     expect(prompt).toContain('Phase 1 content');
     expect(prompt).toContain('Phase 2 critique');
   });
