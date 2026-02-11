@@ -256,3 +256,59 @@ describe('detectSections', () => {
   });
 });
 
+describe('detectSections - Plain Text Heading Detection', () => {
+  // Tests for ^(#+\s*)? regex pattern that allows plain text headings (Word/Google Docs imports)
+
+  test('detects Problem section without markdown prefix', () => {
+    const text = 'Problem\nWe have a challenge with X.';
+    const result = detectSections(text);
+    expect(result.found.some((s) => s.name === 'Problem Statement')).toBe(true);
+  });
+
+  test('detects Solution section without markdown prefix', () => {
+    const text = 'Solution\nOur approach is to implement Y.';
+    const result = detectSections(text);
+    expect(result.found.some((s) => s.name === 'Proposed Solution')).toBe(true);
+  });
+
+  test('detects Business Impact section without markdown prefix', () => {
+    const text = 'Impact\n- Revenue increase of 20%\n- Cost reduction of 15%';
+    const result = detectSections(text);
+    expect(result.found.some((s) => s.name === 'Business Impact')).toBe(true);
+  });
+
+  test('detects Implementation section without markdown prefix', () => {
+    const text = 'Implementation\nPhase 1: Discovery. Phase 2: Build.';
+    const result = detectSections(text);
+    expect(result.found.some((s) => s.name === 'Implementation Plan')).toBe(true);
+  });
+
+  test('handles mixed markdown and plain text headings', () => {
+    const text = '# Problem\nSome issue.\n\nSolution\nThe fix is this.';
+    const result = detectSections(text);
+    expect(result.found.some((s) => s.name === 'Problem Statement')).toBe(true);
+    expect(result.found.some((s) => s.name === 'Proposed Solution')).toBe(true);
+  });
+
+  test('handles Word/Google Docs pasted content without markdown', () => {
+    const text = `Problem
+Our organization faces challenges with X.
+
+Solution
+We propose implementing Y.
+
+Impact
+- Revenue increase
+- Cost reduction
+
+Implementation
+Phase 1: Discovery
+Phase 2: Execution`;
+    const result = detectSections(text);
+    expect(result.found.some((s) => s.name === 'Problem Statement')).toBe(true);
+    expect(result.found.some((s) => s.name === 'Proposed Solution')).toBe(true);
+    expect(result.found.some((s) => s.name === 'Business Impact')).toBe(true);
+    expect(result.found.some((s) => s.name === 'Implementation Plan')).toBe(true);
+  });
+});
+
